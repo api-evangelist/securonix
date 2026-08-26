@@ -1,0 +1,37 @@
+generated: '2026-08-26'
+method: derived
+source: mcp/securonix-mcp.yml, openapi/*.json
+surfaces:
+  openapi:
+  - file: openapi/securonix-policy-management-api.json
+    operations: 10
+    gated: false
+  - file: openapi/securonix-datasource-onboarding-api.json
+    operations: 22
+    gated: false
+  - file: openapi/securonix-device-monitoring-api.json
+    operations: 1
+    gated: false
+  - file: openapi/securonix-threatq-api.json
+    operations: 209
+    gated: false
+  graphql: null
+  mcp:
+    url: https://www.securonix.com/wp-json/mcp/mcp-oauth-server
+    gated: true
+    gate: OAuth 2.1 bearer, scope "mcp"; tools/list returns 401 anonymously
+crosswalk: []
+mcp_only: []
+rest_only:
+  note: >-
+    Every one of the 242 documented REST operations is REST-only with respect to the published
+    MCP surface. No binding can be asserted in either direction: the MCP tool list is auth-gated
+    and, on the evidence available, the MCP servers sit on the WordPress corporate site rather
+    than on the product API hosts. Listing 242 speculative rest_only rows would imply a comparison
+    that was never made, so the finding is recorded once here instead.
+coverage:
+  rest_operations: 242
+  mcp_tools_known: 0
+  bound: 0
+  confidence: none
+  reason: mcp-tools-list-auth-gated

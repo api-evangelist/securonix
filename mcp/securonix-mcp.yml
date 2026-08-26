@@ -1,0 +1,55 @@
+generated: '2026-08-26'
+method: probed
+source: https://www.securonix.com/.well-known/oauth-protected-resource
+name: Securonix MCP (www.securonix.com)
+status: published
+deployment:
+  mode: remote
+  endpoint: https://www.securonix.com/wp-json/mcp/mcp-oauth-server
+  auth: oauth
+  verified: probed
+servers:
+- name: mcp-oauth-server
+  endpoint: https://www.securonix.com/wp-json/mcp/mcp-oauth-server
+  methods: [POST, GET, DELETE]
+  auth: oauth
+  probe:
+    method: POST
+    body: '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+    http_status: 401
+    body_returned: '{"code":"mcp_unauthorized","message":"MCP authentication required.","data":{"status":401}}'
+- name: mcp-adapter-default-server
+  endpoint: https://www.securonix.com/wp-json/mcp/mcp-adapter-default-server
+  methods: [POST, GET, DELETE]
+  auth: cookie-or-application-password
+  probe:
+    method: POST
+    body: '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+    http_status: 401
+    body_returned: '{"code":"rest_forbidden","message":"Sorry, you are not allowed to do that.","data":{"status":401}}'
+discovery:
+  namespace_index: https://www.securonix.com/wp-json/mcp
+  oauth_authorization_server: https://www.securonix.com/.well-known/oauth-authorization-server
+  oauth_protected_resource: https://www.securonix.com/.well-known/oauth-protected-resource
+  scopes_supported:
+  - mcp
+  grant_types_supported:
+  - authorization_code
+  - refresh_token
+  code_challenge_methods_supported:
+  - S256
+  dynamic_client_registration: client_id_metadata_document_supported
+tools:
+  status: gated
+  count: null
+  note: >-
+    tools/list and initialize both return HTTP 401 without an OAuth access token, so the live
+    tool set and its inputSchemas could not be enumerated. Enumerating them requires an
+    authenticated MCP introspection with the "mcp" scope. No tool list is asserted here.
+scope_of_server:
+  note: >-
+    These MCP endpoints are served by the WordPress corporate site (www.securonix.com/wp-json/),
+    not by the Unified Defense SIEM product API hosts. Treat them as an agent surface over the
+    public web/marketing content estate; they are NOT an MCP projection of the Policy Management,
+    Datasource Onboarding, Device Monitoring, ThreatQ, Spotter or SNYPR web-service APIs, and
+    nothing in the discovery documents claims otherwise.

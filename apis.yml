@@ -1,23 +1,201 @@
 aid: securonix
 name: Securonix
-description: 'Securonix is a company surfaced via the API Evangelist harvest backlog (source: secondary-market)
-  and added to the network as a stub for full-pipeline profiling.'
+description: Securonix is a cybersecurity company whose Unified Defense SIEM platform combines security
+  information and event management, user and entity behavior analytics (UEBA), security orchestration
+  automation and response (SOAR), and — following the June 2025 acquisition of ThreatQuotient — the ThreatQ
+  threat intelligence platform. The platform ingests activity data from hundreds of connectors, applies
+  behavior analytics and MITRE ATT&CK-aligned detection policies, and drives incident workflows for security
+  operations teams. Securonix publishes a Developer Guide covering token-based web services, a Spotter
+  search API, and four OpenAPI 3.x definitions on SwaggerHub for Policy Management, Datasource Onboarding,
+  Device Monitoring and ThreatQ.
 url: https://raw.githubusercontent.com/api-evangelist/securonix/refs/heads/main/apis.yml
+image: https://www.securonix.com/wp-content/uploads/2025/09/securonix_logo_color_rgb.png
 x-type: company
 x-source: harvest:secondary-market
-x-tier: stub
-x-tier-reason: harvest
 specificationVersion: '0.20'
 created: '2026-08-26'
 modified: '2026-08-26'
 tags:
-- Company
-apis: []
+- Security
+- SIEM
+- UEBA
+- SOAR
+- Threat Intelligence
+- Security Analytics
+- Cybersecurity
+- Log Management
+- Detection and Response
+- MITRE ATT&CK
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
+apis:
+- name: Securonix Policy Management API
+  description: Create, update, enable/disable, delete and fetch Securonix Unified Defense SIEM detection
+    policies, plus MITRE ATT&CK threat-coverage metrics and technique details. OpenAPI 3.1.0, 10 operations,
+    JWT bearer authentication against a regional Policy Management base URL.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Policies
+  - Detection
+  - MITRE ATT&CK
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-policy-management-api.json
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: Overlay
+    url: overlays/securonix-policy-management-api-overlay.yaml
+- name: Securonix Datasource Onboarding API
+  description: Configure API-based and Syslog-based data sources, syslog sources and filters, resource
+    groups, parser (CRP) content and activity-import job summaries for Securonix Unified Defense SIEM.
+    OpenAPI 3.0.3, 22 operations, wstoken header authentication.
+  humanURL: https://documentation.securonix.com/r/content/datasource-api.htm
+  baseURL: https://{tenantId}.securonix.net/Snypr
+  tags:
+  - Data Ingestion
+  - Connectors
+  - Syslog
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-datasource-onboarding-api.json
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: Overlay
+    url: overlays/securonix-datasource-onboarding-api-overlay.yaml
+- name: Securonix Device Monitoring API
+  description: List monitored devices and their metadata from Securonix Unified Defense SIEM. OpenAPI
+    3.0.3, one operation, token header authentication against the tenant SNYPR web-services host.
+  humanURL: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  baseURL: https://{tenantId}.securonix.net/Snypr/ws
+  tags:
+  - Device Monitoring
+  - Observability
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-device-monitoring-api.json
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: Overlay
+    url: overlays/securonix-device-monitoring-api-overlay.yaml
+- name: Securonix ThreatQ API
+  description: The ThreatQ threat intelligence platform API — adversaries, indicators, events, assets,
+    attributes, signatures, TLP, scoring, exports and integrations. OpenAPI 3.0.0, 209 operations, OAuth2
+    password grant issuing a bearer access token. ThreatQuotient was acquired by Securonix in June 2025
+    and ThreatQ is sold as a Securonix product; the spec is linked from Securonix's own Developer Guide.
+  humanURL: https://documentation.securonix.com/r/content/threat-q-api.htm
+  baseURL: https://threatq.com/api
+  tags:
+  - Threat Intelligence
+  - Indicators
+  - STIX
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-threatq-api.json
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+  - type: Overlay
+    url: overlays/securonix-threatq-api-overlay.yaml
+- name: Securonix Web Services (SNYPR REST API)
+  description: The documented SNYPR / Unified Defense SIEM web-service surface reached at /ws on the tenant
+    host — token generation and validation, incident management and actions, activity, asset, geolocation,
+    list, lookup, data dictionary, risk history, Security Command Center widgets, third-party intel, TopN,
+    users, violations, watchlist and whitelist categories. Documented in the Developer Guide; no OpenAPI
+    is published for this surface.
+  humanURL: https://documentation.securonix.com/r/content/rest-api-categories.htm
+  baseURL: https://{tenantId}.securonix.net/Snypr/ws
+  tags:
+  - Incidents
+  - Web Services
+  - Watchlist
+  properties:
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/rest-api-categories.htm
+  - type: Authentication
+    url: https://documentation.securonix.com/r/content/authentication.htm
+- name: Securonix Spotter API
+  description: Asynchronous search microservice over the Securonix data lake — trigger a Spotter or SQL
+    query, poll its execution status, page results, and cancel a running query. Bearer JWT via the snypr-service-gateway.
+    Documented in the Developer Guide; no OpenAPI is published.
+  humanURL: https://documentation.securonix.com/r/content/spotter-api.htm
+  baseURL: https://{snypr_service_gateway_url}/shared/snypr-service-gateway/spotter-api/spotter/api/v1
+  tags:
+  - Search
+  - Query
+  - Analytics
+  properties:
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/spotter-api.htm
 common:
 - type: Website
-  url: https://forgeglobal.com/securonix_stock/
+  url: https://www.securonix.com/
+- type: Documentation
+  url: https://documentation.securonix.com/
+- type: APIReference
+  url: https://documentation.securonix.com/r/content/rest-api-categories.htm
+- type: GettingStarted
+  url: https://documentation.securonix.com/r/content/developer-guide.htm
+- type: Blog
+  url: https://www.securonix.com/blog/
+- type: GitHubOrganization
+  url: https://github.com/Securonix
+- type: Support
+  url: https://www.securonix.com/services/support-services/
+- type: SignUp
+  url: https://connect.securonix.com/
+- type: TermsOfService
+  url: https://www.securonix.com/securonix-end-user-agreement/
+- type: PrivacyPolicy
+  url: https://www.securonix.com/privacy-policy/
+- type: Compliance
+  url: https://www.securonix.com/gdpr-compliance/
+- type: AgentSkill
+  url: skills/_index.yml
+- type: Authentication
+  url: authentication/securonix-authentication.yml
+- type: ChangeLog
+  url: changelog/securonix-changelog.yml
+- type: Conformance
+  url: conformance/securonix-conformance.yml
+- type: Conventions
+  url: conventions/securonix-conventions.yml
+- type: DataModel
+  url: data-model/securonix-data-model.yml
+- type: DomainSecurity
+  url: security/securonix-domain-security.yml
+- type: ErrorCatalog
+  url: errors/securonix-problem-types.yml
+- type: JSONSchema
+  url: json-schema/securonix-connectorinfo.schema.json
+- type: LLMsTxt
+  url: llms/securonix-llms.txt
+- type: Lifecycle
+  url: lifecycle/securonix-lifecycle.yml
+- type: MCPServer
+  url: mcp/securonix-mcp.yml
+- type: Packages
+  url: packages/securonix-packages.yml
+- type: Plans
+  url: plans/securonix-plans-pricing.yml
+- type: RateLimits
+  url: rate-limits/securonix-rate-limits.yml
+- type: ToolCrosswalk
+  url: mcp/securonix-tool-crosswalk.yml
+- type: WellKnown
+  url: well-known/securonix-well-known.yml
+x-enrichment:
+  date: '2026-08-26'
+  status: enriched
+  artifacts_added: 31
+  pass: local-v1

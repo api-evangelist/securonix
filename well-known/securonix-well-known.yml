@@ -1,0 +1,78 @@
+generated: '2026-08-26'
+method: searched
+source: live probes of /.well-known/* on every Securonix-controlled host in apis.yml
+hit_count: 2
+hosts:
+- host: https://www.securonix.com
+  documents:
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    file: securonix-oauth-authorization-server.json
+    note: >-
+      RFC 8414 authorization server metadata. issuer https://www.securonix.com, PKCE S256,
+      authorization_code + refresh_token grants, scopes_supported ["mcp"],
+      client_id_metadata_document_supported true — the OAuth 2.1 discovery surface for the
+      Model Context Protocol servers exposed at /wp-json/mcp/.
+  - path: /.well-known/oauth-protected-resource
+    status: 200
+    file: securonix-oauth-protected-resource.json
+    note: >-
+      RFC 9728 protected resource metadata naming https://www.securonix.com/wp-json/mcp/mcp-oauth-server
+      as the protected MCP resource.
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  soft_404_control:
+    path: /.well-known/zz-nonexistent-abc123
+    status: 404
+    bytes: 152567
+    note: Control confirms this host returns a real 404 for unknown well-known paths.
+- host: https://documentation.securonix.com
+  catch_all: true
+  documents: []
+  note: >-
+    Every /.well-known/* path on the documentation host returns HTTP 200 with the identical
+    2,656-byte Fluid Topics single-page-application shell, including a control path that does
+    not exist. No document is served here; nothing was saved and no pointer is claimed.
+  soft_404_control:
+    path: /.well-known/zz-nonexistent-abc123
+    status: 200
+    bytes: 2656
+- host: https://www.threatq.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  soft_404_control:
+    path: /.well-known/zz-nonexistent-abc123
+    status: 404
+    bytes: 88
+- host: https://policymanagement.api.securonix.net
+  documents: []
+  note: >-
+    Host does not resolve in public DNS (NXDOMAIN) — the Policy Management regional base URL
+    is reachable only from customer/tenant network context, so no /.well-known probe was possible.
+notes:
+- No security.txt (RFC 9116) is served on any Securonix host.
+- No API catalog (RFC 9727) is served.
+- No A2A agent card was found at either the canonical or the legacy well-known path on any host.

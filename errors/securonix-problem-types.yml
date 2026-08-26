@@ -1,0 +1,105 @@
+generated: '2026-08-26'
+method: derived
+source: >-
+  openapi/securonix-policy-management-api.json, openapi/securonix-datasource-onboarding-api.json,
+  openapi/securonix-device-monitoring-api.json, openapi/securonix-threatq-api.json
+format: vendor-json
+media_type: application/json
+rfc9457: false
+note: >-
+  All 53 documented 4xx/5xx responses across the four published OpenAPI definitions are
+  application/json against a vendor ErrorResponse schema. No response declares
+  application/problem+json, so there is no RFC 9457 problem-type registry to catalog; the
+  entries below are the HTTP status contract as the specs actually declare it.
+envelope:
+  device_monitoring:
+    schema: ErrorResponse
+    spec: openapi/securonix-device-monitoring-api.json#/components/schemas/ErrorResponse
+  policy_management:
+    note: >-
+      Policy Management returns per-policy outcome detail inside the 404 and 207-style bodies —
+      "One or more policies not found - detailed results provided in response."
+problem_types:
+- status: 400
+  title: Bad Request
+  detail: Invalid input data. Cannot process policy. / Failed Validation.
+  remediation: Correct the request body or query parameters against the schema before retrying.
+  sources:
+  - openapi/securonix-policy-management-api.json
+  - openapi/securonix-device-monitoring-api.json
+  - openapi/securonix-threatq-api.json
+- status: 401
+  title: Unauthorized
+  detail: >-
+    Missing or invalid credentials. On Policy Management specifically: "Invalid JWT token.
+    Please provide a valid token to access the resource."
+  remediation: >-
+    Regenerate the WS token (GET /ws/token/generate) and, for JWT surfaces, exchange it at
+    POST {REGION_BASE_URL}/shared/snypr-service-gateway/api/v2/oauth/token. An expired token
+    must be regenerated; renewal (GET /ws/token/renew) adds one day to the current expiry.
+    A known issue causes "Access Denied" after a password change until the account has logged
+    in to the Securonix UI once with the new password.
+  sources:
+  - openapi/securonix-policy-management-api.json
+  - openapi/securonix-datasource-onboarding-api.json
+  - openapi/securonix-device-monitoring-api.json
+  - openapi/securonix-threatq-api.json
+  docs: https://documentation.securonix.com/r/content/authentication.htm
+- status: 403
+  title: Forbidden
+  detail: Valid credentials but insufficient permissions.
+  remediation: >-
+    Grant the calling account the role the endpoint requires — ROLE_ADMIN, ROLE_CONTENT_DEVELOPER
+    or ROLE_READ_ONLY for Policy Management reads; ROLE_ADMIN, ROLE_CASE_ANALYST, ROLE_HUNTERS,
+    ROLE_SECURITY_ANALYST or ROLE_CASE_ADMIN for the Spotter API; ROLE_REVOKE_JWT_TOKEN to revoke
+    a token.
+  sources:
+  - openapi/securonix-policy-management-api.json
+  - openapi/securonix-datasource-onboarding-api.json
+  - openapi/securonix-device-monitoring-api.json
+- status: 404
+  title: Not Found
+  detail: >-
+    Resource not found. Policy Management returns per-item detail — "One or more policies not
+    found - detailed results provided in response."
+  remediation: Verify the identifier and tenant scope; inspect the per-item results block.
+  sources:
+  - openapi/securonix-policy-management-api.json
+  - openapi/securonix-datasource-onboarding-api.json
+  - openapi/securonix-threatq-api.json
+- status: 422
+  title: Unprocessable Entity
+  detail: Parent id not found in Auth token.
+  remediation: >-
+    The JWT does not carry the tenant/parent claim the operation needs. Re-mint the JWT for the
+    correct tenant context.
+  sources:
+  - openapi/securonix-policy-management-api.json
+- status: 429
+  title: Too Many Requests
+  detail: Request rate exceeded for the Device Monitoring service.
+  remediation: >-
+    Back off and retry. The spec declares the status but publishes no Retry-After or
+    RateLimit-* response header, and no numeric limit — see rate-limits/securonix-rate-limits.yml.
+  sources:
+  - openapi/securonix-device-monitoring-api.json
+- status: 500
+  title: Internal Server Error
+  detail: Error fetching policies / Error processing policies.
+  remediation: Retry with backoff; escalate to Securonix Support if persistent.
+  sources:
+  - openapi/securonix-policy-management-api.json
+  - openapi/securonix-device-monitoring-api.json
+- status: 503
+  title: Service Unavailable
+  detail: ThreatQ service temporarily unavailable.
+  remediation: Retry with backoff.
+  sources:
+  - openapi/securonix-threatq-api.json
+gaps:
+- >-
+  No error-code registry (a stable machine-readable code per failure) is published for any
+  Securonix surface — only HTTP status plus a free-text message.
+- >-
+  429 is declared on exactly one of 242 operations, and without a Retry-After or RateLimit-*
+  header an agent cannot compute a backoff from the response.

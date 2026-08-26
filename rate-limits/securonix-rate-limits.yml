@@ -1,0 +1,53 @@
+generated: '2026-08-26'
+method: searched
+source: >-
+  https://documentation.securonix.com/r/content/developer-guide.htm,
+  https://documentation.securonix.com/r/content/spotter-api.htm,
+  openapi/securonix-device-monitoring-api.json
+limit_count: 0
+rate_limits: []
+response_headers: []
+exhaustion_status: 429
+note: >-
+  Securonix publishes no numeric rate limit for any surface. The Developer Guide, the Spotter API
+  page and the REST API category pages state no per-key, per-account or per-endpoint request
+  ceiling, and no RateLimit-*, X-RateLimit-* or Retry-After response header is declared in any of
+  the four OpenAPI definitions or documented anywhere. An honest zero, not an omission on our part.
+what_is_published:
+- signal: HTTP 429
+  where: openapi/securonix-device-monitoring-api.json — the 429 TooManyRequests response on
+    POST /devicealert/listdevices
+  detail: >-
+    The only 429 declared across 242 documented operations. It carries no Retry-After and no
+    numeric limit, so a client learns it has been throttled but not by how much or for how long.
+- signal: Web Service Session Timeout
+  where: Application Settings (Menu > Administrator > Settings > Application Settings)
+  detail: >-
+    A tenant-configurable session expiry in seconds for web services. A session control, not a
+    request-rate control.
+- signal: Token validity
+  where: GET /ws/token/generate, `validity` request header (days)
+  detail: >-
+    The caller chooses how many days the WS token is valid for; GET /ws/token/renew adds one day.
+    Again a lifetime bound, not a throughput bound.
+result_size_bounds:
+  spotter:
+    limit_default: 1000
+    limit_max: 10000
+    timeout_default_seconds: 3600
+    source: https://documentation.securonix.com/r/content/spotter-api.htm
+    detail: >-
+      The Spotter API caps a single query result set at 10,000 records and its execution at a
+      caller-supplied timeout defaulting to 3600 seconds. These are the only hard numeric
+      ceilings Securonix publishes for API consumption, and they bound one query rather than
+      a call rate.
+  ws_surface:
+    param: max
+    detail: >-
+      /ws/incident/get and the Security Command Center widget endpoints accept a `max` parameter
+      controlling page size; no maximum value for it is documented.
+gaps:
+- No documented requests-per-second, per-minute or per-day ceiling on any surface.
+- No RateLimit-* / X-RateLimit-* / Retry-After response headers, so backoff cannot be computed
+  from a throttled response.
+- 429 is declared on 1 of 242 operations; the other 241 do not tell a client what throttling looks like.

@@ -1,0 +1,30 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enrichment overlay for Securonix ThreatQ API
+  version: '1.0.0'
+generated: '2026-08-26'
+method: generated
+source: openapi/securonix-threatq-api.json
+extends: openapi/securonix-threatq-api.json
+x-note: >-
+  Captures API Evangelist's derived enrichment as annotations only. It never mutates the
+  provider's original specification; the original is stored verbatim as fetched from
+  SwaggerHub. Applying this overlay adds cross-links to the enrichment artifacts in this
+  repository and records two findings the contract itself does not state: no idempotency
+  mechanism is published, and reversal paths exist without a stated reversal window.
+actions:
+  - target: "$.info"
+    update:
+      x-apievangelist-profile: "https://apis.io/provider/securonix"
+      x-apievangelist-artifacts:
+        authentication: "authentication/securonix-authentication.yml"
+        conventions: "conventions/securonix-conventions.yml"
+        errors: "errors/securonix-problem-types.yml"
+        lifecycle: "lifecycle/securonix-lifecycle.yml"
+        conformance: "conformance/securonix-conformance.yml"
+        data-model: "data-model/securonix-data-model.yml"
+        rate-limits: "rate-limits/securonix-rate-limits.yml"
+      x-apievangelist-source: "https://api.swaggerhub.com/apis/securonix-b7a/ThreatQ/1.0.0"
+      x-apievangelist-docs: "https://documentation.securonix.com/r/content/threat-q-api.htm"
+      x-apievangelist-idempotency: "none-published"
+      x-apievangelist-reversibility: "documented (no reversal window is published by the provider)"

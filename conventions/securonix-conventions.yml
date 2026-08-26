@@ -1,0 +1,175 @@
+generated: '2026-08-26'
+method: searched
+source: >-
+  https://documentation.securonix.com/r/content/developer-guide.htm,
+  https://documentation.securonix.com/r/content/authentication.htm,
+  https://documentation.securonix.com/r/content/spotter-api.htm,
+  https://documentation.securonix.com/r/content/rest-api-categories.htm, openapi/*.json
+auth:
+  style: two-tier token
+  ws_token:
+    obtain: 'GET https://{BASE_URL}/ws/token/generate'
+    request_headers: [username, password, validity]
+    response: a bare UUID token string in the response body
+    use: 'send as the `token` request header on /ws/* calls, or `wstoken` on the ingestion service'
+    validate: 'GET /ws/token/validate (header `token`) -> "Valid"'
+    renew: 'GET /ws/token/renew (header `token`) -> adds one day to the current expiry'
+    session_timeout: 'configurable in Application Settings (Web Service Session Timeout, seconds)'
+    ip_binding: optional — "IP Validation during Token authentication" is an Application Setting
+  jwt:
+    obtain: 'POST https://{REGION_BASE_URL}/shared/snypr-service-gateway/api/v2/oauth/token'
+    request_headers: [wstoken, 'x-transaction-id (optional)']
+    response_fields: [accessTokenType, accessToken, accessTokenExp, refreshToken, refreshTokenExp]
+    use: 'Authorization: Bearer <accessToken>'
+    refresh: 'POST .../api/v2/oauth/token/refresh with {"refreshToken": "..."} and the expired JWT'
+    revoke: 'POST {REGION_BASE_URL}/api/v2/oauth/token/revoke by username + subscriberId; requires ROLE_REVOKE_JWT_TOKEN'
+    claims_used_for_authz: [role, tenant]
+  roles:
+    policy_management_read: [ROLE_ADMIN, ROLE_CONTENT_DEVELOPER, ROLE_READ_ONLY]
+    spotter: [ROLE_ADMIN, ROLE_CASE_ANALYST, ROLE_HUNTERS, ROLE_SECURITY_ANALYST, ROLE_CASE_ADMIN]
+    token_revocation: [ROLE_REVOKE_JWT_TOKEN]
+  known_issue: >-
+    API calls can return "Access Denied" after a password change until the affected account has
+    signed in to the Securonix UI once with the new password.
+idempotency:
+  supported: false
+  header: null
+  note: >-
+    No Idempotency-Key header, no idempotent-retry guidance and no request-deduplication semantics
+    appear in any of the four OpenAPI definitions or in the Developer Guide. Write operations
+    (policy create, watchlist/whitelist add, incident actions, ThreatQ object create) carry no
+    replay protection a client can rely on.
+pagination:
+  style: offset + max/limit
+  request_params:
+    ws_surface: [offset, max, order]
+    device_monitoring: [offset, max, sort, order]
+    spotter_results: [offset, limit]
+    threatq: [limit, offset]
+  response_fields: [total, offset, count]
+  defaults:
+    spotter_limit: 1000
+    spotter_limit_max: 10000
+    spotter_timeout_seconds: 3600
+  note: >-
+    The Spotter response envelope carries total/offset/count alongside records[]; there is no
+    cursor or link-header pagination anywhere on the surface.
+filtering_and_search:
+  spotter_query_language: >-
+    Spotter query strings against a named index (activity, violation, riskscorehistory, asset,
+    geolocation, lookup, tpi, users, watchlist, whitelist) with = != contains "starts with"
+    "ends with" in null between before after, and the where / stats / table / top / rare commands.
+  device_monitoring: 'searchUserText + searchAttrs + operator (equals|contains) + status'
+  escaping: >-
+    Two escaping layers apply to Spotter API calls — Spotter-level quoting/escaping of " \ * ?
+    inside double-quoted values, then JSON-level escaping when the query is embedded in the request
+    body. Documented with a mapping table at /r/content/spotter-api.htm.
+async_pattern:
+  applies_to: Spotter API
+  flow:
+  - 'POST /search/queries -> {queryId}'
+  - 'GET /search/queries/{queryId}/status -> {queryId, status, message}'
+  - 'GET /search/queries/{queryId}/results?offset=&limit='
+  status_values: [PARTIALLY_COMPLETED, COMPLETED]
+  in_progress_response: results endpoint reports the query is still in progress rather than blocking
+request_id_tracing:
+  header: x-transaction-id
+  format: UUID(36)
+  scope: 'JWT token generation on the snypr-service-gateway; optional'
+  note: >-
+    "A unique trace ID allows users to trace the request; any value in this format is accepted."
+    No correlation header is documented for the /ws/* surface or for the microservice APIs.
+versioning:
+  see: lifecycle/securonix-lifecycle.yml
+error_envelope:
+  media_type: application/json
+  shape: 'vendor ErrorResponse schema; no application/problem+json anywhere'
+  see: errors/securonix-problem-types.yml
+rate_limit_signaling:
+  status_declared: '429 (Device Monitoring only)'
+  response_headers: []
+  note: >-
+    No RateLimit-*, X-RateLimit-* or Retry-After header is documented or declared in any spec.
+    See rate-limits/securonix-rate-limits.yml.
+content_negotiation:
+  json: default across the surface
+  csv: >-
+    GET /v1/policies/threat-coverage/metrics honours Accept: text/csv and returns a flat
+    TacticID, TacticName, TechniqueID, TechniqueName, SubtechniqueID, SubtechniqueName,
+    CoverageStatus row shape.
+multi_tenancy:
+  parameter: 'tenantname (query) on the /ws/* surface; subTenant on Policy Management; tenant claim in the JWT'
+  note: >-
+    Tenant scoping is explicit and pervasive — Securonix is deployed by MSSPs multi-tenant, and
+    most /ws endpoints accept or require tenantname.
+reversibility:
+  grade: documented
+  write_surface: true
+  note: >-
+    Reversal PATHS exist across the surface and are documented; no reversal WINDOW is stated
+    anywhere in the Developer Guide or in any of the four OpenAPI definitions. Under the 0.12.0
+    grading that is `documented`, not `verified` — an agent can find out how to undo an action
+    but cannot find out how long it has to do so. No window is asserted below because Securonix
+    publishes none.
+  reversals:
+  - action: Enable or disable a detection policy
+    forward: 'PATCH /v1/policies/status (enableDisablePolicies)'
+    reversal: 'PATCH /v1/policies/status with the opposite state'
+    reversal_operation_id: enableDisablePolicies
+    window: null
+    window_source: null
+    spec: openapi/securonix-policy-management-api.json
+  - action: Bulk delete detection policies
+    forward: 'DELETE /v1/policies/erase (bulkDeletePolicies)'
+    reversal: none published
+    reversal_operation_id: null
+    window: null
+    note: No restore, undelete or soft-delete/trash endpoint is published for policies.
+    spec: openapi/securonix-policy-management-api.json
+  - action: Add an entity to a watchlist
+    forward: 'GET /ws/incident/addToWatchlist (watchlistname, entitytype, entityId, expirydays)'
+    reversal: >-
+      Watchlist membership carries an explicit expirydays parameter, so an addition self-reverses
+      at the caller-chosen expiry; membership is inspectable via /ws/incident/checkIfWatchlisted
+      and /ws/incident/listWatchlistEntities.
+    window: caller-supplied via expirydays
+    window_source: https://documentation.securonix.com/r/content/rest-api-categories-watchlist.htm
+  - action: Add an entity or attribute to a whitelist
+    forward: GET /ws/incident/addToWhitelist
+    reversal: 'GET /ws/incident/removeFromWhitelist (whitelistname, tenantname, entityId)'
+    window: null
+    window_source: null
+    spec_source: https://documentation.securonix.com/r/content/rest-api-categories-whitelist.htm
+  - action: Run a Spotter search
+    forward: 'POST /shared/snypr-service-gateway/spotter-api/spotter/api/v1/search/queries'
+    reversal: >-
+      A cancel-execution endpoint exists — the SpotterServices privilege "Endpoint to cancel the
+      execution of the query execution" is documented — but its path and method are not published
+      on the Spotter API reference page, so the call cannot be stated here.
+    window: while the query is running
+    window_source: https://documentation.securonix.com/r/content/spotter-api.htm
+  - action: Delete any ThreatQ object (indicator, adversary, event, task, signature, ...)
+    forward: 'DELETE /{object_type}/{id}'
+    reversal: none published
+    window: null
+    note: >-
+      ThreatQ exposes DELETE on ~35 object collections with no undelete, restore or trash
+      endpoint and no stated retention window.
+    spec: openapi/securonix-threatq-api.json
+  - action: Revoke an issued JWT
+    forward: 'POST {REGION_BASE_URL}/api/v2/oauth/token/revoke'
+    reversal: re-mint a new JWT from a valid WS token
+    window: null
+    window_source: https://documentation.securonix.com/r/content/authentication.htm
+dry_run_mode:
+  supported: false
+  note: >-
+    No preview, validate-only or dry-run flag is published for any write operation. The nearest
+    thing is POST /ingestion/v1/validatesyslogdatasource, which validates syslog datasource details
+    before configuration — a validation endpoint for one flow, not a general dry-run mode.
+cross_links:
+  errors: errors/securonix-problem-types.yml
+  lifecycle: lifecycle/securonix-lifecycle.yml
+  authentication: authentication/securonix-authentication.yml
+  rate_limits: rate-limits/securonix-rate-limits.yml
+  conformance: conformance/securonix-conformance.yml

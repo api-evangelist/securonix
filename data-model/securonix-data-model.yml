@@ -1,0 +1,200 @@
+generated: '2026-08-26'
+method: derived
+source: >-
+  openapi/securonix-policy-management-api.json, openapi/securonix-datasource-onboarding-api.json,
+  openapi/securonix-device-monitoring-api.json, openapi/securonix-threatq-api.json,
+  https://documentation.securonix.com/r/content/rest-api-categories.htm
+summary:
+  schemas_total: 289
+  by_spec:
+    policy_management: 55
+    datasource_onboarding: 30
+    device_monitoring: 4
+    threatq: 200
+  note: >-
+    Derived from $ref links between component schemas and from id-suffixed reference fields.
+    Securonix does not publish a prefixed-identifier scheme (no `pol_`/`ind_` style prefixes);
+    identifiers are bare integers or UUIDs scoped by tenant.
+domains:
+- name: Detection content
+  spec: openapi/securonix-policy-management-api.json
+  root_entity: Policy
+  entities:
+  - name: Policy
+    key: id
+    description: A detection policy — the unit Securonix evaluates activity against.
+    relationships:
+    - {type: has_one, target: LogSource, via: $ref}
+    - {type: has_one, target: detection, via: $ref}
+    - {type: has_one, target: AnalyticalType, via: $ref}
+    - {type: has_many, target: AdditionalEventAnalytics, via: $ref}
+    - {type: has_many, target: ViolationAction, via: $ref}
+    - {type: has_one, target: ViolationSummary, via: $ref}
+  - name: CreatePolicyResponse
+    key: id
+    description: The persisted policy record, exposing the platform's own foreign keys.
+    relationships:
+    - {type: belongs_to, target: RiskType, via: riskTypeId}
+    - {type: belongs_to, target: RiskThreat, via: riskThreatId}
+    - {type: belongs_to, target: Category, via: categoryId}
+    - {type: belongs_to, target: Functionality, via: functionalityId}
+    - {type: belongs_to, target: Signature, via: signatureId}
+    - {type: has_many, target: PolicyResourceEntity, via: $ref}
+    - {type: has_many, target: PolicyLabelEntity, via: $ref}
+    - {type: has_many, target: PolicyOutputConfigEntity, via: $ref}
+    - {type: has_one, target: PolicyDeprecationEntity, via: $ref}
+    - {type: has_many, target: PolicyPredictionAttributesEntity, via: $ref}
+  - name: PolicyResourceEntity
+    relationships:
+    - {type: belongs_to, target: Resource, via: resourceId}
+    - {type: belongs_to, target: ResourceGroup, via: resourceGroupId}
+    - {type: belongs_to, target: ResourceType, via: resourceTypeId}
+  - name: PolicyWatchlistEntity
+    relationships:
+    - {type: belongs_to, target: Watchlist, via: watchlistId}
+  - name: PolicyactivelistEntity
+    relationships:
+    - {type: belongs_to, target: ActiveList, via: activelistId}
+    - {type: belongs_to, target: Policy, via: policyId}
+  - name: AnalyticalType
+    relationships:
+    - {type: has_one, target: AggregatedEventAnalyticsDelta, via: $ref}
+  - name: AggregatedEventAnalyticsDelta
+    relationships:
+    - {type: has_one, target: AmountBasedThreshold, via: $ref}
+    - {type: has_one, target: FrequencyBasedThreshold, via: $ref}
+    - {type: has_one, target: ParentChildRelation, via: $ref}
+  - name: ViolationAction
+    relationships:
+    - {type: has_one, target: AddToWatchlist, via: $ref}
+  - name: AddToWatchlist
+    relationships:
+    - {type: has_one, target: RemovalPeriod, via: $ref}
+- name: MITRE ATT&CK coverage
+  spec: openapi/securonix-policy-management-api.json
+  root_entity: ThreatCoverageMetricsResponse
+  entities:
+  - name: ThreatCoverageMetricsResponse
+    relationships:
+    - {type: has_one, target: CoverageSummary, via: $ref}
+    - {type: has_many, target: TacticCoverage, via: $ref}
+    - {type: has_many, target: PolicyDistributionByTacticSummary, via: $ref}
+  - name: TacticCoverage
+    key: tacticId
+    relationships:
+    - {type: has_many, target: TechniqueCoverage, via: $ref}
+  - name: TechniqueCoverage
+    key: techniqueId
+    relationships:
+    - {type: has_many, target: Subtechnique, via: $ref}
+  - name: Subtechnique
+    key: subtechniqueId
+  - name: TechniqueDetailsResponse
+    key: techniqueId
+    relationships:
+    - {type: belongs_to, target: TechniqueDetailsResponse, via: parentTechniqueId}
+    - {type: has_many, target: AssociatedTactic, via: $ref}
+    - {type: has_many, target: SubTechniqueDetails, via: $ref}
+    - {type: has_many, target: MappedPolicy, via: $ref}
+  - name: MappedPolicy
+    relationships:
+    - {type: belongs_to, target: Policy, via: policyId}
+    - {type: belongs_to, target: Signature, via: signatureId}
+  note: >-
+    Tactic -> Technique -> Subtechnique is the MITRE ATT&CK hierarchy carried natively in the
+    contract, joined back to detection content through MappedPolicy.policyId.
+- name: Data ingestion
+  spec: openapi/securonix-datasource-onboarding-api.json
+  root_entity: ResourceGroup
+  entities:
+  - name: ResourceGroups
+    key: id
+    description: >-
+      The resource group is the ingestion unit — a configured data source. Nearly every ingestion
+      response is scoped by resourceGroupId and tenantId.
+  - name: ConfigDataSourcePayload
+    relationships:
+    - {type: belongs_to, target: ConfigResourceParsers, via: crpId}
+    - {type: belongs_to, target: Tenant, via: tenantId}
+  - name: ConfigSyslogDataSourcePayload
+    relationships:
+    - {type: belongs_to, target: ConfigResourceParsers, via: crpId}
+    - {type: belongs_to, target: Tenant, via: tenantId}
+    - {type: has_one, target: SyslogDetailsPayload, via: $ref}
+  - name: SyslogDetailsPayload
+    relationships:
+    - {type: belongs_to, target: SyslogFilterData, via: filtersId}
+    - {type: belongs_to, target: RINsByTenantName, via: ingesterId}
+    - {type: belongs_to, target: ConfigCollectorSource, via: sourcesId}
+  - name: SyslogFilterData
+    key: filterId
+    relationships:
+    - {type: belongs_to, target: RINsByTenantName, via: ingesterId}
+    - {type: belongs_to, target: ResourceType, via: resourceTypeId}
+    - {type: belongs_to, target: ResourceGroups, via: rgId}
+  - name: ConfigCollectorSource
+    key: id
+    relationships:
+    - {type: belongs_to, target: Syslog, via: syslogId}
+    - {type: belongs_to, target: Tenant, via: tenantId}
+  - name: RINsByTenantName
+    key: ingesterId
+    description: Remote Ingestion Node — the collector a syslog source is bound to.
+    relationships:
+    - {type: belongs_to, target: Tenant, via: tenantId}
+  - name: ConfigResourceParsers
+    key: id
+    description: Custom Resource Parser (CRP) content applied to an incoming stream.
+- name: Device monitoring
+  spec: openapi/securonix-device-monitoring-api.json
+  root_entity: Device
+  entities:
+  - name: Device
+    relationships:
+    - {type: belongs_to, target: ResourceGroups, via: rgId}
+    - {type: belongs_to, target: Tenant, via: tenantId}
+    states: [Trusted, Muted]
+    searchable_attributes: [device, rgname, functionality, device_state, tenantname]
+- name: Threat intelligence (ThreatQ)
+  spec: openapi/securonix-threatq-api.json
+  root_entities: [indicators, adversaries, events, malware, campaign, incident, investigations,
+                  signatures, attack_pattern, course_of_action, exploit_target, identity,
+                  infrastructure, intrusion_set, report, tool, ttp, vulnerability, asset, tasks]
+  polymorphic_pattern:
+    template: /{object_type}/{object_type_id}/...
+    sub_collections: [attributes, comments, sources, tags, watchlist]
+    relationship_edge: /{src_object_collection}/{src_object_id}/{dest_object_collection}/{object_link_id}
+    note: >-
+      ThreatQ models every intelligence object through one polymorphic template. Any object type
+      can carry attributes, comments, sources, tags and watchlist entries, and any two objects can
+      be linked by an object_link, with attributes and comments hanging off the link itself. That
+      is the whole ER graph in one shape — it is why the spec reaches 209 operations over 200
+      schemas without a per-type explosion of paths.
+  cross_cutting:
+  - name: TLP
+    detail: >-
+      Traffic Light Protocol is a first-class object (/tlp) referenced by tlp_id on intelligence
+      objects, so handling caveats travel with the record.
+search_indexes:
+  source: https://documentation.securonix.com/r/content/rest-api-categories.htm
+  note: >-
+    The Spotter query language addresses the platform's data lake through named indexes. These are
+    the queryable top-level datasets, documented one REST API category per index.
+  indexes:
+  - activity
+  - asset
+  - geolocation
+  - lookup
+  - riskscorehistory
+  - tpi
+  - users
+  - violation
+  - watchlist
+  - whitelist
+gaps:
+- >-
+  No object reference publishing id prefixes or id formats; identifiers are bare ints/UUIDs and
+  their type is only inferable from the field name.
+- >-
+  The /ws/* SNYPR surface has no OpenAPI, so its entity shapes are derived from documented request
+  parameters and sample responses rather than from schemas.

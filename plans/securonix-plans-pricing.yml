@@ -1,0 +1,32 @@
+generated: '2026-08-26'
+method: searched
+source: https://www.securonix.com/
+plan_count: 0
+plans: []
+pricing_page: null
+note: >-
+  Securonix publishes no public pricing. There is no /pricing page (https://www.securonix.com/pricing/
+  returns 404), no plans or tiers page, and no price appears anywhere on the corporate site or in
+  the documentation. The commercial path is enterprise sales — "Request a Demo" and "Contact Us" —
+  with licensing terms carried contractually rather than as published tiers.
+commercial_surfaces:
+- name: Request a Demo
+  url: https://www.securonix.com/request-a-demo/
+  http_status: 200
+- name: Contact Us
+  url: https://www.securonix.com/contact-us/
+  http_status: 200
+- name: Licensing Guidelines
+  url: https://www.securonix.com/licensing-guidelines/
+  note: Legal-center document describing licensing, not a price list.
+pricing_model_signals:
+- signal: consumption metering exists in-product
+  detail: >-
+    The Billing tab in Activity Monitor displays billed and consumed GB/day, so the platform is
+    metered on ingested data volume — but no rate per GB is published.
+  source: https://documentation.securonix.com/r/content/release-notes/2026/platform/2026-release-notes-platform.htm
+- signal: productivity-based AI pricing announced
+  detail: >-
+    Securonix announced "the first productivity-based AI model for the SOC" alongside Agentic Mesh;
+    the announcement describes the model but publishes no rate card.
+  source: https://www.securonix.com/press_release/securonix-introduces-agentic-mesh-and-the-first-productivity-based-ai-model-for-the-soc/

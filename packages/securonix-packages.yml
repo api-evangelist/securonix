@@ -1,0 +1,105 @@
+generated: '2026-08-26'
+method: searched
+source: >-
+  npm, PyPI, Maven Central, NuGet, RubyGems, Packagist, crates.io registry queries;
+  github.com/Securonix; https://documentation.securonix.com/r/content/developer-guide.htm
+package_count: 0
+official_sdk_count: 0
+packages: []
+note: >-
+  Securonix publishes no first-party client SDK in any public package registry. Direct lookups
+  and keyword searches on npm, PyPI, Maven Central, NuGet, RubyGems, Packagist and crates.io all
+  returned nothing under Securonix, SNYPR or ThreatQ ownership (npm keyword search returned one
+  unrelated package, `onyx-lib`). The Developer Guide's own recommendation is to call the REST
+  APIs from a generic tool — "You can develop and test REST APIs in any API development tool such
+  as Postman, Swagger, or SOAP UI" — rather than from a vendor library. No `SDKs` pointer is
+  emitted, because there is no SDK.
+registries_checked:
+- registry: npm
+  queries: [securonix, '@securonix/sdk', snypr, 'keyword search: securonix']
+  result: none
+  version: null
+  published: null
+- registry: pypi
+  queries: [securonix, securonix-api, securonix-sdk, securonix-soar, snypr]
+  result: none
+  version: null
+  published: null
+- registry: maven-central
+  query: securonix
+  result: 0 artifacts
+  version: null
+  published: null
+- registry: nuget
+  query: securonix
+  result: 0 packages
+  version: null
+  published: null
+- registry: rubygems
+  query: securonix
+  result: 404
+  version: null
+  published: null
+- registry: packagist
+  query: securonix
+  result: 0 packages
+  version: null
+  published: null
+- registry: crates.io
+  query: securonix
+  result: 0 crates
+  version: null
+  published: null
+first_party_source_repositories:
+- name: securonix-soar-integrations
+  url: https://github.com/Securonix/securonix-soar-integrations
+  language: python
+  registry: none
+  version: null
+  published: '2026-08-24'
+  official: true
+  note: >-
+    The SOAR integration SDK — one Python package per third-party integration (akamai_waf,
+    any_run, aws_waf, azure_waf, cisco_duo, cisco_meraki and others), each with
+    integration_definition.json, integration_meta.json, an integration_meta_schema.json JSON
+    Schema, requirements.txt and tests. Distributed as source from GitHub only; no registry
+    release exists, so `version` is null and consumers pin by git ref. `published` is the last
+    push to the default branch, which is the only dated release signal available.
+- name: soar-integrations-sample
+  url: https://github.com/Securonix/soar-integrations-sample
+  language: python
+  registry: none
+  version: null
+  published: '2026-05-26'
+  official: true
+  note: Sample scaffold for authoring a Securonix SOAR integration. Source-only, unversioned.
+- name: sigma2snypr
+  url: https://github.com/Securonix/sigma2snypr
+  language: python
+  registry: none
+  version: null
+  published: '2023-02-18'
+  official: true
+  note: Sigma-rule-to-SNYPR conversion tooling. Source-only; last pushed February 2023.
+- name: SigmaToSecuronix
+  url: https://github.com/Securonix/SigmaToSecuronix
+  language: python
+  registry: none
+  version: null
+  published: '2023-12-12'
+  official: true
+  note: Second-generation Sigma conversion tool. Source-only; last pushed December 2023.
+- name: kafkatoolplugin
+  url: https://github.com/Securonix/kafkatoolplugin
+  language: java
+  registry: none
+  version: null
+  published: '2018-07-03'
+  official: true
+  note: >-
+    Plugin to view messages in SNYPR Kafka topics. Source-only and last pushed in 2018 — eight
+    years before the 6.4 platform line these artifacts describe.
+decay_signal: >-
+  There is no first-party SDK whose release date can be compared against the API. What the GitHub
+  org shows instead is a split estate: the SOAR integration SDK is actively maintained (pushed
+  2026-08-24), while the Sigma converters last moved in 2023 and the Java/Kafka helpers in 2018.

@@ -1,0 +1,36 @@
+generated: '2026-08-26'
+method: derived
+source: openapi/securonix-datasource-onboarding-api.json, openapi/securonix-device-monitoring-api.json,
+  openapi/securonix-policy-management-api.json, openapi/securonix-threatq-api.json
+summary:
+  types:
+  - apiKey
+  - http
+  api_key_in:
+  - header
+schemes:
+- name: ApiKeyAuth
+  type: apiKey
+  in: header
+  parameter: wstoken
+  sources:
+  - openapi/securonix-datasource-onboarding-api.json
+- name: tokenAuth
+  type: apiKey
+  in: header
+  parameter: token
+  description: Authentication token.
+  sources:
+  - openapi/securonix-device-monitoring-api.json
+- name: bearerAuth
+  type: http
+  scheme: bearer
+  bearerFormat: JWT
+  description: "**Authentication**\n- The JWT is issued using the `wstoken` (obtained after\
+    \ successful authentication).\n- A valid JWT token must be provided via `Authorization:\
+    \ Bearer <token>`.  \n\n**Authorization**:\n- API access is controlled by validating the\
+    \ `role` and `tenant` claims from the JWT.   \n- All **read** APIs require one of the following\
+    \ roles: `ROLE_ADMIN`, `ROLE_CONTENT_DEVELOPER`, `ROLE_READ_ONLY`"
+  sources:
+  - openapi/securonix-policy-management-api.json
+  - openapi/securonix-threatq-api.json

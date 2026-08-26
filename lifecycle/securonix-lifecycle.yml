@@ -1,0 +1,68 @@
+generated: '2026-08-26'
+method: searched
+source: >-
+  https://documentation.securonix.com/r/content/release-notes.htm,
+  https://www.securonix.com/securonix-services-service-level-availability/,
+  openapi/*.json
+versioning:
+  platform:
+    scheme: major.minor + dated build
+    current: '6.4'
+    example_build: 6.4 July R1 2026
+    note: >-
+      The platform ships dated minor builds (6.4 July R1 2026, released 25 August 2026) with
+      separate Cloud/Multi-Tenant and On-Prem release-note streams, plus separate Content, Hub
+      and RIN streams.
+  apis:
+    scheme: path-prefix major version on the newer microservices; unversioned on the legacy /ws surface
+    examples:
+    - /v1/policies/* (Policy Management, spec version 3.1.4)
+    - /ingestion/v1/* (Datasource Onboarding, spec version 1.0.0)
+    - /shared/snypr-service-gateway/api/v2/oauth/token (JWT gateway)
+    - /shared/snypr-service-gateway/spotter-api/spotter/api/v1/search/queries (Spotter)
+    - /ws/* (SNYPR web services — no version segment)
+deprecation:
+  policy_published: false
+  sunset_header: false
+  deprecation_header: false
+  deprecated_operations: []
+  note: >-
+    No deprecation or sunset policy is published, no operation in any of the four OpenAPI
+    definitions carries `deprecated: true`, and neither RFC 8594 Sunset nor Deprecation response
+    headers appear anywhere in the specs or the Developer Guide. The nearest published signal is
+    the release-note stream, which announces removals and behavioural changes in prose, and the
+    upgrade guides for on-prem deployments.
+  breaking_change_signal: release notes prose only
+status_page:
+  published: false
+  url: null
+  note: >-
+    No public status page was found. status.securonix.com does not resolve and no status link
+    appears on www.securonix.com, in the Developer Guide, or in the legal center. Service
+    availability is addressed contractually rather than operationally.
+sla:
+  published: true
+  url: https://www.securonix.com/securonix-services-service-level-availability/
+  http_status: 200
+  note: >-
+    Securonix publishes a "Services Service Level Availability" document in its legal center.
+    The page renders its body client-side and no availability percentage or credit schedule
+    could be extracted by a machine reader, so no numeric commitment is asserted here.
+support:
+  url: https://www.securonix.com/services/support-services/
+  terms: https://www.securonix.com/securonix-services-support-terms/
+  community: https://connect.securonix.com/
+release_notes:
+  index: https://documentation.securonix.com/r/content/release-notes.htm
+  streams:
+  - name: Platform Release Notes - Cloud
+    url: https://documentation.securonix.com/r/content/release-notes/2026/platform/2026-release-notes-platform.htm
+  - name: Platform Release Notes - On-Prem
+    url: https://documentation.securonix.com/r/content/release-notes/2026/platform/2026-on-prem-release-notes-platform.htm
+  - name: Content Release Notes
+    url: https://documentation.securonix.com/r/content/release-notes/2026/content/2026-release-notes-content.htm
+  - name: Hub Release Notes - Cloud
+    url: https://documentation.securonix.com/r/content/release-notes/2026/hub/2026-release-notes-hub.htm
+  - name: Hub Release Notes - On-Prem
+    url: https://documentation.securonix.com/r/content/release-notes/2026/hub/2026-on-prem-release-notes-hub.htm
+  years_covered: [2024, 2025, 2026]

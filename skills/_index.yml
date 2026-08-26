@@ -1,0 +1,48 @@
+generated: '2026-08-26'
+method: generated
+source: openapi/*.json, https://documentation.securonix.com/r/content/developer-guide.htm
+skills:
+- name: securonix-manage-detection-policies
+  file: securonix-manage-detection-policies.md
+  api: Securonix Policy Management API
+  spec: openapi/securonix-policy-management-api.json
+  operations: [getClientId, createPolicies, updatePolicy, enableDisablePolicies, bulkDeletePolicies,
+               getPolicy, getPolicies, getLimit]
+- name: securonix-measure-mitre-attack-coverage
+  file: securonix-measure-mitre-attack-coverage.md
+  api: Securonix Policy Management API
+  spec: openapi/securonix-policy-management-api.json
+  operations: [getThreatCoverageMetrics, getTechniqueDetails, getPolicies]
+- name: securonix-onboard-a-data-source
+  file: securonix-onboard-a-data-source.md
+  api: Securonix Datasource Onboarding API
+  spec: openapi/securonix-datasource-onboarding-api.json
+  operations: [healthCheckUsingGET, getAllTenantsByUsernameUsingGET, getAllRINsByTenantNameUsingGET,
+               getParsersFromCRPUsingGET, getCRPContentUsingGET, createSyslogSourceUsingPOST,
+               createSyslogFilterUsingPOST, validateSyslogSourceAndFilterUsingPOST,
+               configureSyslogDataSourceUsingPOST, configureDataSourceUsingPOST,
+               getResourceGroupByNameUsingGET, getResourceGroupByIdUsingGET,
+               getJobImportSummaryUsingGET, getAllActivityImportJobDetailsUsingGET,
+               getRunningJobsForRgUsingGET, jobReschedulerUsingPOST, stopARunningJobUsingPUT]
+- name: securonix-run-a-spotter-search
+  file: securonix-run-a-spotter-search.md
+  api: Securonix Spotter API
+  spec: null
+  operations_note: >-
+    No OpenAPI is published for the Spotter API. This skill is grounded in the documented HTTP
+    paths on https://documentation.securonix.com/r/content/spotter-api.htm, not in operationIds.
+- name: securonix-monitor-device-ingestion-health
+  file: securonix-monitor-device-ingestion-health.md
+  api: Securonix Device Monitoring API
+  spec: openapi/securonix-device-monitoring-api.json
+  operations: [listMonitoredDevices]
+not_covered:
+- api: Securonix ThreatQ API
+  reason: >-
+    209 operations, but the ThreatQ spec declares operationIds on only a handful of paths (the
+    rest are null). A packaged skill must cite real operationIds; authoring one from method+path
+    alone for 209 operations would invite invention, so none was written.
+- api: SNYPR Web Services (/ws/*)
+  reason: >-
+    Documented in the Developer Guide but with no OpenAPI, so there are no operationIds to ground
+    a skill in. The conventions and error artifacts capture its semantics instead.

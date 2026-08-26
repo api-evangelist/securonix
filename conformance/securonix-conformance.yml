@@ -1,0 +1,140 @@
+generated: '2026-08-26'
+method: derived
+source: >-
+  openapi/securonix-policy-management-api.json, openapi/securonix-threatq-api.json,
+  openapi/securonix-datasource-onboarding-api.json, well-known/securonix-oauth-authorization-server.json,
+  https://documentation.securonix.com/r/content/developer-guide.htm
+standards:
+- id: oauth2
+  conforms: true
+  evidence: >-
+    ThreatQ API declares an OAuth2 password-grant token endpoint (POST /token, grant_type=password,
+    client_id) issuing a bearer access_token used as `Authorization: Bearer <access_token>`
+    (openapi/securonix-threatq-api.json #/paths/~1token and components.securitySchemes.BearerAuth).
+    Separately, www.securonix.com serves RFC 8414 authorization-server metadata with
+    authorization_code + refresh_token grants and PKCE S256 for its MCP surface
+    (well-known/securonix-oauth-authorization-server.json).
+- id: rfc8414
+  conforms: true
+  evidence: >-
+    https://www.securonix.com/.well-known/oauth-authorization-server returns 200 with issuer,
+    authorization_endpoint, token_endpoint, revocation_endpoint, response_types_supported,
+    grant_types_supported, code_challenge_methods_supported and scopes_supported.
+- id: rfc9728
+  conforms: true
+  evidence: >-
+    https://www.securonix.com/.well-known/oauth-protected-resource returns 200 with resource,
+    authorization_servers, bearer_methods_supported and scopes_supported.
+- id: jwt
+  conforms: true
+  evidence: >-
+    Policy Management API bearerAuth is bearerFormat JWT; the JWT is minted from a WS token at
+    POST {REGION_BASE_URL}/shared/snypr-service-gateway/api/v2/oauth/token and carries `role` and
+    `tenant` claims used for authorization
+    (openapi/securonix-policy-management-api.json #/components/securitySchemes/bearerAuth).
+- id: oidc
+  conforms: false
+  evidence: >-
+    No /.well-known/openid-configuration is served on any Securonix host (404 on
+    www.securonix.com; catch-all shell on documentation.securonix.com).
+- id: rfc9457
+  conforms: false
+  evidence: >-
+    All 53 documented 4xx/5xx responses across the four specs use application/json with a
+    vendor ErrorResponse schema; no application/problem+json media type appears in any spec.
+- id: pagination
+  conforms: true
+  evidence: >-
+    Consistent offset/max (or offset/limit) pagination across the surface — DevicesRequest.max
+    and .offset in openapi/securonix-device-monitoring-api.json, offset/limit on the Spotter
+    results endpoint, and offset/max on /ws/incident/get and the Security Command Center widgets.
+- id: idempotency
+  conforms: false
+  evidence: >-
+    No Idempotency-Key header, idempotent-retry guidance or request-deduplication semantics
+    appear in any of the four OpenAPI definitions or in the published Developer Guide.
+- id: scim
+  conforms: false
+  evidence: >-
+    User Management is a vendor-shaped surface (GET /users/{user_id}, /roles/{role_id},
+    /groups/{group_id}) with no urn:ietf:params:scim:schemas:* URN anywhere in the docs or specs.
+- id: saml
+  conforms: true
+  evidence: >-
+    SAML single sign-on is a documented, configurable platform setting
+    (https://documentation.securonix.com/r/content/settings-saml-settings.htm and
+    /r/content/configuring-saml.htm). Platform-level, not an API-contract conformance.
+domain_standards:
+- id: mitre-attack
+  name: MITRE ATT&CK
+  conforms: true
+  declared_in_contract: true
+  evidence: >-
+    The Policy Management API declares MITRE ATT&CK directly in the contract, not only in
+    marketing prose: GET /v1/policies/threat-coverage/metrics ("Get MITRE ATT&CK threat coverage
+    metrics", tag "Threat Coverage") returns tactics/techniques/sub-techniques with coverage
+    status, and its CSV projection is a flat TacticID, TacticName, TechniqueID, TechniqueName,
+    SubtechniqueID, SubtechniqueName, CoverageStatus row shape; GET
+    /v1/policies/threat-coverage/technique-details returns technique detail. A consumer that
+    already speaks ATT&CK technique IDs integrates with no bespoke mapping layer.
+  spec_location: openapi/securonix-policy-management-api.json#/paths/~1v1~1policies~1threat-coverage~1metrics
+- id: tlp
+  name: FIRST Traffic Light Protocol
+  conforms: true
+  declared_in_contract: true
+  evidence: >-
+    The ThreatQ API models TLP as a first-class resource and attribute across the contract —
+    76 occurrences including /tlp collection endpoints and tlp_id fields on indicators,
+    adversaries, events and attributes — so intelligence-sharing handling caveats travel with
+    the object rather than needing a bilateral convention.
+  spec_location: openapi/securonix-threatq-api.json
+- id: stix-taxii
+  name: STIX / TAXII 2.1
+  conforms: partial
+  declared_in_contract: false
+  evidence: >-
+    Securonix documents a STIX/TAXII 2.1 third-party-intelligence connector
+    (https://documentation.securonix.com/r/content/active-deployment-guides/stix-taxi.htm) for
+    ingesting threat intelligence, and the ThreatQ spec references STIX/TAXII once. This is an
+    ingest-side integration, not a STIX/TAXII shape declared by Securonix's own API contract.
+- id: ocsf
+  name: Open Cybersecurity Schema Framework
+  conforms: partial
+  declared_in_contract: false
+  evidence: >-
+    OCSF appears only as an inbound log format Securonix can parse (Amazon Security Lake
+    CloudTrail logs in OCSF format connector). Securonix's own APIs return a vendor data
+    dictionary, not OCSF-shaped events.
+- id: cef-leef-syslog
+  name: CEF / LEEF / Syslog
+  conforms: true
+  declared_in_contract: false
+  evidence: >-
+    Several hundred documented activity-import connectors accept CEF, LEEF, Syslog key-value
+    and Syslog JSON, and the Datasource Onboarding API has first-class syslog source/filter
+    operations (configuresyslogdatasource, createsyslogsource, createsyslogfilter).
+- id: sigma
+  name: Sigma detection rules
+  conforms: true
+  declared_in_contract: false
+  evidence: >-
+    Securonix publishes first-party Sigma conversion tooling in its own GitHub organization —
+    github.com/Securonix/sigma2snypr and github.com/Securonix/SigmaToSecuronix — so detections
+    authored in Sigma can be carried onto the platform.
+compliance:
+  note: >-
+    No Securonix trust center, SOC 2 / ISO 27001 / FedRAMP certification page or compliance
+    portal was found. trust.securonix.com does not resolve; /trust/, /security/ and
+    /product-security/ all return 404 on www.securonix.com. What Securonix does publish is a
+    legal-center set of contractual documents (GDPR Compliance statement, Data Processing
+    Addendum, Service Level Availability, End User Agreement). No certification claim is
+    recorded here because none was found on a Securonix-controlled page.
+  published_documents:
+  - name: GDPR Compliance
+    url: https://www.securonix.com/gdpr-compliance/
+  - name: Data Processing Addendum
+    url: https://www.securonix.com/data-processing-addendum/
+  - name: Service Level Availability
+    url: https://www.securonix.com/securonix-services-service-level-availability/
+  - name: Securonix Services Support Terms
+    url: https://www.securonix.com/securonix-services-support-terms/

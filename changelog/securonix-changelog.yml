@@ -1,0 +1,37 @@
+generated: '2026-08-26'
+method: searched
+source: https://documentation.securonix.com/r/content/release-notes/2026/platform/2026-release-notes-platform.htm
+scheme: dated minor builds on a 6.4 major line, published per deployment model
+current_version: 6.4 July R1 2026
+current_release_date: '2026-08-25'
+url: https://documentation.securonix.com/r/content/release-notes.htm
+streams:
+- Platform (Cloud / Multi-Tenant)
+- Platform (On-Prem)
+- Content
+- Hub (Cloud)
+- Hub (On-Prem)
+- RIN (Remote Ingestion Node)
+entries:
+- version: 6.4 July R1 2026
+  date: '2026-08-25'
+  stream: Platform - Cloud / Multi-Tenant
+  breaking: []
+  additions:
+  - >-
+    New Data Source Onboarding experience (Early Access) — redesigned discover/configure/manage
+    flow for data sources, gated behind the Early Access program and not enabled by default.
+  highlights:
+  - Threat Coverage Analyzer refreshed with license-aware guidance and clearer policy deployment.
+  - Billing dashboard now shows both billed and consumed GB/day in the usage chart.
+  - SOAR playbook builder gains block types, copy/paste, resizing, selective execution and file upload.
+  - Kafka connector adds SASL PLAIN, Kerberos and .p12 certificate support.
+  - Azure Storage connector adds Azure VNet Flow Logs and JSON array log formats.
+  - Third Party Intelligence import service gains configurable retention with an audit record per purge.
+  - Regex engine used by Job 1 replaced to speed regex-based event parsing.
+  - User Import gains smarter field-mapping recommendations and merge guidance.
+note: >-
+  Recent window only. The release-note index carries Platform, Content, Hub and RIN streams for
+  2024, 2025 and 2026, in both Cloud and On-Prem variants. Entries are dated but not tagged with
+  an API version, and API-level changes are described in prose rather than in a per-endpoint
+  changelog.
