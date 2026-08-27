@@ -32,84 +32,10 @@ maintainers:
 - FN: APIs.json
   email: info@apis.io
 apis:
-- name: Securonix Policy Management API
-  description: Create, update, enable/disable, delete and fetch Securonix Unified Defense SIEM detection
-    policies, plus MITRE ATT&CK threat-coverage metrics and technique details. OpenAPI 3.1.0, 10 operations,
-    JWT bearer authentication against a regional Policy Management base URL.
-  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
-  baseURL: https://policymanagement.api.securonix.net
-  tags:
-  - Policies
-  - Detection
-  - MITRE ATT&CK
-  properties:
-  - type: OpenAPI
-    url: openapi/securonix-policy-management-api.json
-  - type: APIReference
-    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
-  - type: Documentation
-    url: https://documentation.securonix.com/r/content/policy-management-api.htm
-  - type: Overlay
-    url: overlays/securonix-policy-management-api-overlay.yaml
-- name: Securonix Datasource Onboarding API
-  description: Configure API-based and Syslog-based data sources, syslog sources and filters, resource
-    groups, parser (CRP) content and activity-import job summaries for Securonix Unified Defense SIEM.
-    OpenAPI 3.0.3, 22 operations, wstoken header authentication.
-  humanURL: https://documentation.securonix.com/r/content/datasource-api.htm
-  baseURL: https://{tenantId}.securonix.net/Snypr
-  tags:
-  - Data Ingestion
-  - Connectors
-  - Syslog
-  properties:
-  - type: OpenAPI
-    url: openapi/securonix-datasource-onboarding-api.json
-  - type: APIReference
-    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
-  - type: Documentation
-    url: https://documentation.securonix.com/r/content/datasource-api.htm
-  - type: Overlay
-    url: overlays/securonix-datasource-onboarding-api-overlay.yaml
-- name: Securonix Device Monitoring API
-  description: List monitored devices and their metadata from Securonix Unified Defense SIEM. OpenAPI
-    3.0.3, one operation, token header authentication against the tenant SNYPR web-services host.
-  humanURL: https://documentation.securonix.com/r/content/device-monitoring-api.htm
-  baseURL: https://{tenantId}.securonix.net/Snypr/ws
-  tags:
-  - Device Monitoring
-  - Observability
-  properties:
-  - type: OpenAPI
-    url: openapi/securonix-device-monitoring-api.json
-  - type: APIReference
-    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
-  - type: Documentation
-    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
-  - type: Overlay
-    url: overlays/securonix-device-monitoring-api-overlay.yaml
-- name: Securonix ThreatQ API
-  description: The ThreatQ threat intelligence platform API — adversaries, indicators, events, assets,
-    attributes, signatures, TLP, scoring, exports and integrations. OpenAPI 3.0.0, 209 operations, OAuth2
-    password grant issuing a bearer access token. ThreatQuotient was acquired by Securonix in June 2025
-    and ThreatQ is sold as a Securonix product; the spec is linked from Securonix's own Developer Guide.
-  humanURL: https://documentation.securonix.com/r/content/threat-q-api.htm
-  baseURL: https://threatq.com/api
-  tags:
-  - Threat Intelligence
-  - Indicators
-  - STIX
-  properties:
-  - type: OpenAPI
-    url: openapi/securonix-threatq-api.json
-  - type: APIReference
-    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
-  - type: Documentation
-    url: https://documentation.securonix.com/r/content/threat-q-api.htm
-  - type: Overlay
-    url: overlays/securonix-threatq-api-overlay.yaml
 - name: Securonix Web Services (SNYPR REST API)
-  description: The documented SNYPR / Unified Defense SIEM web-service surface reached at /ws on the tenant
-    host — token generation and validation, incident management and actions, activity, asset, geolocation,
+  description: >-
+    The documented SNYPR / Unified Defense SIEM web-service surface reached at /ws on the tenant host
+    — token generation and validation, incident management and actions, activity, asset, geolocation,
     list, lookup, data dictionary, risk history, Security Command Center widgets, third-party intel, TopN,
     users, violations, watchlist and whitelist categories. Documented in the Developer Guide; no OpenAPI
     is published for this surface.
@@ -125,11 +51,13 @@ apis:
   - type: Authentication
     url: https://documentation.securonix.com/r/content/authentication.htm
 - name: Securonix Spotter API
-  description: Asynchronous search microservice over the Securonix data lake — trigger a Spotter or SQL
-    query, poll its execution status, page results, and cancel a running query. Bearer JWT via the snypr-service-gateway.
+  description: >-
+    Asynchronous search microservice over the Securonix data lake — trigger a Spotter or SQL query, poll
+    its execution status, page results, and cancel a running query. Bearer JWT via the snypr-service-gateway.
     Documented in the Developer Guide; no OpenAPI is published.
   humanURL: https://documentation.securonix.com/r/content/spotter-api.htm
-  baseURL: https://{snypr_service_gateway_url}/shared/snypr-service-gateway/spotter-api/spotter/api/v1
+  baseURL: >-
+    https://{snypr_service_gateway_url}/shared/snypr-service-gateway/spotter-api/spotter/api/v1
   tags:
   - Search
   - Query
@@ -137,7 +65,1322 @@ apis:
   properties:
   - type: Documentation
     url: https://documentation.securonix.com/r/content/spotter-api.htm
+- aid: securonix:securonix-adversaries-api
+  name: Securonix Adversaries API
+  description: The Adversaries API from Securonix — 3 operation(s) for adversaries.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Adversaries
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-adversaries-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-assets-api
+  name: Securonix Assets API
+  description: The Assets API from Securonix — 3 operation(s) for assets.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Assets
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-assets-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-attachments-files-api
+  name: Securonix Attachments (Files) API
+  description: The Attachments (Files) API from Securonix — 2 operation(s) for attachments (files).
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Attachments (Files)
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-attachments-files-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-attack-pattern-api
+  name: Securonix Attack Pattern API
+  description: The Attack Pattern API from Securonix — 3 operation(s) for attack pattern.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Attack Pattern
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-attack-pattern-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-authentication-api
+  name: Securonix Authentication API
+  description: The Authentication API from Securonix — 2 operation(s) for authentication.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Authentication
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-authentication-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-basic-search-api
+  name: Securonix Basic Search API
+  description: The Basic Search API from Securonix — 3 operation(s) for basic search.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Basic Search
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-basic-search-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-campaign-api
+  name: Securonix Campaign API
+  description: The Campaign API from Securonix — 3 operation(s) for campaign.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Campaign
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-campaign-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-connectors-api
+  name: Securonix Connectors API
+  description: The Connectors API from Securonix — 2 operation(s) for connectors.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Connectors
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-connectors-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-course-of-action-api
+  name: Securonix Course of Action API
+  description: The Course of Action API from Securonix — 3 operation(s) for course of action.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Course of Action
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-course-of-action-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-datasource-management-api
+  name: Securonix Datasource Management API
+  description: Config Datasource Controller
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Datasource Management
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-datasource-management-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-device-monitoring-api
+  name: Securonix Device Monitoring API
+  description: List of monitored devices and metadata.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Device Monitoring
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-device-monitoring-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-events-api
+  name: Securonix Events API
+  description: The Events API from Securonix — 3 operation(s) for events.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Events
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-events-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-exploit-target-api
+  name: Securonix Exploit Target API
+  description: The Exploit Target API from Securonix — 3 operation(s) for exploit target.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Exploit Target
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-exploit-target-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-identity-api
+  name: Securonix Identity API
+  description: The Identity API from Securonix — 3 operation(s) for identity.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Identity
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-identity-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-incident-api
+  name: Securonix Incident API
+  description: The Incident API from Securonix — 3 operation(s) for incident.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Incident
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-incident-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-indicators-api
+  name: Securonix Indicators API
+  description: The Indicators API from Securonix — 3 operation(s) for indicators.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Indicators
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-indicators-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-infrastructure-api
+  name: Securonix Infrastructure API
+  description: The Infrastructure API from Securonix — 3 operation(s) for infrastructure.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Infrastructure
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-infrastructure-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-intrusion-set-api
+  name: Securonix Intrusion Set API
+  description: The Intrusion Set API from Securonix — 3 operation(s) for intrusion set.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Intrusion Set
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-intrusion-set-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-investigations-api
+  name: Securonix Investigations API
+  description: The Investigations API from Securonix — 2 operation(s) for investigations.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Investigations
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-investigations-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-job-management-api
+  name: Securonix Job Management API
+  description: Manage Datasource Jobs Controller
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Job Management
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-job-management-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-malware-api
+  name: Securonix Malware API
+  description: The Malware API from Securonix — 3 operation(s) for malware.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Malware
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-malware-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-notes-api
+  name: Securonix Notes API
+  description: The Notes API from Securonix — 3 operation(s) for notes.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Notes
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-notes-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-object-attribute-sources-api
+  name: Securonix Object Attribute Sources API
+  description: >-
+    The Object Attribute Sources API from Securonix — 1 operation(s) for object attribute sources.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Object Attribute Sources
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-object-attribute-sources-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-object-attributes-api
+  name: Securonix Object Attributes API
+  description: The Object Attributes API from Securonix — 3 operation(s) for object attributes.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Object Attributes
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-object-attributes-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-object-comments-api
+  name: Securonix Object Comments API
+  description: The Object Comments API from Securonix — 3 operation(s) for object comments.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Object Comments
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-object-comments-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-object-relation-counts-api
+  name: Securonix Object Relation Counts API
+  description: >-
+    The Object Relation Counts API from Securonix — 1 operation(s) for object relation counts.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Object Relation Counts
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-object-relation-counts-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-object-relationship-attributes-api
+  name: Securonix Object Relationship Attributes API
+  description: >-
+    The Object Relationship Attributes API from Securonix — 2 operation(s) for object relationship attributes.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Object Relationship Attributes
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-object-relationship-attributes-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-object-relationship-comments-api
+  name: Securonix Object Relationship Comments API
+  description: >-
+    The Object Relationship Comments API from Securonix — 2 operation(s) for object relationship comments.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Object Relationship Comments
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-object-relationship-comments-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-object-relationships-api
+  name: Securonix Object Relationships API
+  description: The Object Relationships API from Securonix — 2 operation(s) for object relationships.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Object Relationships
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-object-relationships-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-object-sources-api
+  name: Securonix Object Sources API
+  description: The Object Sources API from Securonix — 2 operation(s) for object sources.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Object Sources
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-object-sources-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-object-summary-api
+  name: Securonix Object Summary API
+  description: The Object Summary API from Securonix — 1 operation(s) for object summary.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Object Summary
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-object-summary-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-object-tags-api
+  name: Securonix Object Tags API
+  description: The Object Tags API from Securonix — 2 operation(s) for object tags.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Object Tags
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-object-tags-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-object-watchlist-api
+  name: Securonix Object Watchlist API
+  description: The Object Watchlist API from Securonix — 3 operation(s) for object watchlist.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Object Watchlist
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-object-watchlist-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-parser-management-api
+  name: Securonix Parser Management API
+  description: Config Resource Parser Controller
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Parser Management
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-parser-management-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-policy-management-api
+  name: Securonix Policy Management API
+  description: >-
+    The Policy Management API allows users to configure  policies in the Unified Defense SIEM platform
+    (UDS).
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Policy Management
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-policy-management-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-report-api
+  name: Securonix Report API
+  description: The Report API from Securonix — 3 operation(s) for report.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Report
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-report-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-search-api
+  name: Securonix Search API
+  description: The Search API from Securonix — 2 operation(s) for search.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Search
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-search-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-signatures-api
+  name: Securonix Signatures API
+  description: The Signatures API from Securonix — 3 operation(s) for signatures.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Signatures
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-signatures-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-sources-api
+  name: Securonix Sources API
+  description: The Sources API from Securonix — 2 operation(s) for sources.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Sources
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-sources-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-spearphish-events-api
+  name: Securonix Spearphish Events API
+  description: The Spearphish Events API from Securonix — 3 operation(s) for spearphish events.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Spearphish Events
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-spearphish-events-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-supporting-api-api
+  name: Securonix Supporting API
+  description: Health Check Controller
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Supporting API
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-supporting-api-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-system-api
+  name: Securonix System API
+  description: The System API from Securonix — 2 operation(s) for system.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - System
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-system-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-tags-api
+  name: Securonix Tags API
+  description: The Tags API from Securonix — 2 operation(s) for tags.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Tags
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-tags-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-tasks-api
+  name: Securonix Tasks API
+  description: The Tasks API from Securonix — 2 operation(s) for tasks.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Tasks
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-tasks-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-threat-coverage-api
+  name: Securonix Threat Coverage API
+  description: >-
+    MITRE ATT&CK threat coverage analysis API for analyzing policy coverage across tactics and techniques.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Threat Coverage
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-threat-coverage-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-tlp-api
+  name: Securonix TLP API
+  description: The TLP API from Securonix — 3 operation(s) for tlp.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - TLP
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-tlp-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-tool-api
+  name: Securonix Tool API
+  description: The Tool API from Securonix — 3 operation(s) for tool.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Tool
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-tool-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-ttp-api
+  name: Securonix TTP API
+  description: The TTP API from Securonix — 3 operation(s) for ttp.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - TTP
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-ttp-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-vulnerability-api
+  name: Securonix Vulnerability API
+  description: The Vulnerability API from Securonix — 3 operation(s) for vulnerability.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Vulnerability
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-vulnerability-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
+- aid: securonix:securonix-whitelist-rules-api
+  name: Securonix Whitelist Rules API
+  description: The Whitelist Rules API from Securonix — 5 operation(s) for whitelist rules.
+  humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
+  baseURL: https://policymanagement.api.securonix.net
+  tags:
+  - Whitelist Rules
+  properties:
+  - type: OpenAPI
+    url: openapi/securonix-whitelist-rules-api-openapi.yml
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Securonix_Policy_Management_API/3.1.4
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/policy-management-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Datasource_Onboarding/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/datasource-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/Device_Monitoring/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/device-monitoring-api.htm
+  - type: APIReference
+    url: https://app.swaggerhub.com/apis-docs/securonix-b7a/ThreatQ/1.0.0
+  - type: Documentation
+    url: https://documentation.securonix.com/r/content/threat-q-api.htm
 common:
+- type: Overlay
+  url: overlays/securonix-policy-management-api-overlay.yaml
+- type: Overlay
+  url: overlays/securonix-datasource-onboarding-api-overlay.yaml
+- type: Overlay
+  url: overlays/securonix-device-monitoring-api-overlay.yaml
+- type: Overlay
+  url: overlays/securonix-threatq-api-overlay.yaml
 - type: Website
   url: https://www.securonix.com/
 - type: Documentation
