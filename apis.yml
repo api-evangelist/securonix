@@ -9,6 +9,17 @@ description: Securonix is a cybersecurity company whose Unified Defense SIEM pla
   search API, and four OpenAPI 3.x definitions on SwaggerHub for Policy Management, Datasource Onboarding,
   Device Monitoring and ThreatQ.
 url: https://raw.githubusercontent.com/api-evangelist/securonix/refs/heads/main/apis.yml
+deliveryModel:
+  model: saas
+  open_source: false
+  commercial: true
+  callable_host: false
+  label: Hosted service · you call their endpoint
+  confidence: medium
+  source:
+  - pricing
+  generated: '2026-08-28'
+  method: derived
 image: https://www.securonix.com/wp-content/uploads/2025/09/securonix_logo_color_rgb.png
 x-type: company
 x-source: harvest:secondary-market
@@ -1373,6 +1384,9 @@ apis:
   - type: Documentation
     url: https://documentation.securonix.com/r/content/threat-q-api.htm
 common:
+- type: CapabilityMap
+  url: capabilities/securonix-capability-edges.yml
+  name: Securonix Business Capability Map
 - type: Overlay
   url: overlays/securonix-policy-management-api-overlay.yaml
 - type: Overlay
