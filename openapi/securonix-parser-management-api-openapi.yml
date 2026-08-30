@@ -1,0 +1,185 @@
+openapi: 3.2.0
+info:
+  title: Datasource Onboarding Parser Management API
+  description: Allows users to fetch data to create, edit, and onboard a datasource through the API.
+  contact:
+    name: Securonix
+    url: www.securonix.com
+  license:
+    name: License of API
+  version: 1.0.0
+servers:
+- description: SwaggerHub API Auto Mocking
+  url: https://virtserver.swaggerhub.com/securonix-b7a/Datasource_Onboarding/1.0.0
+- url: http://localhost:8191
+  description: Inferred Url
+tags:
+- name: Parser Management
+  description: Config Resource Parser Controller
+paths:
+  /ingestion/v1/parsersdetails:
+    get:
+      tags:
+      - Parser Management
+      summary: Get parser details by vendor name or resource type or collection method
+      operationId: getParsersFromCRPUsingGET
+      parameters:
+      - name: vendor
+        in: query
+        description: vendor
+        required: false
+        style: form
+        schema:
+          type: string
+      - name: resourceType
+        in: query
+        description: resourceType
+        required: false
+        style: form
+        schema:
+          type: string
+      - name: collectionMethod
+        in: query
+        description: collectionMethod
+        required: false
+        style: form
+        schema:
+          type: string
+      - name: customerId
+        in: query
+        description: customerId
+        required: true
+        style: form
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/FetchParsersByVendorOrResourcetypeOrCollectionmethod'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /ingestion/v1/readcrpcontent:
+    get:
+      tags:
+      - Parser Management
+      summary: Get the crp content from console by crpId
+      operationId: getCRPContentUsingGET
+      parameters:
+      - name: crpId
+        in: query
+        description: crpId
+        required: false
+        style: form
+        schema:
+          type: integer
+          format: int64
+      - name: customerId
+        in: query
+        description: customerId
+        required: true
+        style: form
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ConfigResourceParsers'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+components:
+  schemas:
+    ParsersResponse:
+      title: ParsersResponse
+      type: object
+      properties:
+        collectionmethod:
+          type: string
+        crpid:
+          type: integer
+          format: int64
+        format:
+          type: string
+        functionality:
+          type: string
+        resourcetype:
+          type: string
+        vendor:
+          type: string
+    FetchParsersByVendorOrResourcetypeOrCollectionmethod:
+      title: FetchParsersByVendorOrResourcetypeOrCollectionmethod
+      type: object
+      properties:
+        parsers:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParsersResponse'
+    ConfigResourceParsers:
+      title: ConfigResourceParsers
+      type: object
+      properties:
+        accessattributexml:
+          type: string
+        accessconfigxml:
+          type: string
+        accessrulesxml:
+          type: string
+        actionfiltersjson:
+          type: string
+        attributexml:
+          type: string
+        attributexmlhash:
+          type: integer
+          format: int64
+        bprofilexml:
+          type: string
+        bprofilexmlhash:
+          type: integer
+          format: int64
+        collectionmethod:
+          type: string
+        configcollectorfilterxml:
+          type: string
+        configxml:
+          type: string
+        configxmlhash:
+          type: integer
+          format: int64
+        id:
+          type: integer
+          format: int64
+        policyxml:
+          type: string
+        policyxmlhash:
+          type: integer
+          format: int64
+        resourceimportxml:
+          type: string
+        resourcetype:
+          type: string
+        threatconfigxml:
+          type: string
+        uiconfigxml:
+          type: string
+        userconfigxml:
+          type: string
+        vendor:
+          type: string
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: wstoken

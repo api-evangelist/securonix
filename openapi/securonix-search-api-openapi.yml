@@ -1,0 +1,645 @@
+openapi: 3.2.0
+info:
+  title: ThreatQ Search API
+  description: "&copy; 2025<br/><br/><b>The API doc you are viewing is a BETA version that provides an early look at ThreatQ’s new API documentation format. At the moment, it does not cover the entire application program interface. Additional API resources, including the current standard format as well as previous versions, are available on the ThreatQ Help Center.</b><br/><br/>Last Updated: 07/11/2025\n## Introduction\n\nThe ThreatQ API is built on REST principles and uses JSON as a data interchange format.\n\n<script type=\"text/javascript\" src=\"ga.js\"></script>\n\n\n### Base URI\n\nAll URIs referenced in this document use the following base: https://**hostname**/api/, where **hostname** is replaced with the hostname or ip address of your ThreatQ instance.\n\n\n### Request Format\n\nThe ThreatQ API supports the following HTTP verbs:\n\n| Verb          | Description                        |\n| :-------------| :----------------------------------|\n| GET           | GET requests retrieve resources.   |\n| POST          | POST requests create resources.    |\n| PUT           | PUT requests update resources.     |\n| DELETE        | DELETE requests delete resources.  |\n\n\n### Response Format\n\nAll responses are returned in JSON. The response is wrapped in a top level data envelope which is an object or array depending on whether a single item or a collection is returned. If a single item is returned, the data field will be an object. If a collection is returned, the field will be an array.\n\n\n### Response Codes\n\nThe ThreatQ API uses HTTP status codes to indicate the status of your request.\n\n| Code          | Description                                                                           |\n| :-------------| :-------------------------------------------------------------------------------------|\n| 200           |  Object was retrieved successfully.                                                   |\n| 201           |  Object was created successfully.                                                     |\n| 204           |  Object(s) were successfully deleted.                                                 |\n| 400           |  Validation failed (usually as the result of an incorrect request)                    |\n| 401           |  Access denied (authorization access token in the header was incorrect / out of date) |\n| 403           |  Access forbidden (usually as the result of a bad request)                            |\n| 404           |  Object not found                                                                     |\n\n<hr />\n\n### Authentication\n\nThreatQ uses OAuth 2.0 to authenticate end users. You must have a ThreatQ user account to retrieve an API token. The API token is required for all API requests. The token does time out; therefore, you must periodically refresh the token.\n\n\n#### Authorization workflow\n\n1. Run a GET request to retrieve your client ID using the following format:\n\thttps://**hostname**/assets/js/config.js\n2. Run a POST/token request to retrieve your authorization access token. See POST/token in the Authorization section of this reference for the correct format.\n\n    Include the following parameters:\n\t  * grant_type (password)\n\t  * client-id (retrieved in step 1)\n\n    **Example:** https://**hostname**/api/token?grant_type=password&client_id=ab20a55dd9ac779246210d7102a45ee37\n\n    In the request body, include your ThreatQ credentials:\n\t  * email\n\t  * password\n\n3. Enter the access token as the authorization key in the header for all subsequent api requests."
+  license:
+    name: null
+    url: null
+  version: 1.0.0
+  x-logo:
+    url: null
+    backgroundColor: null
+    altText: ThreatQuotient
+servers:
+- description: SwaggerHub API Auto Mocking
+  url: https://virtserver.swaggerhub.com/securonix-b7a/ThreatQ/1.0.0
+- url: https://threatq.com/api
+  description: ThreatQ Server
+security:
+- BearerAuth: []
+tags:
+- name: Search
+paths:
+  /search/query:
+    get:
+      tags:
+      - Search
+      summary: List Data Collections
+      description: Get a listing of data collection the current user has sharing permissions for
+      operationId: 8c2b886dd40ef603e6540eb37efd9775
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/SearchWith'
+      responses:
+        '200':
+          $ref: '#/components/responses/SearchList'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-visibility: public
+    post:
+      tags:
+      - Search
+      summary: Create Data Collection
+      description: Create a data collection
+      operationId: 27fb38d6610c3d849a4cadd2ca93f67d
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchFillable'
+      responses:
+        '200':
+          $ref: '#/components/responses/Search'
+        '400':
+          $ref: '#/components/responses/FailedValidation'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-visibility: public
+  /search/query/{hash}:
+    get:
+      tags:
+      - Search
+      summary: Get Data Collection
+      description: Get a single data collection that the user has sharing permissions for
+      operationId: e3314c6668aec3b410f48cdd04c0d833
+      parameters:
+      - $ref: '#/components/parameters/SearchID'
+      - $ref: '#/components/parameters/SearchName'
+      - $ref: '#/components/parameters/SearchHashQuery'
+      - $ref: '#/components/parameters/CreatedAtSearch'
+      - $ref: '#/components/parameters/UpdatedAtSearch'
+      - $ref: '#/components/parameters/RelationshipSearch'
+      - $ref: '#/components/parameters/Fields'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/SearchWith'
+      - $ref: '#/components/parameters/SearchHashPath'
+      responses:
+        '200':
+          $ref: '#/components/responses/Search'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      x-visibility: public
+    put:
+      tags:
+      - Search
+      summary: Update Data Collection
+      description: Update a data collection
+      operationId: cb10c40783ee6615f474bc046d53bc2e
+      parameters:
+      - $ref: '#/components/parameters/SearchHashPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchFillable'
+      responses:
+        '200':
+          $ref: '#/components/responses/Search'
+        '400':
+          $ref: '#/components/responses/FailedValidation'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      x-visibility: public
+    delete:
+      tags:
+      - Search
+      summary: Delete Data Collection
+      description: Delete a data collection
+      operationId: d27dc3d9a9a56ddb66c8faa01fc0c0e3
+      parameters:
+      - $ref: '#/components/parameters/SearchHashPath'
+      responses:
+        '200':
+          $ref: '#/components/responses/NoContent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      x-visibility: public
+components:
+  responses:
+    Unauthorized:
+      description: Unauthorized
+    NotFound:
+      description: Object Not Found
+    NoContent:
+      description: Object(s) were successfully deleted.
+    FailedValidation:
+      description: Validation Failed
+    SearchList:
+      description: Request Successful
+      content:
+        application/json:
+          schema:
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Search'
+              total:
+                description: Total number of objects processed
+                type: integer
+                example: 1
+            type: object
+    Search:
+      description: Request Successful
+      content:
+        application/json:
+          schema:
+            properties:
+              data:
+                $ref: '#/components/schemas/Search'
+            type: object
+  parameters:
+    CreatedAtSearch:
+      name: created_at
+      in: query
+      description: <br>Objects created at date to search on
+      required: false
+      schema:
+        type: string
+        example: '2022-08-01 00:00:00'
+    Fields:
+      name: fields
+      in: query
+      description: '<br>Fields to be included in the response<br /><br /><b>Note:</b><ul><li><code>RELATIONSHIP</code>: Any valid relationship for the object</li><li><code>FIELD</code>: Any valid field in the respective object</li></ul>'
+      required: false
+      schema:
+        description: Text value to search on
+        type: string
+        enum:
+        - '[FIELD]'
+        - '[RELATIONSHIP].[FIELD]'
+        example: id,created_at,[RELATIONSHIP].id,[RELATIONSHIP].created_at
+    Limit:
+      name: limit
+      in: query
+      description: <br>The number of objects included in the response.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 10
+    SearchID:
+      name: id
+      in: query
+      description: <br/>Data collection id to search on
+      required: false
+      schema:
+        type: integer
+        example: 1
+    Offset:
+      name: offset
+      in: query
+      description: <br>The number of result set records that should be ignored.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 50
+    Sort:
+      name: sort
+      in: query
+      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+        example: id,created_at
+    SearchHashPath:
+      name: hash
+      in: path
+      description: <br />Unique identifier of the data collection
+      required: true
+      schema:
+        type: string
+        example: 9548a377155bd3fa13b2a16649c6eb88
+    SearchName:
+      name: name
+      in: query
+      description: <br/>Data collection name to search on
+      required: false
+      schema:
+        type: string
+        example: My Data Collection
+    UpdatedAtSearch:
+      name: updated_at
+      in: query
+      description: <br>Objects updated at date to search on
+      required: false
+      schema:
+        type: string
+        example: '2022-08-01 00:00:00'
+    SearchHashQuery:
+      name: hash
+      in: query
+      description: <br/>Data collection hash to search on
+      required: false
+      schema:
+        type: string
+        example: 9548a377155bd3fa13b2a16649c6eb88
+    RelationshipSearch:
+      name: '[RELATIONSHIP].[FIELD]'
+      in: query
+      description: '<br>Object''s related objects field to search on<br /><br /><b>Note:</b><ul><li><code>RELATIONSHIP</code>: Any valid relationship for the object</li><li><code>FIELD</code>: Any valid field in the related object</li></ul>'
+      required: false
+      schema:
+        anyOf:
+        - property: UNKNOWN_1
+          description: Text value to search on
+          type: string
+          example: Relationship Field Value
+        - property: UNKNOWN_2
+          description: Integer value to search on
+          type: integer
+          example: 1
+    SearchWith:
+      name: with
+      in: query
+      description: '<br>Relationships that can be included in the response.<br><br>Options include: dashboards, tqxFeeds, and workflowDefinitions'
+      required: false
+      schema:
+        type: string
+        example: dashboards,tqxFeeds,workflowDefinitions
+  schemas:
+    SearchFillable:
+      properties:
+        name:
+          description: Name of the data collection
+          type: string
+          example: My Data Collection
+        json:
+          $ref: '#/components/schemas/SearchJson'
+      type: object
+    UIFilter:
+      description: Listing of filters to be applied to the advanced search query display on the Threat Library
+      anyOf:
+      - $ref: '#/components/schemas/DateCreatedUIFilter'
+      - $ref: '#/components/schemas/LastModifiedUIFilter'
+    DateUIFilter:
+      properties:
+        startDate:
+          description: Lower bounding date filter
+          type: string
+          example: '2022-08-01 00:00:00'
+        endDate:
+          description: Upper bounding date filter
+          type: string
+          example: '2022-08-31 23:59:99'
+        interval:
+          description: Date interval to apply to the date filter
+          type: string
+          example: null
+        type:
+          description: Type of comparison to apply to the date filter
+          type: string
+          example: is between
+        set_id:
+          description: Search filter set id
+          type: integer
+          example: 0
+      type: object
+    UIQuery:
+      description: UI query information
+      properties:
+        columns:
+          $ref: '#/components/schemas/UIColumns'
+        criteria:
+          $ref: '#/components/schemas/UICriteria'
+        filters:
+          $ref: '#/components/schemas/UIFilter'
+        objects:
+          $ref: '#/components/schemas/UIObject'
+        filter_sets:
+          description: Listing of filter set information
+          type: array
+          items:
+            $ref: '#/components/schemas/UIFilterSet'
+      type: object
+    DateCreatedUIFilter:
+      properties:
+        created_at:
+          description: Listing of date created ui filter object
+          type: array
+          items:
+            $ref: '#/components/schemas/DateUIFilter'
+      type: object
+    DateCreatedAPIFilter:
+      properties:
+        created_at:
+          $ref: '#/components/schemas/DateAPIFilter'
+      type: object
+    LastModifiedUIFilter:
+      properties:
+        touched_at:
+          description: Listing of last modified ui filter object
+          type: array
+          items:
+            $ref: '#/components/schemas/DateUIFilter'
+      type: object
+    SearchJson:
+      description: JSON representation of the advanced search query
+      properties:
+        ui_query:
+          $ref: '#/components/schemas/UIQuery'
+        api_query:
+          $ref: '#/components/schemas/APIQuery'
+      type: object
+    APIDateIsBefore:
+      description: Is before date filter
+      properties:
+        +lt:
+          description: Upper bounding date filter
+          type: string
+          example: '2022-08-31 23:59:99'
+      type: object
+    APIFilter:
+      description: Listing of filters to be applied to the advanced search query
+      properties:
+        +and:
+          description: 'The and/or criteria to be applied to the query<br /><br /><b>Note:</b><ul><li>Accepted Key Values: <code>+and</code>, <code>-and</code>, <code>+or</code>, <code>-or</code></li><li>To apply a not condition to a grouping use the <code>-</code> sign in place of the <code>+</code></li></ul>'
+          type: array
+          items:
+            anyOf:
+            - $ref: '#/components/schemas/APIFilterConditionalGrouping'
+            - $ref: '#/components/schemas/DateCreatedAPIFilter'
+            - $ref: '#/components/schemas/LastModifiedAPIFilter'
+      type: object
+    APIDateIsAfter:
+      description: Is after date filter
+      properties:
+        +gt:
+          description: Lower bounding date filter
+          type: string
+          example: '2022-08-01 00:00:00'
+      type: object
+    APICriteria:
+      description: Listing of criteria to be applied to the advanced search query
+      properties:
+        +and:
+          description: 'And/or criteria to be applied to the query<br /><br /><b>Note:</b><ul><li>Accepted Key Values: <code>+and</code>, <code>-and</code>, <code>+or</code>, <code>-or</code></li><li>To apply a not condition to a grouping use the <code>-</code> sign in place of the <code>+</code></li></ul>'
+          type: array
+          items:
+            anyOf:
+            - $ref: '#/components/schemas/APICriteriaConditionalGrouping'
+            - $ref: '#/components/schemas/KeywordAPIFilter'
+      type: object
+    UICriteria:
+      description: Listing of criteria to be applied to the advanced search query display on the Threat Library
+      properties:
+        matchType:
+          description: Listing of conditions to be applied
+          type: array
+          items:
+            properties:
+              ? ''
+              : type: string
+                example: +and
+            type: object
+        items:
+          description: Search criteria to be applied
+          type: array
+          items:
+            properties:
+              ? ''
+              : description: Search criteria definition
+                properties:
+                  key:
+                    description: Search filter key
+                    type: string
+                    example: mentions
+                  value:
+                    description: Search filter value
+                    type: string
+                    example: www.threatquotient.com
+                  set_id:
+                    description: Search filter set id
+                    type: integer
+                    example: 0
+                type: object
+            type: object
+      type: object
+    UIIndicatorColumn:
+      properties:
+        indicators:
+          description: 'Listing of indicator column names to be included/excluded from being displayed on the Threat Library<br /><br ><b>Note:</b><ul><li>OBJECT/CUSTOM_OBJECT: Any existing object or custom object name</li><li>NAME: Any existing attribute name</li></ul>'
+          type: array
+          items:
+            type: string
+            enum:
+            - author
+            - date_created
+            - description
+            - expiration_date
+            - last_modified
+            - published_date
+            - related_adversary_names
+            - score
+            - sources
+            - status
+            - tags
+            - type
+            - related_[OBJECT/CUSTOM_OBJECT]_count
+            - attribute.[NAME]
+            example: author
+      type: object
+    APIDateIsWithinTheLast:
+      description: Is within the last date filter
+      properties:
+        +gt:
+          description: Lower bounding date filter<br /><br /><b>Note:</b>This should be set to <code>NOW-[INTERVAL]DAY</code>, where <code>INTERVAL</code> is the number of days
+          type: string
+          example: '2022-08-01 00:00:00'
+        +lt:
+          description: Upper bounding date filter<br /><br /><b>Note:</b>This should be set to <code>NOW</code>
+          type: string
+          example: '2022-08-31 23:59:99'
+      type: object
+    Search:
+      allOf:
+      - $ref: '#/components/schemas/SearchIdentifier'
+      - $ref: '#/components/schemas/SearchFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+    APICriteriaConditionalGrouping:
+      properties:
+        +or:
+          description: 'And/or criteria to be applied to the advanced search query<br /><br /><b>Note:</b><ul><li>Accepted Key Values: <code>+and</code>, <code>-and</code>, <code>+or</code>, <code>-or</code></li><li>To apply a not condition to a grouping use the <code>-</code> sign in place of the <code>+</code></li><li>There is no limit to how many nested and/or conditions that can be applied</li></ul>'
+          type: array
+          items:
+            anyOf:
+            - $ref: '#/components/schemas/KeywordAPIFilter'
+      type: object
+    LastModifiedAPIFilter:
+      properties:
+        touched_at:
+          $ref: '#/components/schemas/DateAPIFilter'
+      type: object
+    SearchIdentifier:
+      properties:
+        id:
+          description: Id of the data collection
+          type: integer
+          example: 1
+        hash:
+          description: Unique hash of the data collection
+          type: string
+          example: 9548a377155bd3fa13b2a16649c6eb88
+      type: object
+    DateAPIFilter:
+      description: Date API filter object
+      anyOf:
+      - $ref: '#/components/schemas/APIDateIsAfter'
+      - $ref: '#/components/schemas/APIDateIsBefore'
+      - $ref: '#/components/schemas/APIDateIsBetween'
+      - $ref: '#/components/schemas/APIDateIsWithinTheLast'
+    UIObject:
+      description: Object information
+      properties:
+        current:
+          description: Object being viewed on the Threat Library<br /><br /><b>Note:</b> Any created custom object collection name can be used
+          type: string
+          enum:
+          - adversaries
+          - attachments
+          - attack_pattern
+          - campaign
+          - course_of_action
+          - events
+          - exploit_target
+          - identity
+          - incident
+          - indicators
+          - intrusion_set
+          - investigations
+          - malware
+          - report
+          - signatures
+          - tasks
+          - tool
+          - ttp
+          - vulnerability
+          example: indicators
+        selected:
+          description: Listing of object names selected in the advanced search query<br /><br /><b>Note:</b> Any created custom object collection name can be used
+          type: array
+          items:
+            properties:
+              ? ''
+              : type: string
+                enum:
+                - adversaries
+                - attachments
+                - attack_pattern
+                - campaign
+                - course_of_action
+                - events
+                - exploit_target
+                - identity
+                - incident
+                - indicators
+                - intrusion_set
+                - investigations
+                - malware
+                - report
+                - signatures
+                - tasks
+                - tool
+                - ttp
+                - vulnerability
+                example: indicators
+            type: object
+      type: object
+    APIDateIsBetween:
+      description: Is between date filter
+      properties:
+        +gt:
+          description: Lower bounding date filter
+          type: string
+          example: '2022-08-01 00:00:00'
+        +lt:
+          description: Upper bounding date filter
+          type: string
+          example: '2022-08-31 23:59:99'
+      type: object
+    UIFilterSet:
+      description: Filter set information
+      properties:
+        id:
+          description: Filter Set ID
+          type: integer
+          example: 0
+        operator:
+          description: Filter Set Operator
+          type: string
+          enum:
+          - and
+          - or
+          example: or
+        isNegated:
+          description: Filter Set Is Negated
+          type: boolean
+          example: false
+        expanded:
+          description: Filter Set Expanded
+          type: boolean
+          example: true
+      type: object
+    APIQuery:
+      description: API query information
+      properties:
+        criteria:
+          $ref: '#/components/schemas/APICriteria'
+        filters:
+          $ref: '#/components/schemas/APIFilter'
+      type: object
+    KeywordAPIFilter:
+      properties:
+        mentions:
+          description: Keyword api filter value
+          type: string
+          example: www.threatquotient.com
+      type: object
+    APIFilterConditionalGrouping:
+      properties:
+        +or:
+          description: 'And/or criteria to be applied to the advanced search query<br /><br /><b>Note:</b><ul><li>Accepted Key Values: <code>+and</code>, <code>-and</code>, <code>+or</code>, <code>-or</code></li><li>To apply a not condition to a grouping use the <code>-</code> sign in place of the <code>+</code></li><li>There is no limit to how many nested and/or conditions that can be applied</li></ul>'
+          type: array
+          items:
+            anyOf:
+            - $ref: '#/components/schemas/DateCreatedAPIFilter'
+            - $ref: '#/components/schemas/LastModifiedAPIFilter'
+      type: object
+    UIColumns:
+      description: Listing of columns per object type to be displayed on the Threat Library
+      anyOf:
+      - $ref: '#/components/schemas/UIIndicatorColumn'
+    ThreatQTimestamps:
+      properties:
+        created_at:
+          description: Creation Date
+          type: string
+          example: '2021-07-29 13:58:03'
+        updated_at:
+          description: Update Date
+          type: string
+          example: '2022-04-12 08:32:16'
+      type: object
+  securitySchemes:
+    BearerAuth:
+      type: http
+      description: "Once authorized, all subsequent requests must include an `Authorization` header\n with the granted `access_token`. See the OAuth2 Authentication path for more information on how to authorize a User.<br><br>\n Example Header: `Authorization: Bearer <access_token>`"
+      name: Authorization
+      in: header
+      bearerFormat: Bearer `<access_token>`
+      scheme: bearer

@@ -1,0 +1,3996 @@
+openapi: 3.2.0
+info:
+  version: 3.1.4
+  title: Service Policy Management API
+  description: "The Policy Management API allows users to create, retrieve, update, and manage security policies in the Unified Defense SIEM (UDS) platform.\n\n---\n\n### Authentication & Authorization\n- **Authentication**: All requests require a JWT Bearer token.\n- **Authorization**: Access is enforced using `role` and `tenant` claims present in the JWT.\n  - **Read APIs** require one of: `ROLE_ADMIN`, `ROLE_CONTENT_DEVELOPER`, `ROLE_READ_ONLY`.\n  - **Write APIs** require one of: `ROLE_ADMIN`, `ROLE_CONTENT_DEVELOPER`.\n\n Refer to the [Authentication Guide](https://documentation.securonix.com/r/content/authentication.htm) for token acquisition and usage.\n\n **⚠️ Important:** The **API Base URL** is region-specific and must be obtained from your Technical Account Manager or Securonix Customer Support."
+  contact:
+    name: Securonix Customer Support
+    url: ''
+    email: customer-support@securonix.com
+servers:
+- url: https://policymanagement.api.securonix.net
+  description: Policy Management API regional base URL
+security:
+- bearerAuth: []
+tags:
+- name: Policy Management
+  description: The Policy Management API allows users to configure  policies in the Unified Defense SIEM platform (UDS).
+paths:
+  /v1/policies/client-id:
+    get:
+      tags:
+      - Policy Management
+      summary: Get Client ID from JWT token
+      description: "Extracts and returns the Client ID information from the provided JWT authorization token. \n"
+      operationId: getClientId
+      responses:
+        '200':
+          description: 'TenantId is retrieved successfully. You can use the tenantId as the header parameter (**client-id**) for policy APIs to authenticate your request. '
+          content:
+            application/json:
+              schema:
+                type: string
+                examples:
+                - tenant1
+              examples:
+                default:
+                  $ref: '#/components/examples/default'
+        '401':
+          description: Invalid JWT token. Please provide a valid token to access the resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    statusCode: GATEWAY-10-1
+                    message: Access token expired
+        '403':
+          description: Forbidden - Valid credentials but insufficient permissions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    statusCode: 403 FORBIDDEN
+                    message: User is Not entitled for getting the requested data
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/400BadRequest'
+              examples:
+                Example 1:
+                  value:
+                    message: Policy not found for id 1
+                    httpStatus: NOT_FOUND
+        '422':
+          description: Parent id not found in Auth token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    message: Parent id not found in Auth token
+                    statusCode: 422 Unprocessable Entity
+        '500':
+          description: Error processing the request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    statusCode: INTERNAL_ERROR
+                    message: An unexpected error occurred while processing the policy.
+      security:
+      - bearerAuth: []
+  /v1/policies/create:
+    post:
+      tags:
+      - Policy Management
+      summary: Creates new UDS policies.
+      description: 'Creates a new policy in the Unified Defense SIEM platform (UDS). It accepts the DELTA format polices, then converts and saves them to UDS.
+
+
+        > **YAML Response Support:**
+
+        > - To receive a YAML response, include the header `Accept: application/yaml` or `Accept: application/x-yaml` in the request.
+
+        > - JSON remains the default when the Accept header is not provided.
+
+        > - If YAML conversion fails, the response falls back to JSON.
+
+        '
+      operationId: createPolicies
+      parameters:
+      - $ref: '#/components/parameters/ClientIdHeader'
+      - $ref: '#/components/parameters/AcceptHeader'
+      requestBody:
+        description: "YAML object containing the details of the policy to be created in the Securonix platform. \nThe request must include all required fields as defined in the `Policy` schema. \n\n"
+        required: true
+        content:
+          application/yaml:
+            schema:
+              $ref: '#/components/schemas/Policy'
+            examples:
+              Example 1:
+                value:
+                  name: Account Updates From Suspicious IP Address
+                  category:
+                  - Persistence
+                  - FRAUD
+                  functionality:
+                  - loud Authentication / SSO / Single Sign-On
+                  lifecycle: experimental
+                  version: 6402507
+                  description: P Address of (username spraying and password spraying) violators are stored in a active list where this information is stored for 24 hrs.
+                  labels:
+                  - attack.defense_evasion
+                  logsource:
+                    product: Google Login
+                    service: Google
+                  detection:
+                    selection_1:
+                      baseeventid: '4688'
+                    selection_2:
+                      destinationprocessname: lsaas.exe
+                    selection_3:
+                      commandline|contains: lsass.exe
+                    condition: selection_1 AND ( selection_2 or selection_3 )
+                  criticality: Low
+                  violator: Activityip
+                  violatorAttribute: sourceaddress
+                  tenantname:
+                  - string
+                  signatureid: CAAL-Delta-1
+                  threatname: Account Manipulation
+                  saveasthreat: true
+                  verbose_info: '''Account ${accountname!"UNKNOWN"} getting updates from possible suspicious IP Address.'''
+                  violation_summary:
+                    grouping_attribute: DeviceAction
+                    level2_attribute: DeviceEventCategory
+                    level2_metadata_attributes:
+                    - DestinationUserName
+                    - ModifiedProperties1
+                    metadata_attributes:
+                    - SourceUserId
+                    - Category
+                  incident_workflow: SOCTeamReview
+                  autoIncidentEnabled: true
+                  analytical_type:
+                    aggregated_event_analytics:
+                    - name: Authentication Failed
+                      aee_filter:
+                        selection1:
+                          baseeventid: 4625
+                        condition: selection1
+                      number_of_occurrences:
+                        duration: 01:30:00
+                        atleast: 1
+                        count_matching_criteria:
+                          baseeventid: 15
+                      similar_value:
+                      - accountname
+                      consecutive_events: true
+                      distinct_value:
+                      - ipaddress
+                      - eventcountry
+                    - name: Authentication Success
+                      aee_filter:
+                        selection1:
+                          baseeventid|equals: 4625
+                        condition: selection1
+                      number_of_occurrences:
+                        duration: 01:30:00
+                        atleast: 1
+                        count_matching_criteria:
+                          baseeventid: 15
+                      consecutive_events: false
+                      distinct_value:
+                      - ipaddress
+                      - eventcountry
+                      parent_child_relationship:
+                        duration: 01:00:00
+                        common_values:
+                        - accountname
+                  additional_event_analytics:
+                    match_all_checks: true
+                    check_against_watchlist:
+                    - accountname: Terminated_Contractors
+                      flag_violation_not_found_in_watchlist: true
+                    check_against_lookup:
+                    - lookup:
+                        accountname: MultipleFailedEntries
+                      condition: lookup
+                      additional_criteria:
+                        selection_1:
+                          VendorId|contains: Vendor
+                        condition: NOT selection_1
+                    email_to_self:
+                    - emailrecipient: 0.8
+                    match_string:
+                    - ms:
+                        first_field: AccountName
+                        second_field: UserNameSpace
+                        threshold: 0.8
+                    check_against_tpi:
+                    - tpi: null
+                      destinationaddress:
+                      - SNXTIS_BASIC_IPV4
+                      - SNXTIS_BASIC_IPV6
+                      additional_criteria:
+                        selection_1:
+                        - tpi_src_confidence|gt: 5
+                        - tpi_country|contains|attr: country
+                        selection_2:
+                        - tpi_src: abc
+                        condition: selection_1 AND NOT selection_2
+                    check_against_activelist:
+                    - activelist:
+                        rule: ipaddress
+                        rule_match_present: true
+                        activelist_name: Password_spraying_attempts_From_single_IP
+                  violation_action:
+                    dailyviolationthreshold: 100000
+                    add_to_watchlist:
+                      watchlist_name: Domain_Admin
+                      removal_period:
+                        days: 1
+                        time: '12:00:00'
+                        expiry_date_from_current_time: true
+                  apisource: AI
+      responses:
+        '200':
+          description: Policies created successfully. Supports both JSON and YAML response formats via Accept header (application/json or application/x-yaml). If YAML conversion fails, returns JSON.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatePolicyResponse'
+              examples:
+                Example 1:
+                  value:
+                    id: 12345
+                    name: Suspicious Login Policy
+                    description: Detects suspicious login patterns
+                    enabled: true
+                    createdOn: '2023-01-15T10:30:00Z'
+                    lastUpdated: '2023-06-20T14:45:00Z'
+                    createdBy: admin
+                    updatedBy: security_analyst
+                    owner: security_team
+                    riskTypeId: 101
+                    criticality: HIGH
+                    riskThreatId: 201
+                    threatName: Account Compromise
+                    category: Authentication
+                    categoryId: 301
+                    policyType: REALTIME
+                    functionality: LOGIN_MONITORING
+                    functionalityId: 401
+                    hql: SELECT * FROM events WHERE...
+                    query: user.login_attempts > 5
+                    groupBy: user_id
+                    havingClause: COUNT(*) > 3
+                    joinGroup: user_events
+                    initiateWorkFlow: true
+                    directHql: false
+                    directiveEnabled: true
+                    functionEnabled: true
+                    directiveConfig: <directiveConfig>...</directiveConfig>
+                    functionConfig: <functionConfig>...</functionConfig>
+                    configWorkflowName: incident_response_workflow
+                    violator: user_id
+                    violatorAttribute: sourceusername
+                    violation: Multiple failed login attempts
+                    violatorCriticalityLevel: HIGH
+                    violationDisplayConfig: <display>...</display>
+                    verboseInfoTemplate: User {user} attempted {count} logins
+                    maxResults: 1000
+                    dailyViolationThreshold: 100
+                    aggregateScore: 85
+                    cappedRiskScore: 9.5
+                    constantScore: '7.5'
+                    customScore: 8.2
+                    secVersion: 2.1
+                    uniqueCode: POL_LOGIN_001
+                    signatureId: SIG_12345
+                    isWatchlist: false
+                    sandboxCategory: false
+                    notification: true
+                    realTimeCheck: true
+                    outputDatabase: true
+                    savePveAndScore: true
+                    saveAsThreat: false
+                    actionPrediction: true
+                    commitPolicy: true
+                    additionalInfo: false
+                    valid: true
+                    riskBoosterEnabled: false
+                    riskBoosterConfig: <riskbooster>...</riskbooster>
+                    functionSuspectConfigEnabled: false
+                    functionSuspectConfig: <suspect>...</suspect>
+                    suspectConfig: <config>...</config>
+                    suspectChecksListId: 501
+                    resourceGroupId: 601
+                    emailTemplateId: 701
+                    spConfigSummarizationId: 801
+                    resourceType: DATABASE
+                    resourceTypeId: DB_001
+                    analyticsType: BEHAVIORAL
+                    operatorConfig: <operator>...</operator>
+                    analyzerConfig: <analyzer>...</analyzer>
+                    ownership: security_team
+                    pipelineName: security_pipeline
+                    feedback: Working as expected
+                    releaseNotes: Updated threshold values
+                    whatsNew: Added new detection logic
+                    origin: PA
+                    modifiedOrigin: UI
+                    remediator: auto_remediation
+                    threatRemediationSteps: 1. Block user 2. Notify admin
+                    policyFunctionalityRelations:
+                    - id: 1
+                      functionalityName: LOGIN_MONITORING
+                      tenantid: 4
+                      idx: 0
+                    policylabels:
+                    - label_name: scx.attack.privilege_escalation
+                      labelId: 245
+                      idx: 1
+                    policyWatchlists:
+                    - id: 10
+                      watchlistId: 9995
+                      index: 0
+                      watchlistName: Recent_Transfers
+                      expiryDaysCount: 30
+                      decayFactor: 0
+                      decayFlag: false
+                      initialConfidenceLevel: 1
+                      confidenceIncrementFactor: 0
+                      dynamicWatchlist: true
+                      fieldList: ''
+                      calculateExpiryFromNow: false
+                    policyActivelists:
+                    - activelistId: 9
+                      policyId: 12345
+                      index: 0
+                      metadata: "<activeListParamsBean>\n    <keyRule>u_employeeid</keyRule>\n    <violationAttributes>deviceaction,ipaddress,destinationaddress,destinationport</violationAttributes>\n</activeListParamsBean>"
+                    policyDeprecateInfo:
+                    - id: 769
+                      deprecated: false
+                      index: 0
+                      starttime: '2023-04-12'
+                      endtime: '2023-04-19'
+                      validityindays: '7'
+                      deprecatedwithviolation: false
+                      signatureid: SIG_12345
+                      policyname: Suspicious Login Policy
+                    policyPredictionAttributes:
+                    - riskTypeId: 2393
+                      forestId: 2393
+                      riskThreatId: 50149
+                      signatureId: '1000024'
+                      index: 0
+                      attributes: "<policyAttributeBean>\n    <attributePriorityMap>\n        <entry>\n            <key>ipaddress</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>u_employeeid</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>u_department</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>u_firstname</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>accountname</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>transactionstring1</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>u_lastname</key>\n            <value>1</value>\n        </entry>\n    </attributePriorityMap>\n</policyAttributeBean>"
+                    policyOutputConfigs: []
+                    policyResources:
+                    - id: 1
+                      resourceId: 1
+                      resourceGroupId: 1
+                      resourceTypeId: 1
+                    policyRules:
+                    - id: 1050
+                      object: Users
+                      field: transferreddate
+                      condition: CONDITION_GREATER_THAN_OR_EQUALS
+                      value: $CURRENT_DATE
+                      logicalCondition: AND
+                      group: group_1
+                      index: 0
+                      deviationFlag: 'No'
+                      ruleType: USER
+                      functionRightString: fn_date_sub(${field}, ${p1}, ${p2})
+                      functionRightParameters: 30|DAY
+            application/yaml:
+              schema:
+                $ref: '#/components/schemas/Policy'
+              description: YAML representation of the created policy in DELTA format. Returned when Accept header is application/yaml or application/x-yaml.
+            application/x-yaml:
+              schema:
+                $ref: '#/components/schemas/Policy'
+              description: YAML representation of the created policy in DELTA format. Equivalent to application/yaml.
+        '400':
+          description: Invalid input data. Cannot process policy.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/400BadRequest'
+        '401':
+          description: Unauthorized - Missing or invalid credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    statusCode: GATEWAY-10-1
+                    message: Access token expired
+        '403':
+          description: Forbidden - Valid credentials but insufficient permissions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/400BadRequest'
+              examples:
+                Example 1:
+                  value:
+                    message: Policy not found for id 1
+                    httpStatus: NOT_FOUND
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    message: Parent id not found in Auth token
+                    statusCode: 422 Unprocessable Entity
+        '500':
+          description: Error processing policies.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    statusCode: INTERNAL_ERROR
+                    message: An unexpected error occurred while processing the policy.
+      security:
+      - bearerAuth: []
+  /v1/policies/update:
+    put:
+      tags:
+      - Policy Management
+      summary: Update an existing policy
+      description: "Updates an existing policy by its name in the Unified Defense SIEM platform (UDS).  This endpoint uses YAML object containing the details of the policy to be created in the Securonix platform for requests. Attributes that can be updated using this endpoint are:\n- tenantnames\n- version\n- description\n- labels\n- detection\n- saveasthreat\n- incident workflow\n- auto incident enabled\n- additional event analytics\n- aggregated event analytics\n- verbose_info\n- signatureId \n- daily violation threshold \n- add policy violators to watchlist\n\n> **YAML Response Support:**\n> - To receive a YAML response, include the header `Accept: application/yaml` or `Accept: application/x-yaml` in the request.\n> - JSON remains the default when the Accept header is not provided.\n> - If YAML conversion fails, the response falls back to JSON.\n"
+      operationId: updatePolicy
+      parameters:
+      - $ref: '#/components/parameters/ClientIdHeader'
+      - $ref: '#/components/parameters/AcceptHeader'
+      requestBody:
+        description: "YAML object containing the details of the policy to be created in the Securonix platform. \nThe request must include all required fields as defined in the `Policy` schema. \n"
+        required: true
+        content:
+          application/yaml:
+            schema:
+              $ref: '#/components/schemas/UpdatePolicy'
+            examples:
+              Example 1:
+                value:
+                  tenantnames:
+                  - tenantB
+                  description: Updating policy description
+                  labels:
+                  - updated.label.name
+                  detection:
+                    selection_1:
+                      baseeventid: 4688
+                    selection_2:
+                      destinationprocessname: lsaas.exe
+                    selection_3:
+                      commandline|contains: lsass.exe
+                    condition: selection_1 AND ( selection_2 or selection_3 )
+                  saveasthreat: true
+                  incident_workflow: SOCTeamReview
+                  autoIncidentEnabled: true
+                  violatorAttribute: sourceusername
+                  additional_event_analytics:
+                    match_all_checks: true
+                    check_against_watchlist:
+                    - accountname: Terminated_Contractors
+                      flag_violation_not_found_in_watchlist: true
+                    check_against_lookup:
+                    - lookup:
+                        accountname: MultipleFailedEntries
+                      condition: lookup
+                      additional_criteria:
+                        selection_1:
+                          VendorId|contains: Vendor
+                        condition: NOT selection_1
+                    email_to_self:
+                    - emailrecipient: 0.8
+                    match_string:
+                    - ms:
+                        first_field: AccountName
+                        second_field: UserNameSpace
+                        threshold: 0.8
+                    check_against_tpi:
+                    - tpi: null
+                      destinationaddress:
+                      - SNXTIS_BASIC_IPV4
+                      - SNXTIS_BASIC_IPV6
+                      additional_criteria:
+                        selection_1:
+                        - tpi_src_confidence|gt: 5
+                        - tpi_country|contains|attr: country
+                        selection_2:
+                        - tpi_src: abc
+                        condition: selection_1 AND NOT selection_2
+                    check_against_activelist:
+                    - activelist:
+                        rule: ipaddress
+                        rule_match_present: true
+                        activelist_name: Password_spraying_attempts_From_single_IP
+                  analytic_type:
+                    aggregated_event_analytics:
+                    - name: Authentication Failed
+                      aee_filter:
+                        selection1:
+                          baseeventid: 4625
+                        condition: selection1
+                      number_of_occurrences:
+                        duration: 01:30:00
+                        atleast: 1
+                        count_matching_criteria:
+                          baseeventid: 15
+                      similar_value:
+                      - accountname
+                      consecutive_events: true
+                      distinct_value:
+                      - ipaddress
+                      - eventcountry
+                    - name: Authentication Success
+                      aee_filter:
+                        selection1:
+                          baseeventid|equals: 4625
+                        condition: selection1
+                      number_of_occurrences:
+                        duration: 01:30:00
+                        atleast: 1
+                        count_matching_criteria:
+                          baseeventid: 15
+                      consecutive_events: false
+                      distinct_value:
+                      - ipaddress
+                      - eventcountry
+                      parent_child_relationship:
+                        duration: 01:00:00
+                        common_values:
+                        - accountname
+                  verbose_info: '''Account ${accountname!"UNKNOWN"} getting updates from possible suspicious IP Address.'''
+                  apisource: AI
+      responses:
+        '200':
+          description: Policy updated successfully. Supports both JSON and YAML response formats via Accept header (application/json or application/x-yaml). If YAML conversion fails, returns JSON.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatePolicyResponse'
+              examples:
+                Example 1:
+                  value:
+                    id: 12345
+                    name: Suspicious Login Policy
+                    description: Detects suspicious login patterns
+                    enabled: true
+                    createdOn: '2023-01-15T10:30:00Z'
+                    lastUpdated: '2023-06-20T14:45:00Z'
+                    createdBy: admin
+                    updatedBy: security_analyst
+                    owner: security_team
+                    riskTypeId: 101
+                    criticality: HIGH
+                    riskThreatId: 201
+                    threatName: Account Compromise
+                    category: Authentication
+                    categoryId: 301
+                    policyType: REALTIME
+                    functionality: LOGIN_MONITORING
+                    functionalityId: 401
+                    hql: SELECT * FROM events WHERE...
+                    query: user.login_attempts > 5
+                    groupBy: user_id
+                    havingClause: COUNT(*) > 3
+                    joinGroup: user_events
+                    initiateWorkFlow: true
+                    directHql: false
+                    directiveEnabled: true
+                    functionEnabled: true
+                    directiveConfig: <directiveConfig>...</directiveConfig>
+                    functionConfig: <functionConfig>...</functionConfig>
+                    configWorkflowName: incident_response_workflow
+                    violator: user_id
+                    violatorAttribute: sourceusername
+                    violation: Multiple failed login attempts
+                    violatorCriticalityLevel: HIGH
+                    violationDisplayConfig: <display>...</display>
+                    verboseInfoTemplate: User {user} attempted {count} logins
+                    maxResults: 1000
+                    dailyViolationThreshold: 100
+                    aggregateScore: 85
+                    cappedRiskScore: 9.5
+                    constantScore: '7.5'
+                    customScore: 8.2
+                    secVersion: 2.1
+                    uniqueCode: POL_LOGIN_001
+                    signatureId: SIG_12345
+                    isWatchlist: false
+                    sandboxCategory: false
+                    notification: true
+                    realTimeCheck: true
+                    outputDatabase: true
+                    savePveAndScore: true
+                    saveAsThreat: false
+                    actionPrediction: true
+                    commitPolicy: true
+                    additionalInfo: false
+                    valid: true
+                    riskBoosterEnabled: false
+                    riskBoosterConfig: <riskbooster>...</riskbooster>
+                    functionSuspectConfigEnabled: false
+                    functionSuspectConfig: <suspect>...</suspect>
+                    suspectConfig: <config>...</config>
+                    suspectChecksListId: 501
+                    resourceGroupId: 601
+                    emailTemplateId: 701
+                    spConfigSummarizationId: 801
+                    resourceType: DATABASE
+                    resourceTypeId: DB_001
+                    analyticsType: BEHAVIORAL
+                    operatorConfig: <operator>...</operator>
+                    analyzerConfig: <analyzer>...</analyzer>
+                    ownership: security_team
+                    pipelineName: security_pipeline
+                    feedback: Working as expected
+                    releaseNotes: Updated threshold values
+                    whatsNew: Added new detection logic
+                    origin: PA
+                    modifiedOrigin: UI
+                    remediator: auto_remediation
+                    threatRemediationSteps: 1. Block user 2. Notify admin
+                    policyFunctionalityRelations:
+                    - id: 1
+                      functionalityName: LOGIN_MONITORING
+                      tenantid: 4
+                      idx: 0
+                    policylabels:
+                    - label_name: scx.attack.privilege_escalation
+                      labelId: 245
+                      idx: 1
+                    policyWatchlists:
+                    - id: 10
+                      watchlistId: 9995
+                      index: 0
+                      watchlistName: Recent_Transfers
+                      expiryDaysCount: 30
+                      decayFactor: 0
+                      decayFlag: false
+                      initialConfidenceLevel: 1
+                      confidenceIncrementFactor: 0
+                      dynamicWatchlist: true
+                      fieldList: ''
+                      calculateExpiryFromNow: false
+                    policyActivelists:
+                    - activelistId: 9
+                      policyId: 12345
+                      index: 0
+                      metadata: "<activeListParamsBean>\n    <keyRule>u_employeeid</keyRule>\n    <violationAttributes>deviceaction,ipaddress,destinationaddress,destinationport</violationAttributes>\n</activeListParamsBean>"
+                    policyDeprecateInfo:
+                    - id: 769
+                      deprecated: false
+                      index: 0
+                      starttime: '2023-04-12'
+                      endtime: '2023-04-19'
+                      validityindays: '7'
+                      deprecatedwithviolation: false
+                      signatureid: SIG_12345
+                      policyname: Suspicious Login Policy
+                    policyPredictionAttributes:
+                    - riskTypeId: 2393
+                      forestId: 2393
+                      riskThreatId: 50149
+                      signatureId: '1000024'
+                      index: 0
+                      attributes: "<policyAttributeBean>\n    <attributePriorityMap>\n        <entry>\n            <key>ipaddress</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>u_employeeid</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>u_department</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>u_firstname</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>accountname</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>transactionstring1</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>u_lastname</key>\n            <value>1</value>\n        </entry>\n    </attributePriorityMap>\n</policyAttributeBean>"
+                    policyOutputConfigs: []
+                    policyResources:
+                    - id: 1
+                      resourceId: 1
+                      resourceGroupId: 1
+                      resourceTypeId: 1
+                    policyRules:
+                    - id: 1050
+                      object: Users
+                      field: transferreddate
+                      condition: CONDITION_GREATER_THAN_OR_EQUALS
+                      value: $CURRENT_DATE
+                      logicalCondition: AND
+                      group: group_1
+                      index: 0
+                      deviationFlag: 'No'
+                      ruleType: USER
+                      functionRightString: fn_date_sub(${field}, ${p1}, ${p2})
+                      functionRightParameters: 30|DAY
+            application/yaml:
+              schema:
+                $ref: '#/components/schemas/Policy'
+              description: YAML representation of the updated policy in DELTA format. Returned when Accept header is application/yaml or application/x-yaml.
+            application/x-yaml:
+              schema:
+                $ref: '#/components/schemas/Policy'
+              description: YAML representation of the updated policy in DELTA format. Equivalent to application/yaml.
+        '401':
+          description: Unauthorized - Missing or invalid credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    statusCode: GATEWAY-10-1
+                    message: Access token expired
+        '403':
+          description: Forbidden - Valid credentials but insufficient permissions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    statusCode: 403 FORBIDDEN
+                    message: User is Not entitled for getting the requested data
+        '404':
+          description: Policy not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/400BadRequest'
+              examples:
+                Example 1:
+                  value:
+                    message: Policy not found for id 1
+                    httpStatus: NOT_FOUND
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    message: Parent id not found in Auth token
+                    statusCode: 422 Unprocessable Entity
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    statusCode: INTERNAL_ERROR
+                    message: An unexpected error occurred while processing the policy.
+      security:
+      - bearerAuth: []
+  /v1/policies/status:
+    patch:
+      tags:
+      - Policy Management
+      summary: Enable or disable policies.
+      description: Clients can use this endpoint to enable or disable one or more policies.
+      operationId: enableDisablePolicies
+      parameters:
+      - $ref: '#/components/parameters/ClientIdHeader'
+      requestBody:
+        description: 'Defines the list of policies to be enabled/disabled.
+
+
+          - **Required fields:**" ''policyNames'', ''enable''
+
+
+          '
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicyActionRequest'
+            examples:
+              Example of enabling or disabling a policy:
+                description: Example of enabling or disabling a policy
+                value:
+                  policyNames:
+                  - PolicyA
+                  - PolicyB
+                  - PolicyC
+                  enable: 'true'
+      responses:
+        '200':
+          description: 'Policies enabled/disabled successfully.
+
+
+            Response `status` will indicate if policy action has been successful.
+
+
+            **Status values:**
+
+            - "Success" - When the policy is found and the status update operation completes successfully
+
+            - "Invalid" - When the policy name provided is not found in the valid policy names list'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyStatusResponse'
+              examples:
+                Example 1:
+                  value:
+                    PolicyStatusDetailsResponse:
+                    - policyName: PolicyA
+                      policyId: 1
+                      status: Success
+                    - policyName: PolicyB
+                      policyId: 2
+                      status: Invalid
+        '401':
+          description: Unauthorized - Missing or invalid credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    statusCode: GATEWAY-10-1
+                    message: Access token expired
+        '403':
+          description: Forbidden - Valid credentials but insufficient permissions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    statusCode: 403 FORBIDDEN
+                    message: User is Not entitled for getting the requested data
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/400BadRequest'
+              examples:
+                Example 1:
+                  value:
+                    message: Policy not found for id 1
+                    httpStatus: NOT_FOUND
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    message: Parent id not found in Auth token
+                    statusCode: 422 Unprocessable Entity
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    statusCode: INTERNAL_ERROR
+                    message: An unexpected error occurred while processing the policy.
+      security:
+      - bearerAuth: []
+  /v1/policies/erase:
+    delete:
+      tags:
+      - Policy Management
+      summary: Bulk delete multiple policies.
+      description: Deletes multiple policies in a single request with individual violation deletion preferences. This endpoint supports bulk deletion of up to **100 policies per request**. Requests exceeding this limit will be rejected.
+      operationId: bulkDeletePolicies
+      parameters:
+      - $ref: '#/components/parameters/ClientIdHeader'
+      requestBody:
+        description: JSON object containing the tenant name and list of policies to be deleted with their respective violation deletion preferences.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkPolicyDeletionRequest'
+            examples:
+              Example 1:
+                value:
+                  tenantName: SOAR
+                  policies:
+                  - policyName: Recent Transfers
+                    deleteViolations: true
+                  - policyName: policy for Whitelist
+                    deleteViolations: false
+      responses:
+        '200':
+          description: Policy deletion completed successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkPolicyDeletionResponse'
+              examples:
+                Example 1:
+                  value:
+                    totalRequested: 2
+                    totalSuccessful: 1
+                    totalFailed: 1
+                    results:
+                    - policyName: Recent Transfers
+                      success: true
+                      errorMessage: null
+                      deletionTrackerId: 123
+                      disabled: true
+                      policyId: 456
+                    - policyName: policy for Whitelist
+                      success: false
+                      errorMessage: Policy not found
+                      deletionTrackerId: null
+                      disabled: false
+                      policyId: null
+        '400':
+          description: Validation failed for deletion request - invalid input data or request format.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/400BadRequest'
+        '401':
+          description: Unauthorized - Missing or invalid credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    statusCode: GATEWAY-10-1
+                    message: Access token expired
+        '403':
+          description: Forbidden - Valid credentials but insufficient permissions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    statusCode: 403 FORBIDDEN
+                    message: User is Not entitled for getting the requested data
+        '404':
+          description: One or more policies not found - detailed results provided in response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/400BadRequest'
+              examples:
+                Example 1:
+                  value:
+                    message: One or more policies not found
+                    httpStatus: NOT_FOUND
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    message: Parent id not found in Auth token
+                    statusCode: 422 Unprocessable Entity
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    statusCode: INTERNAL_ERROR
+                    message: An unexpected error occurred while processing the policy.
+      security:
+      - bearerAuth: []
+  /v1/policies/fetch:
+    get:
+      tags:
+      - Policy Management
+      summary: Get a policy by its name
+      description: 'Retrieves the details of a policy using its unique identifier or policy name.
+
+
+        > **YAML Response Support:**
+
+        > - To receive a YAML response, include the header parameter `Accept: application/yaml` or `Accept: application/x-yaml` in the request.
+
+        > - YAML format is supported only for **IEE (Individual Event Event)** and **AEE (Aggregated Event Event)** policies.
+
+        > - For all other policy types, or if YAML conversion is not supported, the response defaults to JSON format.'
+      operationId: getPolicy
+      parameters:
+      - $ref: '#/components/parameters/ClientIdHeader'
+      - name: filter
+        in: query
+        description: Enter the field to filter on. **Supported fields:**  `id`, `name`.
+        required: true
+        schema:
+          type: string
+      - name: filterValue
+        in: query
+        description: Enter the amount to filter by.
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/AcceptHeader'
+      responses:
+        '200':
+          description: Policy fetched successfully
+          headers:
+            X-Response-Format-Fallback:
+              description: Indicates that the response format was changed from the requested format. Value is 'json' when YAML conversion fails and falls back to JSON.
+              schema:
+                type: string
+                example: json
+            X-Response-Format-Requested:
+              description: Indicates the originally requested response format.
+              schema:
+                type: string
+                example: yaml
+            X-Yaml-Conversion-Fallback-Reason:
+              description: Indicates the specific reason for YAML to JSON fallback. Value is 'missing-mandatory-fields' when the columns parameter is missing required fields for YAML conversion. Only present when X-Response-Format-Fallback is 'json'.
+              schema:
+                type: string
+                example: missing-mandatory-fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatePolicyResponse'
+            application/yaml:
+              schema:
+                $ref: '#/components/schemas/Policy'
+              examples:
+                Example 1:
+                  value:
+                    name: ''
+                    id: Account Updates From Suspicious IP Address
+                    category:
+                    - Persistence
+                    - FRAUD
+                    functionality:
+                    - loud Authentication / SSO / Single Sign-On
+                    lifecycle: experimental
+                    version: 6402507
+                    description: P Address of (username spraying and password spraying) violators are stored in a active list where this information is stored for 24 hrs.
+                    labels:
+                    - attack.defense_evasion
+                    logsource:
+                      product: Google Login
+                      service: Google
+                    detection:
+                      selection_1:
+                        baseeventid: '4688'
+                      selection_2:
+                        destinationprocessname: lsaas.exe
+                      selection_3:
+                        commandline|contains: lsass.exe
+                      condition: selection_1 AND ( selection_2 or selection_3 )
+                    criticality: Low
+                    violator: Activityip
+                    violatorAttribute: sourceaddress
+                    tenantname:
+                    - string
+                    signatureid: CAAL-Delta-1
+                    threatname: Account Manipulation
+                    saveasthreat: true
+                    verbose_info: '''Account ${accountname!"UNKNOWN"} getting updates from possible suspicious IP Address.'''
+                    violation_summary:
+                      grouping_attribute: DeviceAction
+                      level2_attribute: DeviceEventCategory
+                      level2_metadata_attributes:
+                      - DestinationUserName
+                      - ModifiedProperties1
+                      metadata_attributes:
+                      - SourceUserId
+                      - Category
+                    incident_workflow: SOCTeamReview
+                    analytical_type:
+                      aggregated_event_analytics:
+                      - name: Authentication Failed
+                        aee_filter:
+                          selection1:
+                            baseeventid: 4625
+                          condition: selection1
+                        number_of_occurrences:
+                          duration: 01:30:00
+                          atleast: 1
+                          count_matching_criteria:
+                            baseeventid: 15
+                        similar_value:
+                        - accountname
+                        consecutive_events: true
+                        distinct_value:
+                        - ipaddress
+                        - eventcountry
+                      - name: Authentication Success
+                        aee_filter:
+                          selection1:
+                            baseeventid|equals: 4625
+                          condition: selection1
+                        number_of_occurrences:
+                          duration: 01:30:00
+                          atleast: 1
+                          count_matching_criteria:
+                            baseeventid: 15
+                        consecutive_events: false
+                        distinct_value:
+                        - ipaddress
+                        - eventcountry
+                        parent_child_relationship:
+                          duration: 01:00:00
+                          common_values:
+                          - accountname
+                    additional_event_analytics:
+                      match_all_checks: true
+                      check_against_watchlist:
+                      - accountname: Terminated_Contractors
+                        flag_violation_not_found_in_watchlist: true
+                      check_against_lookup:
+                      - lookup:
+                          accountname: MultipleFailedEntries
+                        condition: lookup
+                        additional_criteria:
+                          selection_1:
+                            VendorId|contains: Vendor
+                          condition: NOT selection_1
+                      email_to_self:
+                      - emailrecipient: 0.8
+                      match_string:
+                      - ms:
+                          first_field: AccountName
+                          second_field: UserNameSpace
+                          threshold: 0.8
+                      check_against_tpi:
+                      - tpi: null
+                        destinationaddress:
+                        - SNXTIS_BASIC_IPV4
+                        - SNXTIS_BASIC_IPV6
+                        additional_criteria:
+                          selection_1:
+                          - tpi_src_confidence|gt: 5
+                          - tpi_country|contains|attr: country
+                          selection_2:
+                          - tpi_src: abc
+                          condition: selection_1 AND NOT selection_2
+                      check_against_activelist:
+                      - activelist:
+                          rule: ipaddress
+                          rule_match_present: true
+                          activelist_name: Password_spraying_attempts_From_single_IP
+                    violation_action:
+                      dailyviolationthreshold: 100000
+                      add_to_watchlist:
+                        watchlist_name: Domain_Admin
+                        removal_period:
+                          days: 1
+                          time: '12:00:00'
+                          expiry_date_from_current_time: true
+                    apisource: AI
+            application/x-yaml:
+              schema:
+                $ref: '#/components/schemas/Policy'
+              description: YAML representation of the fetched policy in DELTA format. Equivalent to application/yaml.
+        '401':
+          description: Unauthorized - Missing or invalid credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    statusCode: GATEWAY-10-1
+                    message: Access token expired
+        '403':
+          description: Forbidden - Valid credentials but insufficient permissions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    statusCode: 403 FORBIDDEN
+                    message: User is Not entitled for getting the requested data
+        '404':
+          description: Policy not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/400BadRequest'
+              examples:
+                Example 1:
+                  value:
+                    message: Policy not found for id 1
+                    httpStatus: NOT_FOUND
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    message: Parent id not found in Auth token
+                    statusCode: 422 Unprocessable Entity
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    statusCode: INTERNAL_ERROR
+                    message: An unexpected error occurred while processing the policy.
+      security:
+      - bearerAuth: []
+  /v1/policies/all:
+    get:
+      tags:
+      - Policy Management
+      summary: Fetch all policies with pagination, sorting, column selection, and dynamic filtering
+      description: 'Retrieves a paginated list of policies with support for:
+
+
+        - **Column Selection**: Return only specific fields.
+
+        - **Sorting**: Order results by supported attributes.
+
+        - **Dynamic Filtering**: Apply flexible filters on any supported field.
+
+        - **Pagination**: Control page size and navigate results.
+
+
+        This endpoint provides fine-grained control over policy data retrieval.
+
+
+        > To receive a YAML response, include the header parameter `Accept: application/yaml` or `Accept: application/x-yaml` in the request.
+
+        > If not specified, the response defaults to JSON format.
+
+
+        > **YAML Response Limitations:**
+
+        > - YAML responses are supported only for **IEE (Individual Event Event)** and **AEE (Aggregated Event Event)** policies.
+
+        > - When YAML format is requested, the response may contain a **partial set of matching policies**. Policies that cannot be converted to YAML are omitted from the response.
+
+        > - When using the `columns` parameter with YAML format, **all mandatory policy fields** must be included to produce a valid YAML response.'
+      operationId: getPolicies
+      parameters:
+      - $ref: '#/components/parameters/ClientIdHeader'
+      - name: columns
+        in: query
+        description: 'Comma-separated list of fields to include in the response. If omitted, all fields are returned.
+
+
+          **Supported Fields:**
+
+          `id`, `name`, `description`, `isWatchlist`, `targetWorkflow`, `createdOn`, `lastUpdated`, `riskTypeId`, `criticality`, `createdBy`, `updatedBy`, `violator`, `violatorAttribute`, `violation`, `owner`, `remediator`, `hql`, `groupBy`, `havingClause`, `joinGroup`, `initiateWorkFlow`, `directHql`, `category`, `categoryId`, `sandboxCategory`, `notification`, `emailTemplateId`, `realTimeCheck`, `riskThreatId`, `threatName`, `maxResults`, `policyType`, `resourceGroupId`, `outputDatabase`, `clearScratch`, `baseValue`, `directiveEnabled`, `directiveConfig`, `configWorkflowName`, `aggregateScore`, `functionEnabled`, `functionConfig`, `operatorConfig`, `suspectConfig`, `suspectChecksListId`, `resourceType`, `resourceTypeId`, `functionality`, `functionalityId`, `signatureId`, `violatorCriticalityLevel`, `functionSuspectConfigEnabled`, `riskBoosterEnabled`, `riskBoosterConfig`, `hashcode`, `uniqueCode`, `secVersion`, `ownership`, `pipelineName`, `violationDisplayConfig`, `enabled`, `query`, `verboseInfoTemplate`, `analyticsType`, `spConfigSummarizationId`, `feedback`, `analyzerConfig`, `dailyViolationThreshold`, `threatRemediationSteps`, `savePveAndScore`, `analyticConfig`, `saveAsThreat`, `generateNewCasePerRun`, `deleteData`, `actionPrediction`, `cappedRiskScore`, `constantScore`, `customScore`, `commitPolicy`, `additionalInfo`, `releaseNotes`, `whatsNew`, `valid`, `origin`, `modifiedOrigin`.'
+        required: false
+        schema:
+          type: array
+          examples:
+          - - id
+            - name
+            - enabled
+          items:
+            type: string
+      - name: sortBy
+        in: query
+        description: Field to sort results by. Must be one of the supported policy fields.
+        required: false
+        schema:
+          type: string
+          default: id
+          examples:
+          - name
+      - name: sortOrder
+        in: query
+        description: Sort direction. Either `asc` (ascending) or `desc` (descending).
+        required: false
+        schema:
+          type: string
+          default: asc
+          examples:
+          - asc
+      - name: limit
+        in: query
+        description: Maximum number of items per page (1–100).
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+          default: 20
+          examples:
+          - 50
+      - name: page
+        in: query
+        description: Zero-based page index.
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 0
+          default: 0
+          examples:
+          - 2
+      - name: filters
+        in: query
+        description: "Dynamic filters passed as **top-level query parameters** (no prefix). \n\nTwo forms are supported:\n\n1) **Equality:** `field=value`\n2) **Operator form:** `field_op=value` where `op` ∈ `like`, `ne`, `gt`, `lt`, `gte`, `lte`, `in`, `between`\n\n**Notes:**\n\n- `in` accepts comma-separated lists.\n- `between` expects two comma-separated values.\n- Supported fields are the same as those in the `columns` parameter, plus `labelName` and `tenantName`."
+        style: form
+        explode: true
+        schema:
+          type: string
+        examples:
+          basic:
+            summary: Exact match filter (boolean equality)
+            value: ?enabled=true
+          like:
+            summary: Fuzzy match filter using partial text search
+            value: ?name_like=login
+          range:
+            summary: Range filter for values between a start and end boundary
+            value: ?createdOn_between=2024-01-01,2024-06-01
+          in:
+            summary: Multi-value filter matching any value from a list
+            value: ?criticality_in=Low,High,Medium
+          multi:
+            summary: Combined filters using multiple query parameters
+            value: ?enabled=true&name_like=login&criticality=High
+      - $ref: '#/components/parameters/AcceptHeader'
+      responses:
+        '200':
+          description: Policies fetched successfully
+          headers:
+            X-Response-Partial:
+              description: Indicates partial YAML conversion when some policies cannot be converted. Value is 'true' when present.
+              schema:
+                type: string
+                example: 'true'
+            X-Yaml-Conversion-Unsupported-Count:
+              description: Number of policies that could not be converted to YAML format. Only present when X-Response-Partial is true.
+              schema:
+                type: string
+                example: '2'
+            Warning:
+              description: 'Warning message when partial YAML conversion occurs. Format: ''299 - Partial YAML conversion: some policy types are not supported'''
+              schema:
+                type: string
+                example: '299 - Partial YAML conversion: some policy types are not supported'
+            X-Response-Format-Fallback:
+              description: Indicates that the response format was changed from the requested format. Value is 'json' when YAML conversion fails and falls back to JSON (e.g., when mandatory columns are missing or conversion error occurs).
+              schema:
+                type: string
+                example: json
+            X-Response-Format-Requested:
+              description: Indicates the originally requested response format.
+              schema:
+                type: string
+                example: yaml
+            X-Yaml-Conversion-Fallback-Reason:
+              description: Indicates the specific reason for YAML to JSON fallback. Value is 'missing-mandatory-fields' when the columns parameter is missing required fields for YAML conversion. Only present when X-Response-Format-Fallback is 'json'.
+              schema:
+                type: string
+                example: missing-mandatory-fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse'
+              examples:
+                Example 1:
+                  value:
+                    pageNumber: 0
+                    pageSize: 3
+                    totalPages: 1
+                    totalElements: 3
+                    data:
+                    - id: 12345
+                      name: Suspicious Login Policy
+                      enabled: true
+                    - id: 12346
+                      name: Suspicious Login Policy1
+                      enabled: true
+                    - id: 12347
+                      name: Suspicious Login Policy2
+                      enabled: false
+                Example 2:
+                  value:
+                    pageNumber: 0
+                    pageSize: 3
+                    totalPages: 1
+                    totalElements: 3
+                    data:
+                    - name: QASNX_first_use_of_ipaddress_by_Account-1
+                      id: '61'
+                      version: 1.1
+                      description: First use - ipaddress by account attribute:transactionstring1
+                      detection:
+                        selection_1:
+                          customstring2: FirstUseOfIPAddressByAccount
+                        condition: selection_1
+                      criticality: Low
+                      violator: Activityaccount
+                      tenantname:
+                      - dtstck8i
+                      signatureid: QASNX_10111
+                      category:
+                      - SANDBOX-ALERT
+                      threatname: Critical Data Exfiltrated
+                      functionality:
+                      - AnalyticsTestHarnessFunctionality_001
+                      saveasthreat: false
+                      verbose_info: Account ${accountname!"ACCOUNTNAME"} performed ${transactionstring1!"ACTIVITY"} from ipaddress ${ipaddress!"UNKNOWN"}
+                      incident_workflow: PolicyOutlierWorkflow
+                      violation_action:
+                        dailyviolationthreshold: 5000
+                    - name: QASNX_First_time_occurence_filter_tpiCheck-1
+                      id: '63'
+                      version: 1.1
+                      description: First Time Occurance + Filter Events + Check against TPI check
+                      detection:
+                        selection_1:
+                          customstring2: First_time_occur_filter_tpiCheck
+                        condition: selection_1
+                      criticality: Low
+                      violator: Activityaccount
+                      tenantname:
+                      - dtstck8i
+                      signatureid: QASNX_10110
+                      category:
+                      - SANDBOX-ALERT
+                      threatname: Critical Data Exfiltrated
+                      functionality:
+                      - AnalyticsTestHarnessFunctionality_001
+                      saveasthreat: false
+                      verbose_info: Account ${accountname!"ACCOUNTNAME"} performed ${transactionstring1!"ACTIVITY"} from ipaddress ${ipaddress!"UNKNOWN"}
+                      incident_workflow: PolicyOutlierWorkflow
+                      additional_event_analytics:
+                        match_all_checks: false
+                        check_against_tpi:
+                        - tpi: ''
+                        - requesturl:
+                          - RECORDEDFUTURE
+                      violation_action:
+                        dailyviolationthreshold: 5000
+                    - name: QASNX_First_use_of_IPAddress_on_Resource_Flag_Account--1
+                      id: '64'
+                      version: 1
+                      description: This policy will flag the Account when different IP is used from same resource
+                      detection:
+                        selection_1:
+                          customstring2: FIRST_USE_OF_IPADRESS_ON_RESOURCE_FLAG_ACCOUNT
+                        condition: selection_1
+                      criticality: Low
+                      violator: RGActivityaccount
+                      tenantname:
+                      - dtstck8i
+                      signatureid: QASNX_1000295
+                      category:
+                      - SANDBOX-ALERT
+                      threatname: Critical Data Exfiltrated
+                      functionality:
+                      - AnalyticsTestHarnessFunctionality_001
+                      saveasthreat: false
+                      verbose_info: Account ${accountname!"ACCOUNTNAME"} performed ${transactionstring1!"ACTIVITY"} from ipaddress ${ipaddress!"UNKNOWN"}
+                      incident_workflow: PolicyOutlierWorkflow
+                      violation_action:
+                        dailyviolationthreshold: 5000
+            application/yaml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Policy'
+              description: YAML representation of policies in DELTA format. Returned when Accept header is application/yaml or application/x-yaml. Only IEE and AEE policies are included; unsupported policy types are omitted.
+            application/x-yaml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Policy'
+              description: YAML representation of policies in DELTA format. Equivalent to application/yaml.
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/400BadRequest'
+        '401':
+          description: Unauthorized - Missing or invalid credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    statusCode: GATEWAY-10-1
+                    message: Access token expired
+        '403':
+          description: Forbidden - Valid credentials but insufficient permissions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    statusCode: 403 FORBIDDEN
+                    message: User is Not entitled for getting the requested data
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/400BadRequest'
+              examples:
+                Example 1:
+                  value:
+                    message: Policy not found for id 1
+                    httpStatus: NOT_FOUND
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    message: Parent id not found in Auth token
+                    statusCode: 422 Unprocessable Entity
+        '500':
+          description: Error fetching policies
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    statusCode: INTERNAL_ERROR
+                    message: An unexpected error occurred while processing the policy.
+      security:
+      - bearerAuth: []
+  /v1/policies/limit:
+    get:
+      tags:
+      - Policy Management
+      summary: Check policy limit
+      description: User can use this endpoint to check their policy limit. The limit indicates the amount of time needed until more policies can be created once the limit has been reached.
+      operationId: getLimit
+      parameters:
+      - $ref: '#/components/parameters/ClientIdHeader'
+      responses:
+        '200':
+          description: Policy limit fetched successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LimitResponse'
+              examples:
+                Example 1:
+                  value:
+                    message: 'Your current limit is: 1000'
+        '401':
+          description: Unauthorized - Missing or invalid credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    statusCode: GATEWAY-10-1
+                    message: Access token expired
+        '403':
+          description: Forbidden - Valid credentials but insufficient permissions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    statusCode: 403 FORBIDDEN
+                    message: User is Not entitled for getting the requested data
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/400BadRequest'
+              examples:
+                Example 1:
+                  value:
+                    message: Policy not found for id 1
+                    httpStatus: NOT_FOUND
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    message: Parent id not found in Auth token
+                    statusCode: 422 Unprocessable Entity
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    statusCode: INTERNAL_ERROR
+                    message: An unexpected error occurred while processing the policy.
+      security:
+      - bearerAuth: []
+components:
+  schemas:
+    PolicyDeprecationEntity:
+      type: object
+      description: Policy deprecation information entity
+      properties:
+        id:
+          type: integer
+          description: Unique deprecation entity ID
+          format: int64
+          examples:
+          - 769
+        deprecated:
+          type: boolean
+          description: Indicates whether the policy is deprecated
+          examples:
+          - false
+        index:
+          type: integer
+          description: Ordering index of deprecation record
+          examples:
+          - 0
+        starttime:
+          type: string
+          description: Start date for deprecation
+          format: date
+          examples:
+          - '2023-04-12'
+        endtime:
+          type: string
+          description: End date for deprecation
+          format: date
+          examples:
+          - '2023-04-19'
+        validityindays:
+          type: string
+          description: Validity duration in days
+          examples:
+          - '7'
+        deprecatedwithviolation:
+          type: boolean
+          description: Indicates if policy was deprecated due to violation
+          examples:
+          - false
+        signatureid:
+          type: string
+          description: Associated signature ID of the policy
+          examples:
+          - SIG_12345
+        policyname:
+          type: string
+          description: Name of the deprecated policy
+          examples:
+          - Suspicious Login Policy
+      required:
+      - id
+      - deprecated
+      - starttime
+      - endtime
+      - policyname
+    PolicyactivelistEntity:
+      type: object
+      description: Policy active list entity
+      properties:
+        activelistId:
+          type: integer
+          description: Unique active list ID
+          format: int64
+          examples:
+          - 9
+        policyId:
+          type: integer
+          description: Associated policy ID
+          format: int64
+          examples:
+          - 12345
+        index:
+          type: integer
+          description: Ordering index of the active list entry
+          examples:
+          - 0
+        metadata:
+          type: string
+          description: Serialized metadata configuration of the active list (XML format)
+          examples:
+          - "<activeListParamsBean>\n    <keyRule>u_employeeid</keyRule>\n    <violationAttributes>deviceaction,ipaddress,destinationaddress,destinationport</violationAttributes>\n</activeListParamsBean>"
+      required:
+      - activelistId
+      - policyId
+      - metadata
+    ViolationSummary:
+      type: object
+      description: Provides a structured view of violations triggered by the policy.
+      properties:
+        grouping_attribute:
+          type: string
+          description: Primary grouping attribute for the violation.
+        level2_attribute:
+          type: string
+          description: Secondary grouping attribute for further categorization.
+        level2_metadata_attributes:
+          type: array
+          description: Metadata attributes associated with the secondary grouping attribute.
+          uniqueItems: true
+          items:
+            type: string
+        metadata_attributes:
+          type: array
+          description: Metadata attributes associated with the primary grouping attribute.
+          uniqueItems: true
+          items:
+            type: string
+      examples:
+      - grouping_attribute: DeviceAction
+        level2_attribute: DeviceEventCategory
+        level2_metadata_attributes:
+        - DestinationUserName
+        - ModifiedProperties1
+        metadata_attributes:
+        - SourceUserId
+        - Category
+      x-internal: true
+      xml:
+        name: violationDisplayConfigBean
+    LogSource:
+      type: object
+      description: Product information
+      properties:
+        product:
+          type: string
+          description: Product Name.
+        service:
+          type: string
+          description: Service name.
+      examples:
+      - product: Google Login
+        service: Google
+      x-examples:
+        Example 1:
+          product: azure
+          service: auditlogs
+      x-internal: true
+    PolicyActionRequest:
+      type: object
+      properties:
+        policyNames:
+          type: array
+          description: List of policy names
+          uniqueItems: true
+          items:
+            type: string
+        enable:
+          type: string
+          description: Action to enable/disable the policies provided
+          pattern: ^(true|false)$
+      required:
+      - policyNames
+      - enable
+      examples:
+      - policyNames:
+        - PolicyA
+        - PolicyB
+        enable: true
+    PolicyStatusResponse:
+      type: object
+      title: PolicyStatusResponse
+      properties:
+        PolicyStatusDetailsResponse:
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyStatusDetailsResponse'
+      examples:
+      - PolicyStatusDetailsResponse:
+        - policyName: PolicyA
+          policyId: 1
+          status: Success
+        - policyName: PolicyB
+          policyId: 2
+          status: Invalid
+    MSConfig:
+      type: object
+      title: MSConfig
+      description: Match string check analytics configuration
+      properties:
+        ms:
+          $ref: '#/components/schemas/MatchStringConfig'
+      required:
+      - ms
+      examples:
+      - ms:
+          first_field: AccountName
+          second_field: UserNameSpace
+          threshold: 0.8
+      x-internal: true
+    PolicyLabelEntity:
+      type: object
+      description: Policy label entity
+      properties:
+        idx:
+          type: integer
+          description: Label index ID
+          format: int32
+        label_name:
+          type: string
+          description: Label name
+        labelId:
+          type: integer
+          description: Label Id
+          format: int64
+    PolicyResourceEntity:
+      type: object
+      description: Policy resource entity
+      properties:
+        id:
+          type: integer
+          description: Unique entity ID
+          format: int64
+          examples:
+          - 1
+        resourceId:
+          type: integer
+          description: Associated resource ID
+          format: int64
+          examples:
+          - 1
+        resourceGroupId:
+          type: integer
+          description: Group ID to which the resource belongs
+          format: int64
+          examples:
+          - 1
+        resourceTypeId:
+          type: integer
+          description: Type identifier of the resource
+          format: int64
+          examples:
+          - 1
+      required:
+      - id
+      - resourceId
+      - resourceGroupId
+      - resourceTypeId
+    ActivelistConfig:
+      type: object
+      title: ActivelistConfig
+      properties:
+        rule:
+          type: string
+          description: "Specifies which mapped attributes should be concatenated to form the key that will be matched against entries in the Lookup Table.\n\n**Usage:**\n- A single mapped attribute can be used directly.\n- Multiple mapped attributes can be concatenated with the `+` operator.\n- Literal strings or symbols can also be inserted into the concatenation by wrapping them in parentheses.\n\n**Concatenation rules:**\n- `attribute1 + attribute2` — joins values of both attributes.\n- `attribute(length)` — takes only the first *length* characters of the attribute.\n- `attribute(start,end)` — takes a substring from position *start* to *end* (1-based indexing).\n- `(literal)` — inserts a literal string or character between attributes.\n\n**Examples:**\n1. **Concatenate two attributes**\n    ```yaml\n    accountname+ipaddress\n    ```\n    Produces a key formed by joining `accountname` and `ipaddress`.\n\n2. **Attribute with substring limit**\n    ```yaml\n    transactionstring1(50)+accountname(1,3)\n    ```\n    Produces a key using:\n    - First 50 characters of `transactionstring1`\n    - First 3 characters of `accountname`\n\n3. **Insert literal between attributes**\n    ```yaml\n    emailsender+(.)+filename\n    ```\n    Produces a key formed by:\n    - Value of `emailsender`\n    - The literal `.`\n    - Value of `filename`"
+        rule_match_present:
+          type: boolean
+          description: Check if the values matching rule provided is present.
+          default: true
+        activelist_name:
+          type: string
+          description: Name of the activelist.
+      required:
+      - rule
+      - activelist_name
+      examples:
+      - rule: ipaddress
+        rule_match_present: true
+        activelist_name: Password_spraying_attempts_From_single_IP
+    AddToWatchlist:
+      type: object
+      properties:
+        watchlist_name:
+          type: string
+          description: Watchlist name
+        removal_period:
+          $ref: '#/components/schemas/RemovalPeriod'
+          description: Time period after which the violator is removed from the watchlist.
+      required:
+      - watchlist_name
+      - removal_period
+      examples:
+      - watchlist_name: Domain_Admin
+        removal_period:
+          days: 1
+          time: '12:00:00'
+          expiry_date_from_current_time: true
+    RemovalPeriod:
+      type: object
+      properties:
+        days:
+          type: integer
+          description: Number of days
+          minimum: 0
+          maximum: 365
+        time:
+          type: string
+          description: Time in HH:mm:ss format
+          pattern: ^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$
+        expiry_date_from_current_time:
+          type: boolean
+          description: Calculate expiry from current time
+          default: false
+      required:
+      - days
+    AdditionalCriteria:
+      type: object
+      description: "Additional criteria configuration.\n\n**Requirements:**\n- Must contain **at least one** selection key (`selection_n`, where n ≥ 1)\n- Must contain **one** `condition` key.\n\n**Accepted keys:**\n- `selection_n`: Numbered selection blocks (e.g., `selection_1`, `selection_2`, …)\n- `condition`: Defines the condition to apply\n\n**Selection value types:**\n1. **List of entries** → conditions are joined with **OR**  \n2. **Map of entries** → conditions are joined with **AND**  \n\n---\nThe `|attr`, `|gt`, etc. are operator suffixes.  \nThe left-hand side is the field name, the right-hand side is the comparison value."
+      properties:
+        condition:
+          type: string
+          description: Logical condition referencing one or more selections.
+      patternProperties:
+        ^selection_[0-9]*$:
+          oneOf:
+          - type: array
+            items: {}
+          - type: object
+          description: Criteria for a selection, where `n` is a positive integer.
+      required:
+      - condition
+      minProperties: 2
+      examples:
+      - selection_1:
+          VendorId|contains: Vendor
+        condition: NOT selection_1
+    BulkPolicyDeletionRequest:
+      type: object
+      properties:
+        tenantName:
+          type: string
+          description: Name of the tenant for which policies should be deleted
+          examples:
+          - SOAR
+        policies:
+          type: array
+          description: List of policies to be deleted with their deletion preferences
+          minItems: 1
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/PolicyDeletionItem'
+      required:
+      - tenantName
+      - policies
+      examples:
+      - tenantName: SOAR
+        policies:
+        - policyName: Recent Transfers
+          deleteViolations: true
+        - policyName: policy for Whitelist
+          deleteViolations: false
+    Policy:
+      type: object
+      title: Policy
+      description: 'Data model for policy information. It is defined in yaml format following the Securonix DELTA framework.
+
+
+
+        Refer [DELTA framework](../user-guide/developer-guide/Securonix-delta-framework) for more information.'
+      properties:
+        name:
+          type: string
+          description: Policy name.
+          minLength: 3
+          maxLength: 255
+        id:
+          type: integer
+          description: Policy unique identifier.
+          format: int64
+        category:
+          type: array
+          description: Policy categories. Violations of the policy will belong to these categories
+          uniqueItems: true
+          items:
+            type: string
+        category_copy:
+          type: array
+          description: Policy categories. Violations of the policy will belong to these categories
+          uniqueItems: true
+          items:
+            type: string
+        functionality:
+          type: array
+          description: Policy functionality. It helps identify the core purpose or domain the policy belongs to.
+          uniqueItems: true
+          items:
+            type: string
+        lifecycle:
+          type: string
+          description: Policy lifecycle stage.
+        version:
+          type: number
+          description: Sec Version of the policy.
+          format: double
+        description:
+          type: string
+          description: Policy description.
+          maxLength: 1000
+        labels:
+          type: array
+          description: Policy labels/tags.
+          items:
+            type: string
+            examples:
+            - attack.defense_evasion
+        logsource:
+          $ref: '#/components/schemas/LogSource'
+        detection:
+          $ref: '#/components/schemas/detection'
+          description: "Detection logic and conditions. Used to detect violations based on one or more selection blocks, filter and a condition.\n\n**Structure:**\n- Must contain **at least one** selection key (`selection_n`, where n ≥ 1)  \n- Can contain an optional `filter` for further filtering\n- Must contain a `condition` key  \n**Selection configuration**  \n  Defines field-level conditions used for filtering.\n\n**General format:**\n\nfieldName[|modifier][|attr|oex]: value\n\n\n**Formats**\n- *Literal-based comparison*  \n  ```\n  fieldName[|modifier]: value\n  ```\n- *Attribute-based comparison*  \n  ```\n  fieldName[|modifier]|attr: securonix_attribute\n  ```\n- *External operator expression comparison* \n  - *Supported operators*  \n    1. `whitelist_ip`  \n    2. `whitelist_domain`  \n\n  ```\n  fieldName[|modifier]|oex: operator(attr_or_value)\n  ```\n- *Check against named list comparison*  \n  ```\n  fieldName[|list_modifier]: lookup_table\n  ```\n\n**Parameters**\n- **fieldName** — event field name to evaluate\n- **modifier** *(optional)* — comparison operator (defaults to `equals`)\n- **attr** *(optional)* — references another attribute value\n- **oex** *(optional)* — external operator invocation for lookups (e.g., whitelist checks)\n- **value** — literal value, attribute reference, function call, or lookup table\n\n**Supported modifiers**\n- equals *(default if omitted)*\n- contains\n- gt (greater than)\n- gte (greater than or equal)\n- lt (less than)\n- lte (less than or equal)\n- startswith\n- endswith\n- isnull\n- regex (regex pattern match)\n\n**Negation modifiers**\n- not equals\n- not contains\n- is not null\n- not regex\n\n**List modifiers**\n- equalsinlist *(default if omitted)*\n- containsinlist\n- startswithinlist\n- endswithinlist\n- cidrinlist (CIDR range match, restricted to IP attributes: ipaddress, sourceaddress, destinationaddress, deviceaddress, translatedipaddress)\n- regexinlist (regex pattern match against lookup table)\n\n**Negation list modifiers**\n- not equalsinlist\n- not containsinlist\n- not startswithinlist\n- not endswithinlist\n- not cidrinlist\n- not regexinlist\n\n**Negation usage**\n- Apply negation to a selection block by prefixing its reference with `NOT` in `condition`.\n- Example:\n  ```yaml\n  selection_1:\n    emailsender|equals: sender\n  condition: NOT selection_1\n  ```\n  Evaluates as:\n  ```\n  emailsender(NOT_EQUALS)sender\n  ```\n\n**Examples of supported selection forms**\n\n1. Attribute-based comparison\n   ```yaml\n   emailsender|contains|attr: securonix_attribute\n   ```\n   → emailsender(CONTAINS)attr.securonix_attribute\n\n2. External operator expression with attribute\n   ```yaml\n   requesturl|contains|oex: whitelist_domain(attr.destinationhostname)\n   ```\n   → requesturl(CONTAINS)whitelist_domain(attr.destinationhostname)\n\n3. External operator expression with literal\n   ```yaml\n   requesturl|equals|oex: whitelist_ip(\"10.0.10.0\")\n   ```\n   → requesturl(EQUALS)whitelist_ip(\"10.0.10.0\")\n\n4. Check against lookup table\n   ```yaml\n   accountname|equalsinlist: lookup_table\n   ```\n   → accountname(EQUALS_IN_LIST)lookup_table\n\n5. Literal-based with default modifier\n   ```yaml\n   accountname: value\n   ```\n   → accountname(EQUALS)value\n\n6. Literal-based with explicit modifier\n   ```yaml\n   accountname|contains: value\n   ```\n   → accountname(CONTAINS)value\n\n7. Literal-based with negation\n   ```yaml\n   selection_1:\n     accountname|contains: value\n   condition: NOT selection_1\n   ```\n   → accountname(NOT_CONTAINS)value\n\n8. Attribute-based with negation\n   ```yaml\n   selection_1:\n     accountname|contains|attr: securonix_attribute\n   condition: NOT selection_1\n   ```\n   → accountname(NOT_CONTAINS)attr.securonix_attribute\n\n9. Check against lookup with negation\n   ```yaml\n   selection_1:\n     accountname|containsinlist: value\n   condition: NOT selection_1\n   ```\n   → accountname(NOT_CONTAINS_IN_LIST)value\n\n10. External operator expression with negation\n    ```yaml\n    selection_1:\n      accountname|contains|oex: whitelist_domain(\"abc.com\")\n    condition: NOT selection_1\n    ```\n    → accountname(NOT_CONTAINS)whitelist_domain(\"abc.com\")\n\n11. CIDR range match against lookup table\n    ```yaml\n    selection_1:\n      ipaddress|cidrinlist: SCNX_PrivateIPCIDRs\n    condition: selection_1\n    ```\n    → ipaddress(EQUALS_IN_CIDR_RANGE_LIST)SCNX_PrivateIPCIDRs\n\n12. CIDR range match with negation\n    ```yaml\n    selection_1:\n      ipaddress|cidrinlist: SCNX_PrivateIPCIDRs\n    condition: NOT selection_1\n    ```\n    → ipaddress(NOT_EQUALS_IN_CIDR_RANGE_LIST)SCNX_PrivateIPCIDRs\n\n13. Regex pattern match\n    ```yaml\n    selection_1:\n      accountname|regex: ^admin.*$\n    condition: selection_1\n    ```\n    → accountname(REGEX_EQUALS)^admin.*$\n\n14. Regex pattern match with negation\n    ```yaml\n    selection_1:\n      accountname|regex: ^admin.*$\n    condition: NOT selection_1\n    ```\n    → accountname(REGEX_NOT_EQUALS)^admin.*$\n\n15. Regex match against lookup table\n    ```yaml\n    selection_1:\n      accountname|regexinlist: RegexPatternLookup\n    condition: selection_1\n    ```\n    → accountname(REGEX_EQUALS_IN_LIST)RegexPatternLookup\n\n16. Regex match against lookup table with negation\n    ```yaml\n    selection_1:\n      accountname|regexinlist: RegexPatternLookup\n    condition: NOT selection_1\n    ```\n    → accountname(REGEX_NOT_EQUALS_IN_LIST)RegexPatternLookup\n"
+        criticality:
+          type: string
+          description: Policy criticality level.
+          pattern: ^(None|Low|Medium|High)$
+        violator:
+          type: string
+          description: Violator type.
+          pattern: ^(Activityaccount|Resources|RGActivityaccount|RTActivityAccount|Activityip|RTActivityip)$
+        violatorAttribute:
+          type:
+          - string
+          - 'null'
+          description: Selected attribute used to create violation entities for the configured violator. Maps to policy_master.violator_attribute and must be one of the attributes allowed for the selected violator when the violator attribute feature is enabled.
+          examples:
+          - sourceusername
+        tenantname:
+          type: array
+          description: "List of tenants the policy will be configured for.\n\n> Use the keyword `All` if the policy should apply to **all tenants**.\n\nExample:\n```yaml\ntenantname:\n - All\n ```\n"
+          uniqueItems: true
+          items:
+            type: string
+        signatureid:
+          type: string
+          description: Policy signature identifier.
+        threatname:
+          type: string
+          description: Threat name associated with policy.
+        saveasthreat:
+          type: boolean
+          description: Whether to save as threat.
+        verbose_info:
+          type: string
+          description: Verbose information template. Provides summary of the violation.
+        violation_summary:
+          $ref: '#/components/schemas/ViolationSummary'
+        incident_workflow:
+          type: string
+          description: Incident workflow identifier.
+        autoIncidentEnabled:
+          type: boolean
+          description: Enables or disables automatic incident creation for policy violations. When omitted during create, the policy defaults to false.
+        analytical_type:
+          $ref: '#/components/schemas/AnalyticalType'
+        additional_event_analytics:
+          $ref: '#/components/schemas/AdditionalEventAnalytics'
+        violation_action:
+          $ref: '#/components/schemas/ViolationAction'
+        apisource:
+          type: string
+          description: Identifies the system calling the API to create or update a policy. Must not be 'PA'.
+          maxLength: 2
+          default: PA
+      required:
+      - name
+      - category
+      - functionality
+      - detection
+      - criticality
+      - violator
+      - tenantname
+      - signatureid
+      - threatname
+      examples:
+      - name: ''
+        id: Account Updates From Suspicious IP Address
+        category:
+        - Persistence
+        - FRAUD
+        functionality:
+        - loud Authentication / SSO / Single Sign-On
+        lifecycle: experimental
+        version: 6402507
+        description: P Address of (username spraying and password spraying) violators are stored in a active list where this information is stored for 24 hrs.
+        labels:
+        - attack.defense_evasion
+        logsource:
+          product: Google Login
+          service: Google
+        detection:
+          selection_1:
+            baseeventid: '4688'
+          selection_2:
+            destinationprocessname: lsaas.exe
+          selection_3:
+            commandline|contains: lsass.exe
+          condition: selection_1 AND ( selection_2 or selection_3 )
+        criticality: Low
+        violator: Activityip
+        tenantname:
+        - string
+        signatureid: CAAL-Delta-1
+        threatname: Account Manipulation
+        saveasthreat: true
+        verbose_info: '''Account ${accountname!"UNKNOWN"} getting updates from possible suspicious IP Address.'''
+        violation_summary:
+          grouping_attribute: DeviceAction
+          level2_attribute: DeviceEventCategory
+          level2_metadata_attributes:
+          - DestinationUserName
+          - ModifiedProperties1
+          metadata_attributes:
+          - SourceUserId
+          - Category
+        incident_workflow: SOCTeamReview
+        autoIncidentEnabled: true
+        analytical_type:
+          aggregated_event_analytics:
+          - name: Authentication Failed
+            aee_filter:
+              selection1:
+                baseeventid: 4625
+              condition: selection1
+            number_of_occurrences:
+              duration: 01:30:00
+              atleast: 1
+              count_matching_criteria:
+                baseeventid: 15
+            similar_value:
+            - accountname
+            consecutive_events: true
+            distinct_value:
+            - ipaddress
+            - eventcountry
+          - name: Authentication Success
+            aee_filter:
+              selection1:
+                baseeventid|equals: 4625
+              condition: selection1
+            number_of_occurrences:
+              duration: 01:30:00
+              atleast: 1
+              count_matching_criteria:
+                baseeventid: 15
+            consecutive_events: false
+            distinct_value:
+            - ipaddress
+            - eventcountry
+            parent_child_relationship:
+              duration: 01:00:00
+              common_values:
+              - accountname
+        additional_event_analytics:
+          match_all_checks: true
+          check_against_watchlist:
+          - accountname: Terminated_Contractors
+            flag_violation_not_found_in_watchlist: true
+          check_against_lookup:
+          - lookup:
+              accountname: MultipleFailedEntries
+            condition: lookup
+            additional_criteria:
+              selection_1:
+                VendorId|contains: Vendor
+              condition: NOT selection_1
+          email_to_self:
+          - emailrecipient: 0.8
+          match_string:
+          - ms:
+              first_field: AccountName
+              second_field: UserNameSpace
+              threshold: 0.8
+          check_against_tpi:
+          - tpi: null
+            destinationaddress:
+            - SNXTIS_BASIC_IPV4
+            - SNXTIS_BASIC_IPV6
+            additional_criteria:
+              selection_1:
+              - tpi_src_confidence|gt: 5
+              - tpi_country|contains|attr: country
+              selection_2:
+              - tpi_src: abc
+              condition: selection_1 AND NOT selection_2
+          check_against_activelist:
+          - activelist:
+              rule: ipaddress
+              rule_match_present: true
+              activelist_name: Password_spraying_attempts_From_single_IP
+        violation_action:
+          dailyviolationthreshold: 100000
+          add_to_watchlist:
+            watchlist_name: Domain_Admin
+            removal_period:
+              days: 1
+              time: '12:00:00'
+              expiry_date_from_current_time: true
+        apisource: AI
+      x-examples: {}
+      x-internal: true
+    UpdatePolicy:
+      type: object
+      title: UpdatePolicy
+      properties:
+        tenantnames:
+          type: array
+          description: "List of tenants the policy will be configured for.\n\n> Use the keyword `All` if the policy should apply to **all tenants**.\n\nExample:\n```yaml\ntenantname:\n - All\n ```\n"
+          items:
+            type: string
+        description:
+          type: string
+          description: Policy description.
+        labels:
+          type: array
+          description: Policy labels/tags.
+          items:
+            type: string
+        detection:
+          $ref: '#/components/schemas/detection'
+        saveasthreat:
+          type: boolean
+          description: Whether to save as threat.
+        incident_workflow:
+          type: string
+          description: Incident workflow identifier.
+          examples:
+          - SOCTeamReview
+        autoIncidentEnabled:
+          type: boolean
+          description: Enables or disables automatic incident creation for policy violations. Omit this field on update to leave the existing setting unchanged.
+          examples:
+          - true
+        violatorAttribute:
+          type:
+          - string
+          - 'null'
+          description: Selected attribute used to create violation entities for the policy's violator. Omit this field on update to leave the existing setting unchanged. Maps to policy_master.violator_attribute and must be one of the attributes allowed for the policy violator when the violator attribute feature is enabled.
+          examples:
+          - sourceusername
+        additional_event_analytics:
+          $ref: '#/components/schemas/AdditionalEventAnalytics'
+        analytic_type:
+          $ref: '#/components/schemas/AnalyticalType'
+        verbose_info:
+          type: string
+          description: Verbose information template. Provides summary of the violation.
+        apisource:
+          type: string
+          description: Identifies the system calling the API to create or update a policy. Must not be 'PA'.
+          maxLength: 2
+          default: PA
+      examples:
+      - tenantnames:
+        - tenantB
+        description: Updating policy description
+        labels:
+        - updated.label.name
+        detection:
+          selection_1:
+            baseeventid: 4688
+          selection_2:
+            destinationprocessname: lsaas.exe
+          selection_3:
+            commandline|contains: lsass.exe
+          condition: selection_1 AND ( selection_2 or selection_3 )
+        saveasthreat: true
+        incident_workflow: SOCTeamReview
+        autoIncidentEnabled: true
+        violatorAttribute: sourceusername
+        additional_event_analytics:
+          match_all_checks: true
+          check_against_watchlist:
+          - accountname: Terminated_Contractors
+            flag_violation_not_found_in_watchlist: true
+          check_against_lookup:
+          - lookup:
+              accountname: MultipleFailedEntries
+            condition: lookup
+            additional_criteria:
+              selection_1:
+                VendorId|contains: Vendor
+              condition: NOT selection_1
+          email_to_self:
+          - emailrecipient: 0.8
+          match_string:
+          - ms:
+              first_field: AccountName
+              second_field: UserNameSpace
+              threshold: 0.8
+          check_against_tpi:
+          - tpi: null
+            destinationaddress:
+            - SNXTIS_BASIC_IPV4
+            - SNXTIS_BASIC_IPV6
+            additional_criteria:
+              selection_1:
+              - tpi_src_confidence|gt: 5
+              - tpi_country|contains|attr: country
+              selection_2:
+              - tpi_src: abc
+              condition: selection_1 AND NOT selection_2
+          check_against_activelist:
+          - activelist:
+              rule: ipaddress
+              rule_match_present: true
+              activelist_name: Password_spraying_attempts_From_single_IP
+        analytic_type:
+          aggregated_event_analytics:
+          - name: Authentication Failed
+            aee_filter:
+              selection1:
+                baseeventid: 4625
+              condition: selection1
+            number_of_occurrences:
+              duration: 01:30:00
+              atleast: 1
+              count_matching_criteria:
+                baseeventid: 15
+            similar_value:
+            - accountname
+            consecutive_events: true
+            distinct_value:
+            - ipaddress
+            - eventcountry
+          - name: Authentication Success
+            aee_filter:
+              selection1:
+                baseeventid|equals: 4625
+              condition: selection1
+            number_of_occurrences:
+              duration: 01:30:00
+              atleast: 1
+              count_matching_criteria:
+                baseeventid: 15
+            consecutive_events: false
+            distinct_value:
+            - ipaddress
+            - eventcountry
+            parent_child_relationship:
+              duration: 01:00:00
+              common_values:
+              - accountname
+        verbose_info: '''Account ${accountname!"UNKNOWN"} getting updates from possible suspicious IP Address.'''
+        apisource: AI
+    PolicyStatusDetailsResponse:
+      type: object
+      title: PolicyStatusDetailsResponse
+      properties:
+        policyName:
+          type: string
+        policyId:
+          type: integer
+          format: int64
+        status:
+          type: string
+      examples:
+      - policyName: PolicyA
+        policyId: 1
+        status: Success
+    FrequencyBasedThreshold:
+      type: object
+      description: Defines a frequency based AEE policy. The rate at which event occurs or is repeated over a particular period of time.
+      properties:
+        duration:
+          type: string
+          description: Time duration in hh:mm:ss format.
+        exactly:
+          type: integer
+          description: Exact count of events to match (mutually exclusive with 'atleast').
+          format: int32
+          minimum: 1
+        atleast:
+          type: integer
+          description: Minimum count to match (mutually exclusive with 'exactly').
+          format: int32
+          minimum: 1
+        count_matching_criteria:
+          type: object
+          description: 'Used to filter events based on these counts.
+
+            Must contain exactly one entry in the format `<attribute>:<count>`.'
+          additionalProperties:
+            type: integer
+          minProperties: 1
+          maxProperties: 1
+      required:
+      - duration
+      examples:
+      - duration: 01:30:00
+        atleast: 1
+        count_matching_criteria:
+          baseeventid: 15
+      - duration: 01:00:00
+        exactly: 5
+        count_matching_criteria:
+          baseeventid: 35
+      x-internal: true
+    ActiveListAdditionalEventAnalyticsDelta:
+      type: object
+      description: Active list analytics configuration
+      properties:
+        activelist:
+          $ref: '#/components/schemas/ActivelistConfig'
+      x-internal: true
+    PolicyPredictionAttributesEntity:
+      type: object
+      description: Policy prediction attributes entity
+      properties:
+        riskTypeId:
+          type: integer
+          description: Unique identifier for the risk type
+          format: int64
+          examples:
+          - 2393
+        forestId:
+          type: integer
+          description: Associated forest ID for prediction attributes
+          format: int64
+          examples:
+          - 2393
+        riskThreatId:
+          type: integer
+          description: Associated risk threat ID
+          format: int64
+          examples:
+          - 50149
+        signatureId:
+          type: string
+          description: Unique signature identifier for the prediction
+          examples:
+          - '1000024'
+        index:
+          type: integer
+          description: Ordering index for the prediction attributes entry
+          examples:
+          - 0
+        attributes:
+          type: string
+          description: Serialized attribute configuration (XML format) including attribute-priority mappings
+          examples:
+          - "<policyAttributeBean>\n    <attributePriorityMap>\n        <entry>\n            <key>ipaddress</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>u_employeeid</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>u_department</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>u_firstname</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>accountname</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>transactionstring1</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>u_lastname</key>\n            <value>1</value>\n        </entry>\n    </attributePriorityMap>\n</policyAttributeBean>"
+      required:
+      - riskTypeId
+      - forestId
+      - riskThreatId
+      - signatureId
+      - attributes
+    AdditionalEventAnalytics:
+      type: object
+      description: Defines additional processing after violations have been detected using a set of filter conditions. Additional Event Analytics check individual events against data such as Active Lists, Lookup Tables, Watchlists, Geolocation, Domain Age, and Third-Party Intelligence.
+      properties:
+        match_all_checks:
+          type: boolean
+          description: Whether all checks must match
+        check_against_watchlist:
+          type: array
+          maxItems: 15
+          items:
+            $ref: '#/components/schemas/WatchListAdditionalEventAnalyticsDelta'
+        check_against_lookup:
+          type: array
+          maxItems: 15
+          items:
+            $ref: '#/components/schemas/LookupAdditionalEventAnalyticsDelta'
+        email_to_self:
+          type: array
+          maxItems: 15
+          items:
+            $ref: '#/components/schemas/EmailSentToSelfAdditionalEventAnalyticsDelta'
+        match_string:
+          type: array
+          maxItems: 15
+          items:
+            $ref: '#/components/schemas/MSConfig'
+        check_against_tpi:
+          type: array
+          maxItems: 15
+          items:
+            $ref: '#/components/schemas/CheckAgainstTpiAdditionalEventAnalyticsDelta'
+        check_against_activelist:
+          type: array
+          maxItems: 15
+          items:
+            $ref: '#/components/schemas/ActiveListAdditionalEventAnalyticsDelta'
+      examples:
+      - match_all_checks: true
+        check_against_watchlist:
+        - accountname: Terminated_Contractors
+          flag_violation_not_found_in_watchlist: true
+        check_against_lookup:
+        - lookup:
+            accountname: MultipleFailedEntries
+          condition: lookup
+          additional_criteria:
+            selection_1:
+              VendorId|contains: Vendor
+            condition: NOT selection_1
+        email_to_self:
+        - emailrecipient: 0.8
+        match_string:
+        - ms:
+            first_field: AccountName
+            second_field: UserNameSpace
+            threshold: 0.8
+        check_against_tpi:
+        - tpi: null
+          destinationaddress:
+          - SNXTIS_BASIC_IPV4
+          - SNXTIS_BASIC_IPV6
+          additional_criteria:
+            selection_1:
+            - tpi_src_confidence|gt: 5
+            - tpi_country|contains|attr: country
+            selection_2:
+            - tpi_src: abc
+            condition: selection_1 AND NOT selection_2
+        check_against_activelist:
+        - activelist:
+            rule: ipaddress
+            rule_match_present: true
+            activelist_name: Password_spraying_attempts_From_single_IP
+      x-internal: true
+    BulkPolicyDeletionResponse:
+      type: object
+      properties:
+        totalRequested:
+          type: integer
+          description: Total number of policies requested for deletion
+          examples:
+          - 2
+        totalSuccessful:
+          type: integer
+          description: Number of policies successfully queued for deletion
+          examples:
+          - 1
+        totalFailed:
+          type: integer
+          description: Number of policies that failed to be deleted
+          examples:
+          - 1
+        results:
+          type: array
+          description: Detailed results for each policy deletion attempt
+          items:
+            $ref: '#/components/schemas/PolicyDeletionResult'
+      examples:
+      - totalRequested: 2
+        totalSuccessful: 1
+        totalFailed: 1
+        results:
+        - policyName: Recent Transfers
+          success: true
+          errorMessage: null
+          deletionTrackerId: 123
+          disabled: true
+          policyId: 456
+        - policyName: policy for Whitelist
+          success: false
+          errorMessage: Policy not found
+          deletionTrackerId: null
+          disabled: false
+          policyId: null
+    AnalyticalType:
+      type: object
+      description: "Defines an AEE (Aggregated Event Analytics) policy. \n\nRules:\n1. First element must be a Parent directive.\n2. Second element (optional) must be a Parent-Child directive.\n3. Maximum 2 elements."
+      properties:
+        aggregated_event_analytics:
+          type: array
+          minItems: 1
+          maxItems: 2
+          items:
+            $ref: '#/components/schemas/AggregatedEventAnalyticsDelta'
+      examples:
+      - aggregated_event_analytics:
+        - name: Authentication Failed
+          aee_filter:
+            selection1:
+              baseeventid: 4625
+            condition: selection1
+          number_of_occurrences:
+            duration: 01:30:00
+            atleast: 1
+            count_matching_criteria:
+              baseeventid: 15
+          similar_value:
+          - accountname
+          consecutive_events: true
+          distinct_value:
+          - ipaddress
+          - eventcountry
+        - name: Authentication Success
+          aee_filter:
+            selection1:
+              baseeventid|equals: 4625
+            condition: selection1
+          number_of_occurrences:
+            duration: 01:30:00
+            atleast: 1
+            count_matching_criteria:
+              baseeventid: 15
+          consecutive_events: false
+          distinct_value:
+          - ipaddress
+          - eventcountry
+          parent_child_relationship:
+            duration: 01:00:00
+            common_values:
+            - accountname
+      x-internal: true
+    EmailSentToSelfAdditionalEventAnalyticsDelta:
+      type: object
+      description: Email sent to self analytics configuration. Contains a dictionary of ***event attribute***:***threshold***
+      additionalProperties:
+        type: number
+        format: double
+        minimum: 0
+        maximum: 1
+      minProperties: 1
+      maxProperties: 1
+      examples:
+      - emailrecipient: 0.8
+      x-internal: true
+    PolicyDeletionItem:
+      type: object
+      properties:
+        policyName:
+          type: string
+          description: Name of the policy to be deleted
+          examples:
+          - Recent Transfers
+        deleteViolations:
+          type: boolean
+          description: If true, deletes violations associated with policy and policy is disabled. If false, deletes both violations and policy.
+          examples:
+          - true
+      required:
+      - policyName
+      - deleteViolations
+    PolicyRuleEntity:
+      type: object
+      description: Policy rule entity
+      properties:
+        id:
+          type: integer
+          description: Unique rule ID
+          format: int64
+          examples:
+          - 1050
+        object:
+          type: string
+          description: Object on which the rule applies (e.g., Users, Transactions)
+          examples:
+          - Users
+        field:
+          type: string
+          description: Field of the object to which the condition applies
+          examples:
+          - transferreddate
+        condition:
+          type: string
+          description: Condition operator applied to the field
+          examples:
+          - CONDITION_GREATER_THAN_OR_EQUALS
+        value:
+          type: string
+          description: Comparison value or expression for the condition
+          examples:
+          - $CURRENT_DATE
+        logicalCondition:
+          type: string
+          description: Logical operator used to combine with other rules
+          examples:
+          - AND
+        group:
+          type: string
+          description: Grouping identifier for organizing rules
+          examples:
+          - group_1
+        index:
+          type: integer
+          description: Ordering index of the rule within a group
+          examples:
+          - 0
+        deviationFlag:
+          type: string
+          description: Flag indicating whether the rule is a deviation check
+          examples:
+          - 'No'
+        ruleType:
+          type: string
+          description: Type of rule (e.g., USER, TRANSACTION)
+          examples:
+          - USER
+        functionRightString:
+          type: string
+          description: Function expression applied on the right side of the condition
+          examples:
+          - fn_date_sub(${field}, ${p1}, ${p2})
+        functionRightParameters:
+          type: string
+          description: Parameters used in the function expression, separated by delimiters
+          examples:
+          - 30|DAY
+      required:
+      - id
+      - object
+      - field
+      - condition
+      - value
+      - ruleType
+    400BadRequest:
+      type: object
+      properties:
+        time:
+          type: string
+          description: '*Optional* Timestamp for response'
+        message:
+          type: string
+          description: Error message
+        httpStatus:
+          type: string
+          description: http Status code
+      examples:
+      - time: '2025-07-17T15:10:33.263774233Z'
+        message: 'com.securonix.respexception.exception.InvalidInputException: Invalid value provided for additional criteria selection value. Must be one of [NonBusinessDomains]'
+        httpStatus: INTERNAL_SERVER_ERROR
+    WatchListAdditionalEventAnalyticsDelta:
+      type: object
+      description: Defines additional event analytics to check individual events against watchlists.
+      additionalProperties: false
+      properties:
+        flag_violation_not_found_in_watchlist:
+          type: boolean
+          description: Flag to indicate violation if the attribute is not found in the watchlist
+      patternProperties:
+        ^(?!flag_violation_not_found_in_watchlist$)[a-zA-Z_][a-zA-Z0-9_]*$:
+          type: string
+          description: Dynamic attribute name mapped to a watchlist name
+      required:
+      - flag_violation_not_found_in_watchlist
+      minProperties: 2
+      maxProperties: 2
+      examples:
+      - accountname: Terminated_Contractors
+        flag_violation_not_found_in_watchlist: true
+      x-internal: true
+    MatchStringConfig:
+      type: object
+      title: MatchStringConfig
+      properties:
+        first_field:
+          type: string
+          description: First field to compare
+        second_field:
+          type: string
+          description: Second field to compare
+        threshold:
+          type: number
+          description: Match threshold
+          format: double
+          minimum: 0
+          maximum: 1
+      required:
+      - first_field
+      - second_field
+      - threshold
+      examples:
+      - first_field: AccountName
+        second_field: UserNameSpace
+        threshold: 0.8
+      x-internal: true
+    AmountBasedThreshold:
+      type: object
+      description: Defines a amount based AEE policy. Amount of data found in event or repeated over a particular period of time.
+      properties:
+        duration:
+          type: string
+          description: Time duration in hh:mm:ss format.
+        attribute:
+          type: string
+          description: Name of the attribute.
+        unit:
+          type: string
+          enum:
+          - B
+          - KB
+          - MB
+          - GB
+          description: Unit of measurement.
+        exactly:
+          type: integer
+          description: Exact count of events to match (mutually exclusive with `atleast`).
+          format: int32
+          minimum: 1
+        atleast:
+          type: integer
+          description: Minimum count to match (mutually exclusive with `exactly`).
+          format: int32
+          minimum: 1
+      required:
+      - duration
+      - attribute
+      - unit
+      examples:
+      - duration: 01:00:00
+        attribute: bytesout
+        unit: KB
+        atleast: 50
+      - duration: 05:00:00
+        attribute: bytesin
+        unit: B
+        exactly: 1
+      x-internal: true
+    CreatePolicyResponse:
+      type: object
+      description: Policy management response containing complete policy information
+      properties:
+        id:
+          type: integer
+          description: Unique policy identifier
+          format: int64
+          examples:
+          - 12345
+        name:
+          type: string
+          description: Policy name
+          examples:
+          - Suspicious Login Policy
+        description:
+          type: string
+          description: Policy description
+          examples:
+          - Detects suspicious login patterns
+        enabled:
+          type: boolean
+          description: Whether policy is enabled
+          examples:
+          - true
+        createdOn:
+          type: string
+          description: Policy creation timestamp
+          format: date-time
+          examples:
+          - '2023-01-15T10:30:00Z'
+        lastUpdated:
+          type: string
+          description: Last update timestamp
+          format: date-time
+          examples:
+          - '2023-06-20T14:45:00Z'
+        createdBy:
+          type: string
+          description: User who created the policy
+          examples:
+          - admin
+        updatedBy:
+          type: string
+          description: User who last updated the policy
+          examples:
+          - security_analyst
+        owner:
+          type: string
+          description: Policy owner
+          examples:
+          - security_team
+        riskTypeId:
+          type: integer
+          description: Associated risk type ID
+          format: int64
+          examples:
+          - 101
+        criticality:
+          type: string
+          enum:
+          - LOW
+          - MEDIUM
+          - HIGH
+          - CRITICAL
+          description: Policy criticality level
+          examples:
+          - HIGH
+        riskThreatId:
+          type: integer
+          description: Associated threat ID
+          format: int64
+          examples:
+          - 201
+        threatName:
+          type: string
+          description: Threat name
+          examples:
+          - Account Compromise
+        category:
+          type: string
+          description: Policy category
+          examples:
+          - Authentication
+        categoryId:
+          type: integer
+          description: Category ID
+          format: int64
+          examples:
+          - 301
+        policyType:
+          type: string
+          description: Type of policy
+          examples:
+          - REALTIME
+        functionality:
+          type: string
+          description: Policy functionality
+          examples:
+          - LOGIN_MONITORING
+        functionalityId:
+          type: integer
+          description: Functionality ID
+          format: int64
+          examples:
+          - 401
+        hql:
+          type: string
+          description: HQL query for policy
+          examples:
+          - SELECT * FROM events WHERE...
+        query:
+          type: string
+          description: Policy query
+          examples:
+          - user.login_attempts > 5
+        groupBy:
+          type: string
+          description: Group by clause
+          examples:
+          - user_id
+        havingClause:
+          type: string
+          description: Having clause
+          examples:
+          - COUNT(*) > 3
+        joinGroup:
+          type: string
+          description: Join group configuration
+          examples:
+          - user_events
+        initiateWorkFlow:
+          type: boolean
+          description: Whether to initiate workflow
+          examples:
+          - true
+        directHql:
+          type: boolean
+          description: Direct HQL execution flag
+          examples:
+          - false
+        directiveEnabled:
+          type: boolean
+          description: Directive processing enabled
+          examples:
+          - true
+        functionEnabled:
+          type: boolean
+          description: Function processing enabled
+          examples:
+          - true
+        directiveConfig:
+          type: string
+          description: Directive configuration XML
+          examples:
+          - <directiveConfig>...</directiveConfig>
+        functionConfig:
+          type: string
+          description: Function configuration XML
+          examples:
+          - <functionConfig>...</functionConfig>
+        configWorkflowName:
+          type: string
+          description: Workflow configuration name
+          examples:
+          - incident_response_workflow
+        violator:
+          type: string
+          description: Violator field
+          examples:
+          - user_id
+        violatorAttribute:
+          type:
+          - string
+          - 'null'
+          description: Selected violator attribute stored in policy_master.violator_attribute. Returned as null when no violator attribute is configured for the policy.
+          examples:
+          - sourceusername
+        violation:
+          type: string
+          description: Violation description
+          examples:
+          - Multiple failed login attempts
+        violatorCriticalityLevel:
+          type: string
+          description: Violator criticality level
+          examples:
+          - HIGH
+        violationDisplayConfig:
+          type: string
+          description: Violation display configuration
+          examples:
+          - <display>...</display>
+        verboseInfoTemplate:
+          type: string
+          description: Verbose information template
+          examples:
+          - User {user} attempted {count} logins
+        maxResults:
+          type: integer
+          description: Maximum results to return
+          format: int64
+          examples:
+          - 1000
+        dailyViolationThreshold:
+          type: integer
+          description: Daily violation threshold
+          format: int64
+          examples:
+          - 100
+        aggregateScore:
+          type: integer
+          description: Aggregate score
+          examples:
+          - 85
+        cappedRiskScore:
+          type: number
+          description: Capped risk score
+          format: double
+          examples:
+          - 9.5
+        constantScore:
+          type: string
+          description: Constant score value
+          examples:
+          - '7.5'
+        customScore:
+          type: number
+          description: Custom score
+          format: double
+          examples:
+          - 8.2
+        secVersion:
+          type: number
+          description: Security version
+          format: double
+          examples:
+          - 2.1
+        uniqueCode:
+          type: string
+          description: Unique policy code
+          examples:
+          - POL_LOGIN_001
+        signatureId:
+          type: string
+          description: Policy signature ID
+          examples:
+          - SIG_12345
+        isWatchlist:
+          type: boolean
+          description: Is watchlist policy
+          examples:
+          - false
+        sandboxCategory:
+          type: boolean
+          description: Sandbox category flag
+          examples:
+          - false
+        notification:
+          type: boolean
+          description: Notification enabled
+          examples:
+          - true
+        realTimeCheck:
+          type: boolean
+          description: Real-time check enabled
+          examples:
+          - true
+        outputDatabase:
+          type: boolean
+          description: Output to database
+          examples:
+          - true
+        savePveAndScore:
+          type: boolean
+          description: Save PVE and score
+          examples:
+          - true
+        saveAsThreat:
+          type: boolean
+          description: Save as threat
+          examples:
+          - false
+        actionPrediction:
+          type: boolean
+          description: Action prediction enabled
+          examples:
+          - true
+        commitPolicy:
+          type: boolean
+          description: Commit policy flag
+          examples:
+          - true
+        additionalInfo:
+          type: boolean
+          description: Additional info flag
+          examples:
+          - false
+        valid:
+          type: boolean
+          description: Policy validity flag
+          examples:
+          - true
+        riskBoosterEnabled:
+          type: boolean
+          description: Risk booster enabled
+          examples:
+          - false
+        riskBoosterConfig:
+          type: string
+          description: Risk booster configuration
+          examples:
+          - <riskbooster>...</riskbooster>
+        functionSuspectConfigEnabled:
+          type: boolean
+          description: Function suspect config enabled
+          examples:
+          - false
+        functionSuspectConfig:
+          type: string
+          description: Function suspect configuration
+          examples:
+          - <suspect>...</suspect>
+        suspectConfig:
+          type: string
+          description: Suspect configuration
+          examples:
+          - <config>...</config>
+        suspectChecksListId:
+          type: integer
+          description: Suspect checks list ID
+          format: int64
+          examples:
+          - 501
+        resourceGroupId:
+          type: integer
+          description: Resource group ID
+          format: int64
+          examples:
+          - 601
+        emailTemplateId:
+          type: integer
+          description: Email template ID
+          format: int64
+          examples:
+          - 701
+        spConfigSummarizationId:
+          type: integer
+          description: SP config summarization ID
+          format: int64
+          examples:
+          - 801
+        resourceType:
+          type: string
+          description: Resource type
+          examples:
+          - DATABASE
+        resourceTypeId:
+          type: string
+          description: Resource type ID
+          examples:
+          - DB_001
+        analyticsType:
+          type: string
+          description: Analytics type
+          examples:
+          - BEHAVIORAL
+        operatorConfig:
+          type: string
+          description: Operator configuration
+          examples:
+          - <operator>...</operator>
+        analyzerConfig:
+          type: string
+          description: Analyzer configuration
+          examples:
+          - <analyzer>...</analyzer>
+        ownership:
+          type: string
+          description: Policy ownership
+          examples:
+          - security_team
+        pipelineName:
+          type: string
+          description: Processing pipeline name
+          examples:
+          - security_pipeline
+        feedback:
+          type: string
+          description: Policy feedback
+          examples:
+          - Working as expected
+        releaseNotes:
+          type: string
+          description: Release notes
+          examples:
+          - Updated threshold values
+        whatsNew:
+          type: string
+          description: What's new information
+          examples:
+          - Added new detection logic
+        origin:
+          type: string
+          description: Indicates the system/source calling to create the policy.
+          maxLength: 2
+          examples:
+          - PA
+        modifiedOrigin:
+          type: string
+          description: Indicates the system/source calling to modify the policy.
+          maxLength: 2
+          examples:
+          - UI
+        remediator:
+          type: string
+          description: Remediator information
+          examples:
+          - auto_remediation
+        threatRemediationSteps:
+          type: string
+          description: Threat remediation steps
+          examples:
+          - 1. Block user 2. Notify admin
+        policyFunctionalityRelations:
+          type: array
+          description: Policy functionality relations
+          items:
+            $ref: '#/components/schemas/PolicyFunctionalityRelationEntity'
+        policylabels:
+          type: array
+          description: Policy labels
+          items:
+            $ref: '#/components/schemas/PolicyLabelEntity'
+        policyWatchlists:
+          type: array
+          description: Policy watchlists
+          items:
+            $ref: '#/components/schemas/PolicyWatchlistEntity'
+        policyActivelists:
+          type: array
+          description: Policy active lists
+          items:
+            $ref: '#/components/schemas/PolicyactivelistEntity'
+        policyDeprecateInfo:
+          type: array
+          description: Policy deprecation information
+          items:
+            $ref: '#/components/schemas/PolicyDeprecationEntity'
+        policyPredictionAttributes:
+          type: array
+          description: Policy prediction attributes
+          items:
+            $ref: '#/components/schemas/PolicyPredictionAttributesEntity'
+        policyOutputConfigs:
+          type: array
+          description: Policy output configurations
+          items:
+            $ref: '#/components/schemas/PolicyOutputConfigEntity'
+        policyResources:
+          type: array
+          description: Policy resources
+          items:
+            $ref: '#/components/schemas/PolicyResourceEntity'
+        policyRules:
+          type: array
+          description: Policy rules
+          items:
+            $ref: '#/components/schemas/PolicyRuleEntity'
+    ParentChildRelation:
+      type: object
+      description: '*Child-only*: Describes the relation between the `parent` directive and `child` directive in an AEE policy'
+      properties:
+        duration:
+          type: string
+          description: Time duration in hh:mm:ss format.
+        common_values:
+          type: array
+          description: Common attribute between the parent and child directive.
+          uniqueItems: true
+          items:
+            type: string
+      examples:
+      - duration: 01:00:00
+        common_values:
+        - accountname
+      x-internal: true
+    detection:
+      type: object
+      title: detection
+      properties:
+        filter:
+          type: object
+          additionalProperties:
+            type: object
+        condition:
+          type: string
+          description: Logical condition referencing one or more selections and an optional filter.
+      patternProperties:
+        ^selection_[0-9]*$:
+          oneOf:
+          - type: array
+            items: {}
+          - type: object
+          description: Criteria for a selection, where `n` is a positive integer.
+      required:
+      - condition
+      examples:
+      - selection_1:
+          baseeventid: 4688
+        selection_2:
+          destinationprocessname: lsaas.exe
+        selection_3:
+          commandline|contains: lsass.exe
+        condition: selection_1 AND ( selection_2 or selection_3 )
+      - selection_1:
+          emailsender|contains|attr: emailrecipientdomain
+        condition: selection_1
+      - selection_1:
+          requesturl|contains|oex: whitelist_domain(attr.destinationhostname)
+        condition: selection_1
+      - selection_1:
+          requesturl|contains|oex: whitelist_ip(attr.destinationipaddress)
+        condition: selection_1
+      - selection_1:
+          requesturl|containsinlist: Password_spraying_attempts_From_single_IP
+        condition: selection_1
+    PolicyOutputConfigEntity:
+      type: object
+      description: Policy output configuration entity
+    CheckAgainstTpiAdditionalEventAnalyticsDelta:
+      type: object
+      description: TPI check analytics configuration
+      properties:
+        tpi:
+          type: 'null'
+          description: Indicates the beginning of a TPI configuration block. Can be null.
+        additional_criteria:
+          $ref: '#/components/schemas/AdditionalCriteria'
+          description: "Used to filter results based on one or more selection blocks and a condition.\n\n**Structure:**\n- Must contain **at least one** selection key (`selection_n`, where n ≥ 1)  \n- Must contain a `condition` key  \n- Selection keys may contain **either**:\n  * A **list** of entries → conditions are joined with **OR**.\n    Example:\n    ```yaml\n    selection_1:\n      - tpi_country: USA\n      - tpi_src_confidence|gt: 5\n    ```\n    Evaluates as:\n    ```scss\n    tpi_country(equals)USA OR tpi_src_confidence(greater_than)5\n    ```\n  * A **map** of entries → conditions are joined with **AND**\n    Example:\n    ```yaml\n    selection_1:\n      tpi_country|equals|attr: country\n      tpi_src_confidence|gt: 5\n    ```\n    Evaluates as:\n    ```scss\n    tpi_country(equals)country AND tpi_src_confidence(greater_than)5\n    ```\n**Entry format:**\nTPI_field[|modifier][|attr]: value\n\n- **TPI_field** — the name of the TPI field to filter on  \n- **modifier** *(optional)* — comparison/matching operation. Defaults to `equals` if omitted.\n- **attr** *(optional)* — indicates the value is taken from another attribute rather than a literal.  \n\n**Supported modifiers:**\n1. `equals` *(default if omitted)*\n2. `contains`\n3. `gt` — greater than\n4. `gte` — greater than or equal\n5. `lt` — less than\n6. `lte` — less than or equal\n7. `startswith`\n8. `endswith`\n9. `isnull`\n\n**Negation modifiers:**\n1. `not equals`\n2. `not contains`\n3. `is not null`\n\n**Negation usage:**  \nTo apply negation to an entire selection block, prefix the selection key with `NOT` in `condition`.  \nExample:\n```yaml\nselection_1:\n  tpi_country|equals|attr: USA\ncondition: NOT selection_1\n```\n\nAccepted examples:\n\n- Selection with only `attr`\n  ```yaml\n  selection_1:\n    tpi_country|attr: country\n  ```\n  Evaluates as:\n  ```scss\n  tpi_country(EQUALS)attr.country\n  ```\n- Selection with `modifier` and `attr`\n  ```yaml\n  selection_1:\n    tpi_country|contains|attr: country\n  ```\n  Evaluates as:\n  ```scss\n  tpi_country(CONTAINS)attr.country\n  ```\n- Selection with only `modifier`\n  ```yaml\n  selection_1:\n    tpi_src_confidence|gt: 5\n  ```\n  Evaluates as:\n  ```scss\n  tpi_src_confidence(GREATER_THAN)5\n  ```\n- Selection with negation `modifier` \n  ```yaml\n  selection_1:\n    tpi_country|contains: USA\n  condition: NOT selection_1\n  ```   \n  Evaluates as:\n  ```scss\n  tpi_country(NOT_CONTAINS)USA\n  ```\n\n\n\n\n\n"
+      patternProperties:
+        (?!tpi|additional_criteria$)^[a-zA-Z_][a-zA-Z0-9_]*$:
+          type: array
+          description: Dynamic attribute name mapped to a list of TPI names to check against
+          items:
+            type: string
+      required:
+      - tpi
+      examples:
+      - tpi: null
+        destinationaddress:
+        - SNXTIS_BASIC_IPV4
+        - SNXTIS_BASIC_IPV6
+        additional_criteria:
+          selection_1:
+          - tpi_src_confidence|gt: 5
+          - tpi_country|contains|attr: country
+          selection_2:
+          - tpi_src: abc
+          condition: selection_1 AND NOT selection_2
+      x-internal: true
+    LookupAdditionalEventAnalyticsDelta:
+      type: object
+      description: Defines additional event analytics to check individual events against lookup.
+      properties:
+        lookup:
+          type: object
+          description: "Defines lookup-based filtering rules. \n\nThe `lookup` object is a dictionary where:\n- **Key:** `eventAttribute[|modifier]`\n- **Value:** `LookupTableName`\n\n**Supported modifiers:**\n- `equals`\n- `contains`\n- `startswith`\n- `endswith`\n\n*(If no modifier is provided, defaults to `equals`)*\n\n**Operator notes:**\n- List-based operators are **not supported** here.\n- To evaluate as a positive condition, set `condition: lookup`.\n- To evaluate as a negation, set `condition: NOT lookup`.\n\n**Evaluation examples:**\n\n1. **Default equals**\n    ```yaml\n    lookup:\n      accountname: MultipleFailedEntries\n    condition: lookup\n    ```\n    Evaluates as:\n    ```\n    accountname(EQUALS)MultipleFailedEntries\n    ```\n\n2. **Contains**\n    ```yaml\n    lookup:\n      accountname|contains: MultipleFailedEntries\n    condition: lookup\n    ```\n    Evaluates as:\n    ```\n    accountname(CONTAINS)MultipleFailedEntries\n    ```\n\n3. **Negation with contains**\n    ```yaml\n    lookup:\n      accountname|contains: MultipleFailedEntries\n    condition: NOT lookup\n    ```\n    Evaluates as:\n    ```\n    accountname(NOT_CONTAINS)MultipleFailedEntries\n    ```"
+          additionalProperties:
+            type: string
+          minProperties: 1
+          maxProperties: 1
+        condition:
+          type: string
+          description: 'Lookup condition.
+
+            '
+        additional_criteria:
+          $ref: '#/components/schemas/AdditionalCriteria'
+          description: "Used to filter results based on one or more selection blocks and a condition.\n\n**Structure:**\n- Must contain **at least one** selection key (`selection_n`, where n ≥ 1)  \n- Must contain a `condition` key  \n- Selection keys may contain **either**:\n  * A **list** of entries → conditions are joined with **OR**.\n    Example:\n    ```yaml\n    selection_1:\n      - sourceaddressregion|contains: NonBusinessDomains\n      - destinationaddressregion|gt: NonBusinessDomains\n      - rg_category|isnull: \n    ```\n    Evaluates as:\n    ```scss\n    sourceaddressregion(contains)NonBusinessDomains OR destinationaddressregion(GREATER_THAN)NonBusinessDomains OR rg_category(IS_NULL)\n    ```\n  * A **map** of entries → conditions are joined with **AND**\n    Example:\n    ```yaml\n    selection_1:\n      VendorId: Vendor\n      sourceaddressregion|startswith: abc\n    ```\n    Evaluates as:\n    ```scss\n    VendorId(equals)Vendor AND sourceaddressregion(STARTS_WUTH)abc\n    ```\n**Entry format:**\nfield[|modifier]: lookup fields\n\n- **field** — the name of the field to filter on  \n- **modifier** *(optional)* — comparison/matching operation. Defaults to `equals` if omitted.\n- **lookup fields** — the lookup fields mapped when configuring the lookup in the UDS platform.  \n\n**Supported modifiers:**\n1. `equals` *(default if omitted)*\n2. `contains`\n3. `gt` — greater than\n4. `gte` — greater than or equal\n5. `lt` — less than\n6. `lte` — less than or equal\n7. `startswith`\n8. `endswith`\n9. `isnull`\n\n**Negation modifiers:**\n1. `not equals`\n2. `not contains`\n3. `is not null`\n\n**Negation usage:**  \nTo apply negation to an entire selection block, prefix the selection key with `NOT` in `condition`.  \nExample:\n```yaml\nselection_1:\n  VendorId|equals: vendor\ncondition: NOT selection_1\n```\nEvaluates as:\n```scss\nVendorId(NOT_EQUALS)vendor\n```\n\nAccepted examples:\n\n- Selection with default `modifier`\n  ```yaml\n  selection_1:\n    VendorId: vendor\n  ```\n  Evaluates as:\n  ```scss\n  VendorId(EQUALS)vendor\n  ```\n- Selection with `modifier`\n  ```yaml\n  selection_1:\n    category|contains: categoryObject\n  ```\n  Evaluates as:\n  ```scss\n  category(CONTAINS)categoryObject\n  ```\n- Selection with negation `modifier` \n  ```yaml\n  selection_1:\n    VendorId|equals: vendor\n  condition: NOT selection_1\n  ```   \n  Evaluates as:\n  ```scss\n  VendorId(NOT_EQUALS)vendor\n  ```"
+      required:
+      - lookup
+      - condition
+      examples:
+      - lookup:
+          accountname: MultipleFailedEntries
+        condition: lookup
+        additional_criteria:
+          selection_1:
+            VendorId|contains: Vendor
+          condition: NOT selection_1
+      x-internal: true
+    ErrorResponse:
+      type: object
+      description: Data model to indicate the status code and error message.
+      properties:
+        statusCode:
+          type: string
+        message:
+          type: string
+      required:
+      - statusCode
+      - message
+      examples:
+      - statusCode: 400 BAD_REQUEST
+        message: 'Client error: 404 NOT_FOUND'
+      - statusCode: 403 FORBIDDEN
+        message: User is Not entitled for getting the requested data
+      - statusCode: 422 Unprocessable Entity
+        message: Parent id not found in Auth token
+      - statusCode: GATEWAY-10-1
+        message: Access token expired
+      x-examples:
+        Example 1:
+          statusCode: 400 BAD_REQUEST
+          message: 'Client error: 404 NOT_FOUND'
+    PaginatedResponse:
+      type: object
+      title: PaginatedResponse
+      properties:
+        pageNumber:
+          type: integer
+          description: Current page number.
+          format: int32
+        pageSize:
+          type: integer
+          description: Number of items in current page.
+          format: int32
+        totalPages:
+          type: integer
+          description: Total number of pages matching the request.
+          format: int32
+        totalElements:
+          type: integer
+          description: Total number of items matching the request.
+          format: int32
+        data:
+          type: array
+          description: "List of items matching the request.  \n\n- If the `columns` parameter is provided, the response will include **only the specified fields** for each record.  \n- If `columns` is not provided, the response will include **all fields** for the policy that matches the request.  \n\n> The schema shown here is all-inclusive. The actual response may contain only a subset of fields, depending on the `columns` parameter."
+          items:
+            $ref: '#/components/schemas/CreatePolicyResponse'
+      examples:
+      - pageNumber: 0
+        pageSize: 3
+        totalPages: 1
+        totalElements: 3
+        data:
+        - id: 12345
+          name: Suspicious Login Policy
+          enabled: true
+        - id: 12346
+          name: Suspicious Login Policy1
+          enabled: true
+        - id: 12347
+          name: Suspicious Login Policy2
+          enabled: false
+      - pageNumber: 0
+        pageSize: 1
+        totalPages: 1
+        totalElements: 1
+        data:
+        - id: 12345
+          name: Suspicious Login Policy
+          description: Detects suspicious login patterns
+          enabled: true
+          createdOn: '2023-01-15T10:30:00Z'
+          lastUpdated: '2023-06-20T14:45:00Z'
+          createdBy: admin
+          updatedBy: security_analyst
+          owner: security_team
+          riskTypeId: 101
+          criticality: HIGH
+          riskThreatId: 201
+          threatName: Account Compromise
+          category: Authentication
+          categoryId: 301
+          policyType: REALTIME
+          functionality: LOGIN_MONITORING
+          functionalityId: 401
+          hql: SELECT * FROM events WHERE...
+          query: user.login_attempts > 5
+          groupBy: user_id
+          havingClause: COUNT(*) > 3
+          joinGroup: user_events
+          initiateWorkFlow: true
+          directHql: false
+          directiveEnabled: true
+          functionEnabled: true
+          directiveConfig: <directiveConfig>...</directiveConfig>
+          functionConfig: <functionConfig>...</functionConfig>
+          configWorkflowName: incident_response_workflow
+          violator: user_id
+          violation: Multiple failed login attempts
+          violatorCriticalityLevel: HIGH
+          violationDisplayConfig: <display>...</display>
+          verboseInfoTemplate: User {user} attempted {count} logins
+          maxResults: 1000
+          dailyViolationThreshold: 100
+          aggregateScore: 85
+          cappedRiskScore: 9.5
+          constantScore: '7.5'
+          customScore: 8.2
+          secVersion: 2.1
+          uniqueCode: POL_LOGIN_001
+          signatureId: SIG_12345
+          isWatchlist: false
+          sandboxCategory: false
+          notification: true
+          realTimeCheck: true
+          outputDatabase: true
+          savePveAndScore: true
+          saveAsThreat: false
+          actionPrediction: true
+          commitPolicy: true
+          additionalInfo: false
+          valid: true
+          riskBoosterEnabled: false
+          riskBoosterConfig: <riskbooster>...</riskbooster>
+          functionSuspectConfigEnabled: false
+          functionSuspectConfig: <suspect>...</suspect>
+          suspectConfig: <config>...</config>
+          suspectChecksListId: 501
+          resourceGroupId: 601
+          emailTemplateId: 701
+          spConfigSummarizationId: 801
+          resourceType: DATABASE
+          resourceTypeId: DB_001
+          analyticsType: BEHAVIORAL
+          operatorConfig: <operator>...</operator>
+          analyzerConfig: <analyzer>...</analyzer>
+          ownership: security_team
+          pipelineName: security_pipeline
+          feedback: Working as expected
+          releaseNotes: Updated threshold values
+          whatsNew: Added new detection logic
+          origin: PA
+          modifiedOrigin: UI
+          remediator: auto_remediation
+          threatRemediationSteps: 1. Block user 2. Notify admin
+          policyFunctionalityRelations:
+          - id: 1
+            functionalityName: LOGIN_MONITORING
+            tenantid: 4
+            idx: 0
+          policylabels:
+          - label_name: scx.attack.privilege_escalation
+            labelId: 245
+            idx: 1
+          policyWatchlists:
+          - id: 10
+            watchlistId: 9995
+            index: 0
+            watchlistName: Recent_Transfers
+            expiryDaysCount: 30
+            decayFactor: 0
+            decayFlag: false
+            initialConfidenceLevel: 1
+            confidenceIncrementFactor: 0
+            dynamicWatchlist: true
+            fieldList: ''
+            calculateExpiryFromNow: false
+          policyActivelists:
+          - activelistId: 9
+            policyId: 12345
+            index: 0
+            metadata: "<activeListParamsBean>\n    <keyRule>u_employeeid</keyRule>\n    <violationAttributes>deviceaction,ipaddress,destinationaddress,destinationport</violationAttributes>\n</activeListParamsBean>"
+          policyDeprecateInfo:
+          - id: 769
+            deprecated: false
+            index: 0
+            starttime: '2023-04-12'
+            endtime: '2023-04-19'
+            validityindays: '7'
+            deprecatedwithviolation: false
+            signatureid: SIG_12345
+            policyname: Suspicious Login Policy
+          policyPredictionAttributes:
+          - riskTypeId: 2393
+            forestId: 2393
+            riskThreatId: 50149
+            signatureId: '1000024'
+            index: 0
+            attributes: "<policyAttributeBean>\n    <attributePriorityMap>\n        <entry>\n            <key>ipaddress</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>u_employeeid</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>u_department</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>u_firstname</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>accountname</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>transactionstring1</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>u_lastname</key>\n            <value>1</value>\n        </entry>\n    </attributePriorityMap>\n</policyAttributeBean>"
+          policyOutputConfigs: []
+          policyResources:
+          - id: 1
+            resourceId: 1
+            resourceGroupId: 1
+            resourceTypeId: 1
+          policyRules:
+          - id: 1050
+            object: Users
+            field: transferreddate
+            condition: CONDITION_GREATER_THAN_OR_EQUALS
+            value: $CURRENT_DATE
+            logicalCondition: AND
+            group: group_1
+            index: 0
+            deviationFlag: 'No'
+            ruleType: USER
+            functionRightString: fn_date_sub(${field}, ${p1}, ${p2})
+            functionRightParameters: 30|DAY
+    AggregatedEventAnalyticsDelta:
+      type: object
+      description: 'Defines an Aggregated Event Analytics (AEE) directive.
+
+
+        - **Parent directive**: Base aggregation detection logic.
+
+        - **Parent-Child directive**: Additional logic to group violations to a Parent directive.
+
+
+        Most fields apply to both Parent and Child. Fields marked as *Parent-only* or *Child-only* apply only in those contexts.'
+      properties:
+        name:
+          type: string
+          description: name of the directive.
+        aee_filter:
+          type: object
+          description: "AEE filter configuration.\n\nUsed to filter results based on one or more selection blocks and a condition.\n\n**Structure:**\n- Must contain **at least one** selection key (`selection_n`, where n ≥ 1)  \n- Must contain a `condition` key  \n- Selection keys may contain **either**:\n  * A **list** of entries → conditions are joined with **OR**.\n    Example:\n    ```yaml\n    selection_1:\n      - deviceeventcategory: malicious\n      - destinationhostname|contains: pwned\n    ```\n    Evaluates as:\n    ```scss\n    deviceeventcategory(equals)malicious OR destinationhostname(contains)pwned\n    ```\n  * A **map** of entries → conditions are joined with **AND**\n    Example:\n    ```yaml\n    selection_1:\n      deviceeventcategory: malicious\n      destinationhostname|contains: pwned\n    ```\n    Evaluates as:\n    ```scss\n    deviceeventcategory(equals)malicious AND destinationhostname(contains)pwned\n    ```\n**Entry format:**\nfield[|modifier]: value\n\n- **field** — the name of the field to filter on.  \n- **modifier** *(optional)* — comparison/matching operation. Defaults to `equals` if omitted.\n\n**Supported modifiers:**\n1. `equals` *(default if omitted)*\n2. `contains`\n3. `gt` — greater than\n4. `gte` — greater than or equal\n5. `lt` — less than\n6. `lte` — less than or equal\n7. `startswith`\n8. `endswith`\n9. `isnull`\n\n**Negation modifiers:**\n1. `not equals`\n2. `not contains`\n3. `is not null`\n\n**Negation usage:**  \nTo apply negation to an entire selection block, prefix the selection key with `NOT` in `condition`.  \nExample:\n```yaml\nselection_1:\n  deviceeventcategory|contains: malicious\ncondition: NOT selection_1\n```\nEvaluates as:\n```scss\ndeviceeventcategory(not_contains)malicious\n```\n\nAccepted examples:\n\n- Selection with default `modifier`\n  ```yaml\n  selection_1:\n    deviceeventcategory: \"allowed\"\n  ```\n  Evaluates as:\n  ```scss\n  deviceeventcategory(EQUALS)\"allowed\"\n  ```\n- Selection with `modifier`\n  ```yaml\n  selection_1:\n    deviceeventcategory|contains: \"allowed\"\n  ```\n  Evaluates as:\n  ```scss\n  deviceeventcategory(CONTAINS)\"allowed\"\n  ```\n- Selection with negation `modifier` \n  ```yaml\n  selection_1:\n    deviceeventcategory|contains: \"allowed\"\n  condition: NOT selection_1\n  ```   \n  Evaluates as:\n  ```scss\n  deviceeventcategory(NOT_CONTAINS)\"allowed\"\n  ```\n\n"
+          properties:
+            condition:
+              type: string
+              description: Logical condition referencing one or more selections.
+          patternProperties:
+            ^selection_[1-9][0-9]*$:
+              oneOf:
+              - type: array
+                items: {}
+              - type: object
+              description: Criteria for a selection, where `n` is a positive integer.
+          required:
+          - condition
+        number_of_occurrences:
+          $ref: '#/components/schemas/FrequencyBasedThreshold'
+        amount_of_data:
+          $ref: '#/components/schemas/AmountBasedThreshold'
+        similar_value:
+          type: array
+          description: '*Parent-only*: Events will have same attribute value.'
+          uniqueItems: true
+          items:
+            type: string
+        consecutive_events:
+          type: boolean
+          description: Should events happen consecutively
+        distinct_value:
+          type: array
+          description: Distinct attribute selected value
+          uniqueItems: true
+          items:
+            type: string
+        parent_child_relationship:
+          $ref: '#/components/schemas/ParentChildRelation'
+      required:
+      - name
+      x-internal: true
+    ViolationAction:
+      type: object
+      description: Action for the violations.
+      properties:
+        dailyviolationthreshold:
+          type: integer
+          description: Daily violation threshold to stop flagging new violation events for the policy.
+          format: int64
+          minimum: 1
+          maximum: 100000
+          default: 100000
+        add_to_watchlist:
+          $ref: '#/components/schemas/AddToWatchlist'
+          description: Violators of the policy will be added to the watchlist mentioned.
+      examples:
+      - dailyviolationthreshold: 100000
+        add_to_watchlist:
+          watchlist_name: Domain_Admin
+          removal_period:
+            days: 1
+            time: '12:00:00'
+            expiry_date_from_current_time: true
+    PolicyDeletionResult:
+      type: object
+      properties:
+        policyName:
+          type: string
+          description: Name of the policy
+          examples:
+          - Recent Transfers
+        success:
+          type: boolean
+          description: Whether the deletion was successful
+          examples:
+          - true
+        errorMessage:
+          type:
+          - string
+          - 'null'
+          description: Error message if deletion failed
+          examples:
+          - null
+        deletionTrackerId:
+          type:
+          - integer
+          - 'null'
+          description: ID for tracking the deletion request
+          format: int64
+          examples:
+          - 123
+        disabled:
+          type: boolean
+          description: Whether the policy was disabled
+          examples:
+          - true
+        policyId:
+          type:
+          - integer
+          - 'null'
+          description: ID of the policy
+          format: int64
+          examples:
+          - 456
+    PolicyWatchlistEntity:
+      type: object
+      description: Policy watchlist entity
+      properties:
+        id:
+          type: integer
+          description: Unique watchlist entity ID
+          format: int64
+          examples:
+          - 10
+        watchlistId:
+          type: integer
+          description: Associated watchlist ID
+          format: int64
+          examples:
+          - 9995
+        index:
+          type: integer
+          description: Ordering index of the watchlist entry
+          examples:
+          - 0
+        watchlistName:
+          type: string
+          description: Name of the watchlist
+          examples:
+          - Recent_Transfers
+        expiryDaysCount:
+          type: integer
+          description: Number of days before the watchlist entry expires
+          examples:
+          - 30
+        decayFactor:
+          type: number
+          description: Decay factor applied over time
+          format: double
+          examples:
+          - 0
+        decayFlag:
+          type: boolean
+          description: Indicates whether decay is enabled
+          examples:
+          - false
+        initialConfidenceLevel:
+          type: number
+          description: Initial confidence level assigned to the watchlist
+          format: double
+          examples:
+          - 1
+        confidenceIncrementFactor:
+          type: number
+          description: Increment factor for confidence over time
+          format: double
+          examples:
+          - 0
+        dynamicWatchlist:
+          type: boolean
+          description: Whether the watchlist is dynamic
+          examples:
+          - true
+        fieldList:
+          type: string
+          description: Comma-separated list of fields associated with the watchlist
+          examples:
+          - ''
+        calculateExpiryFromNow:
+          type: boolean
+          description: If true, expiry is calculated relative to the current time
+          examples:
+          - false
+      required:
+      - id
+      - watchlistId
+      - watchlistName
+    LimitResponse:
+      type: object
+      title: LimitResponse
+      properties:
+        message:
+          type: string
+          description: Provides the current API request limit.
+      examples:
+      - message: 'Your current limit is: 1000'
+    PolicyFunctionalityRelationEntity:
+      type: object
+      description: Policy functionality relation entity
+      properties:
+        id:
+          type: integer
+          description: Relation ID
+          format: int64
+        functionalityName:
+          type: string
+          description: Functionality name
+        tenantid:
+          description: Tenant ID
+          format: int64
+        idx:
+          description: relation index
+          format: int32
+      required:
+      - id
+  examples:
+    default:
+      value: tenant1
+  parameters:
+    AcceptHeader:
+      name: Accept
+      in: header
+      schema:
+        type: string
+        enum:
+        - application/json
+        - application/yaml
+        - application/x-yaml
+        default: application/json
+        example: application/yaml
+      description: Specifies the desired response format. Supported values are application/json, application/yaml and application/x-yaml. Both application/yaml and application/x-yaml are treated equivalently and return YAML-formatted responses.
+    ClientIdHeader:
+      name: client-id
+      in: header
+      description: TenantId in the UDS platform. Used for authentication and validation.
+      required: true
+      schema:
+        type: string
+        examples:
+        - tenant1
+  securitySchemes:
+    bearerAuth:
+      type: http
+      description: "**Authentication**\n- The JWT is issued using the `wstoken` (obtained after successful authentication).\n- A valid JWT token must be provided via `Authorization: Bearer <token>`.  \n\n**Authorization**:\n- API access is controlled by validating the `role` and `tenant` claims from the JWT.   \n- All **read** APIs require one of the following roles: `ROLE_ADMIN`, `ROLE_CONTENT_DEVELOPER`, `ROLE_READ_ONLY`.\n- All **write** APIs require one of the following roles: `ROLE_ADMIN`, `ROLE_CONTENT_DEVELOPER`.\n\nPlease refer to the [Authentication Guide](../user-guide/developer-guide/authentication) for details.\n"
+      scheme: bearer
+      bearerFormat: JWT
+x-changelog:
+- version: 3.1.4
+  changes:
+  - Added optional violatorAttribute field in Create, Update, Fetch, and Fetch All policy APIs to expose the selected violator attribute.
+  - 'Added support for CIDR range operators in detection: cidrinlist modifier for matching IP addresses against CIDR range lookup tables. Restricted to CIDR-eligible attributes (ipaddress, sourceaddress, destinationaddress, deviceaddress, translatedipaddress). Negation via NOT in condition produces NOT_EQUALS_IN_CIDR_RANGE_LIST.'
+  - 'Added support for Regex operators in detection: regex modifier for regex pattern matching on field values, and regexinlist modifier for matching against a lookup table of regex patterns. Negation via NOT in condition produces REGEX_NOT_EQUALS and REGEX_NOT_EQUALS_IN_LIST respectively.'
+- version: 3.1.3
+  changes:
+  - Added isExcluded flag on techniques and sub-techniques in MITRE ATT&CK Coverage (metrics) and technique-details responses; true only when a technique is configured as excluded and has no associated policy (enabled or disabled).
+  - Added policyDescription field on each MappedPolicy in technique-details response (null for OOTB policies).
+  - Deprecated MITRE techniques are now excluded from coverage metrics and technique-details responses.
+- version: 3.1.2
+  changes:
+  - Added optional autoIncidentEnabled field in Create and Update policy APIs to enable or disable automatic incident creation.
+- version: 3.1.1
+  changes:
+  - Added subTenantLicense field at the parent level of technique-details response (BASIC, STANDARD, ADVANCED, or null).
+  - Added functionality field on each MappedPolicy in technique-details response (null for resource group policies).
+  - Added isApplicableToTenantLicense flag on each MappedPolicy for non-deployed OOTB policies; indicates whether the policy can be deployed under the subtenant's license tier.
+- version: 3.1.0
+  changes:
+  - Added YAML response support for Create and Update policy APIs in addition to JSON.
+  - 'Request YAML response using the Accept: application/yaml or Accept: application/x-yaml header.'
+  - JSON remains the default when the header is not provided or when YAML conversion fails.
+  - 'If YAML conversion fails, the response falls back to JSON with headers X-Response-Format-Fallback: json and X-Response-Format-Requested: yaml.'
+- version: 3.0.2
+  changes:
+  - Added Sub-Technique details in MITRE ATT&CK Coverage response.
+- version: 3.0.1
+  changes:
+  - Added RTActivityip as a supported violator type for policies.
+  - RTActivityip is allowed only for IEE (Individual Event Evaluator) policies.
+  - Create and Update APIs return 400 with error code POL_CONV_011A when RTActivityip is used for AEE or other policy types.
+- version: 3.0.0
+  changes:
+  - Added YAML response support for policy retrieval APIs (Fetch and Fetch All) in addition to JSON.
+  - 'Request YAML using the Accept: application/yaml or Accept: application/x-yaml header.'
+  - JSON remains the default when the header is not provided.
+  - YAML conversion is supported only for eligible policy types (see endpoint notes).
+  - Added MITRE ATT&CK Coverage Summary and Policy Distribution analytics endpoints.
+  - Provides comprehensive visibility into tenant's MITRE ATT&CK Coverage at technique level.
+  - Enables distribution analysis for better policy management.
+  - Added exporting MITRE ATT&CK Coverage for a tenant to CSV format at technique and sub-technique level.
+- version: 2.0.1
+  changes:
+  - Introduced optional field apisource in Create and Update APIs to identify the originating system.
+  - Accepts any value except 'PA'.
+  - Used for auditing and request source tracking.
+- version: 2.0.0
+  changes:
+  - Enhanced Delete API to support bulk deletion of multiple policies in a single request.
+  - This change is not backward compatible and is released as a major version update.
+  - 'Expanded Additional Event Analytics support: Check against TPI, Check against Active List, Match String.'
+- version: 1.2.0
+  changes:
+  - 'Added Additional Event Analytics support: Check against Watchlist, Check against Lookup, Email to Self.'
+- version: 1.1.0
+  changes:
+  - Added Aggregated Event Analytics (AEE) support.
+- version: 1.0.0
+  changes:
+  - Initial release.

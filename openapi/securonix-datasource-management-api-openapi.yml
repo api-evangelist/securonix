@@ -1,0 +1,721 @@
+openapi: 3.2.0
+info:
+  title: Datasource Onboarding Datasource Management API
+  description: Allows users to fetch data to create, edit, and onboard a datasource through the API.
+  contact:
+    name: Securonix
+    url: www.securonix.com
+  license:
+    name: License of API
+  version: 1.0.0
+servers:
+- description: SwaggerHub API Auto Mocking
+  url: https://virtserver.swaggerhub.com/securonix-b7a/Datasource_Onboarding/1.0.0
+- url: http://localhost:8191
+  description: Inferred Url
+tags:
+- name: Datasource Management
+  description: Config Datasource Controller
+paths:
+  /ingestion/v1/configuredatasource:
+    post:
+      tags:
+      - Datasource Management
+      summary: Configure the datasource support for API-based OOTB parser
+      operationId: configureDataSourceUsingPOST
+      parameters:
+      - name: customerId
+        in: query
+        description: customerId
+        required: true
+        style: form
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigDataSourcePayload'
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ConfigDatasourceResponse'
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /ingestion/v1/configuresyslogdatasource:
+    post:
+      tags:
+      - Datasource Management
+      summary: Configure the datasource support for Syslog-based OOTB parser
+      operationId: configureSyslogDataSourceUsingPOST
+      parameters:
+      - name: customerId
+        in: query
+        description: customerId
+        required: true
+        style: form
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigSyslogDataSourcePayload'
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: integer
+                format: int64
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /ingestion/v1/createsyslogfilter:
+    post:
+      tags:
+      - Datasource Management
+      summary: Create a new Syslog-filter
+      operationId: createSyslogFilterUsingPOST
+      parameters:
+      - name: customerId
+        in: query
+        description: customerId
+        required: true
+        style: form
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SyslogNewFilterPayload'
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/SyslogFilterData'
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /ingestion/v1/createsyslogsource:
+    post:
+      tags:
+      - Datasource Management
+      summary: Create a new Syslog-source
+      operationId: createSyslogSourceUsingPOST
+      parameters:
+      - name: customerId
+        in: query
+        description: customerId
+        required: true
+        style: form
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SyslogNewSourcePayload'
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/SyslogSourcesResponse'
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /ingestion/v1/getresourcegroupbyid:
+    get:
+      tags:
+      - Datasource Management
+      summary: get the resource group info by getResourceGroupId
+      operationId: getResourceGroupByIdUsingGET
+      parameters:
+      - name: resourceGroupId
+        in: query
+        description: resourceGroupId
+        required: false
+        style: form
+        schema:
+          type: integer
+          format: int64
+      - name: customerId
+        in: query
+        description: customerId
+        required: true
+        style: form
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ResourceGroups'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /ingestion/v1/getresourcegroupbyname:
+    get:
+      tags:
+      - Datasource Management
+      summary: get the resource group info by resourceGroupName
+      operationId: getResourceGroupByNameUsingGET
+      parameters:
+      - name: resourceGroupName
+        in: query
+        description: resourceGroupName
+        required: false
+        style: form
+        schema:
+          type: string
+      - name: customerId
+        in: query
+        description: customerId
+        required: true
+        style: form
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ResourceGroups'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /ingestion/v1/getsyslogfiltersbyingesterid:
+    get:
+      tags:
+      - Datasource Management
+      summary: get new syslog filters by ingester id(ingesterid = 0 or null will return all unmapped filters for all ingesterids)
+      operationId: getSyslogFiltersByIngesterIdUsingGET
+      parameters:
+      - name: ingesterId
+        in: query
+        description: ingesterId
+        required: false
+        style: form
+        schema:
+          type: integer
+          format: int64
+      - name: customerId
+        in: query
+        description: customerId
+        required: true
+        style: form
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/SyslogFiltersResponse'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /ingestion/v1/getsyslogsourcebyingesterid:
+    get:
+      tags:
+      - Datasource Management
+      summary: get the syslog sources info by ingester id
+      operationId: getSyslogSourcesByIngesterIdUsingGET
+      parameters:
+      - name: ingesterId
+        in: query
+        description: ingesterId
+        required: false
+        style: form
+        schema:
+          type: integer
+          format: int64
+      - name: customerId
+        in: query
+        description: customerId
+        required: true
+        style: form
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/SyslogSourcesResponse'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /ingestion/v1/validatesyslogdatasource:
+    post:
+      tags:
+      - Datasource Management
+      summary: Validating Syslog details for Syslog-based OOTB
+      operationId: validateSyslogSourceAndFilterUsingPOST
+      parameters:
+      - name: customerId
+        in: query
+        description: customerId
+        required: true
+        style: form
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidateSyslogDetailsPayload'
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+components:
+  schemas:
+    ConfigSyslogDataSourcePayload:
+      title: ConfigSyslogDataSourcePayload
+      type: object
+      properties:
+        collectionMethodName:
+          type: string
+        columnIdentifier:
+          type: string
+        crpId:
+          type: integer
+          format: int64
+        datasourceProperties:
+          type: object
+          additionalProperties:
+            type: string
+        format:
+          type: string
+        functionality:
+          type: string
+        headerRegex:
+          type: string
+        importScheduleJob:
+          type: string
+        indexerConfig:
+          type: string
+        ingesterIdList:
+          type: array
+          items:
+            type: integer
+            format: int64
+        internalRawTopicName:
+          type: string
+        invalidEventAction:
+          type: string
+        jobMinutesRunCountInterval:
+          type: string
+        jobRunCountHourlyInterval:
+          type: string
+        jobSecondsRunCountInterval:
+          type: string
+        keyValueSeparator:
+          type: string
+        minutesInterval:
+          type: integer
+          format: int32
+        parserName:
+          type: string
+        parsingTechnique:
+          type: string
+        resourceGroupName:
+          type: string
+        resourceType:
+          type: string
+        scheduledImportFrequencyInterval:
+          type: string
+        secondsInterval:
+          type: integer
+          format: int32
+        syslogDetails:
+          type: array
+          items:
+            $ref: '#/components/schemas/SyslogDetailsPayload'
+        tenantId:
+          type: integer
+          format: int64
+        timeZone:
+          type: string
+        vendor:
+          type: string
+    SyslogFilterData:
+      title: SyslogFilterData
+      type: object
+      properties:
+        filterExpression:
+          type: string
+        filterId:
+          type: integer
+          format: int64
+        filterName:
+          type: string
+        ingesterId:
+          type: integer
+          format: int64
+        isSelectedOnUI:
+          type: boolean
+        resourceTypeId:
+          type: integer
+          format: int64
+        rgId:
+          type: integer
+          format: int64
+    ConfigCollectorSource:
+      title: ConfigCollectorSource
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        source:
+          type: string
+        syslogId:
+          type: integer
+          format: int64
+        tenantId:
+          type: integer
+          format: int64
+        type:
+          type: string
+    SyslogFiltersResponse:
+      title: SyslogFiltersResponse
+      type: object
+      properties:
+        syslogFilterDetails:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              $ref: '#/components/schemas/SyslogFilterData'
+    ConfigDatasourceResponse:
+      title: ConfigDatasourceResponse
+      type: object
+      properties:
+        created_at:
+          type: string
+          format: date-time
+        description:
+          type: string
+        resourceGroupId:
+          type: integer
+          format: int64
+    ConfigDataSourcePayload:
+      title: ConfigDataSourcePayload
+      type: object
+      properties:
+        collectionMethodName:
+          type: string
+        columnIdentifier:
+          type: string
+        crpId:
+          type: integer
+          format: int64
+        datasourceProperties:
+          type: object
+          additionalProperties:
+            type: string
+        functionality:
+          type: string
+        headerRegex:
+          type: string
+        importScheduleJob:
+          type: string
+        indexerConfig:
+          type: string
+        ingesterIdList:
+          type: array
+          items:
+            type: integer
+            format: int64
+        internalRawTopicName:
+          type: string
+        invalidEventAction:
+          type: string
+        jobMinutesRunCountInterval:
+          type: string
+        jobRunCountHourlyInterval:
+          type: string
+        jobSecondsRunCountInterval:
+          type: string
+        keyValueSeparator:
+          type: string
+        minutesInterval:
+          type: integer
+          format: int32
+        parserName:
+          type: string
+        parsingTechnique:
+          type: string
+        resourceGroupName:
+          type: string
+        resourceType:
+          type: string
+        scheduledImportFrequencyInterval:
+          type: string
+        secondsInterval:
+          type: integer
+          format: int32
+        tenantId:
+          type: integer
+          format: int64
+        timeZone:
+          type: string
+        vendor:
+          type: string
+    ValidateSyslogDetailsPayload:
+      title: ValidateSyslogDetailsPayload
+      type: object
+      properties:
+        syslogDetails:
+          type: array
+          items:
+            $ref: '#/components/schemas/SyslogDetailsPayload'
+    SyslogSourcesResponse:
+      title: SyslogSourcesResponse
+      type: object
+      properties:
+        syslogSourcesDetails:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConfigCollectorSource'
+    SyslogNewFilterPayload:
+      title: SyslogNewFilterPayload
+      type: object
+      properties:
+        filterExpression:
+          type: string
+        filterName:
+          type: string
+        ingesterId:
+          type: integer
+          format: int64
+        sourceId:
+          type: integer
+          format: int64
+    ResourceGroups:
+      title: ResourceGroups
+      type: object
+      properties:
+        aggregatelevel:
+          type: string
+        amountroundupvalue:
+          type: integer
+          format: int64
+        archivexml:
+          type: string
+        caiid:
+          type: integer
+          format: int64
+        category:
+          type: string
+        clusterid:
+          type: integer
+          format: int64
+        compressionenabled:
+          type: integer
+          format: int32
+        countattributes:
+          type: string
+        creationtime:
+          type: integer
+          format: int64
+        criticality:
+          type: string
+        deviceid:
+          type: string
+        directimport:
+          type: integer
+          format: int32
+        enabled:
+          type: integer
+          format: int32
+        encryptionenabled:
+          type: integer
+          format: int32
+        enrichedtopic:
+          type: string
+        fraudresource:
+          type: integer
+          format: int32
+        functionality:
+          type: string
+        id:
+          type: integer
+          format: int64
+        indexerconfig:
+          type: string
+        internalrawtopic:
+          type: string
+        ipaddress:
+          type: string
+        lastsynctime:
+          type: string
+          format: date-time
+        name:
+          type: string
+        notificationconfig:
+          type: string
+        onlineresource:
+          type: integer
+          format: int32
+        origin:
+          type: string
+        ownerid:
+          type: integer
+          format: int64
+        parentid:
+          type: integer
+          format: int64
+        parentstatus:
+          type: integer
+          format: int64
+        pipeline:
+          type: string
+        publishfactor:
+          type: integer
+          format: int64
+        raweventindexingenabled:
+          type: integer
+          format: int32
+        rawtopic:
+          type: string
+        resourcetypeid:
+          type: integer
+          format: int64
+        retainedaccessentitlements:
+          type: integer
+          format: int32
+        riskscore:
+          type: integer
+          format: int64
+        saveevent:
+          type: integer
+          format: int32
+        supportingparams:
+          type: string
+        syncdone:
+          type: integer
+          format: int32
+        syncstatus:
+          type: string
+        syslogdatasources_status:
+          type: string
+        syslogenabled:
+          type: integer
+          format: int32
+        syslogport:
+          type: integer
+          format: int64
+        tenantid:
+          type: integer
+          format: int64
+        tenantname:
+          type: string
+        timezoneoffset:
+          type: string
+        type:
+          type: string
+        uniquecode:
+          type: string
+        vendor:
+          type: string
+    SyslogNewSourcePayload:
+      title: SyslogNewSourcePayload
+      type: object
+      properties:
+        ingesterId:
+          type: integer
+          format: int64
+        sourceExpression:
+          type: string
+        sourceName:
+          type: string
+        tenantId:
+          type: integer
+          format: int64
+    SyslogDetailsPayload:
+      title: SyslogDetailsPayload
+      type: object
+      properties:
+        filtersId:
+          type: array
+          items:
+            type: integer
+            format: int64
+        ingesterId:
+          type: integer
+          format: int64
+        sourcesId:
+          type: array
+          items:
+            type: integer
+            format: int64
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: wstoken

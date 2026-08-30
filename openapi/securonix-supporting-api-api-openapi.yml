@@ -1,0 +1,357 @@
+openapi: 3.2.0
+info:
+  title: Datasource Onboarding Supporting API
+  description: Allows users to fetch data to create, edit, and onboard a datasource through the API.
+  contact:
+    name: Securonix
+    url: www.securonix.com
+  license:
+    name: License of API
+  version: 1.0.0
+servers:
+- description: SwaggerHub API Auto Mocking
+  url: https://virtserver.swaggerhub.com/securonix-b7a/Datasource_Onboarding/1.0.0
+- url: http://localhost:8191
+  description: Inferred Url
+tags:
+- name: Supporting API
+  description: Health Check Controller
+paths:
+  /ingestion/v1/health:
+    get:
+      tags:
+      - Supporting API
+      summary: Checks service health for datasource-onboarding-service
+      operationId: healthCheckUsingGET
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /ingestion/v1/fetchalltenants:
+    get:
+      tags:
+      - Supporting API
+      summary: Fetch all tenants by username
+      operationId: getAllTenantsByUsernameUsingGET
+      parameters:
+      - name: username
+        in: query
+        description: username
+        required: true
+        style: form
+        schema:
+          type: string
+      - name: customerId
+        in: query
+        description: customerId
+        required: true
+        style: form
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/FetchTenantsByUsernameResponse'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /ingestion/v1/fetchrins:
+    get:
+      tags:
+      - Supporting API
+      summary: Fetch all RINS  by tenantname
+      operationId: getAllRINsByTenantNameUsingGET
+      parameters:
+      - name: tenantName
+        in: query
+        description: tenantName
+        required: true
+        style: form
+        schema:
+          type: string
+      - name: customerId
+        in: query
+        description: customerId
+        required: true
+        style: form
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/FetchAllRINsByTenantName'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /ingestion/v1/listdatasourceconfigbyimporttype:
+    get:
+      tags:
+      - Supporting API
+      summary: List all datasource configuration by import type and tenant id or tenant name
+      operationId: getDatasourceConfigByImporttypeUsingGET
+      parameters:
+      - name: tenantName
+        in: query
+        description: tenantName
+        required: false
+        style: form
+        schema:
+          type: string
+      - name: tenantId
+        in: query
+        description: tenantId
+        required: false
+        style: form
+        schema:
+          type: integer
+          format: int64
+      - name: importType
+        in: query
+        description: importType
+        required: true
+        style: form
+        schema:
+          type: string
+      - name: customerId
+        in: query
+        description: customerId
+        required: true
+        style: form
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ImportDatasourcesConfigResponse'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /ingestion/v1/listdatasourceconfigbyrgid:
+    get:
+      tags:
+      - Supporting API
+      summary: List activity datasource configuration by resource group id
+      operationId: getDatasourceConfigByRgIdUsingGET
+      parameters:
+      - name: resourceGroupId
+        in: query
+        description: resourceGroupId
+        required: true
+        style: form
+        schema:
+          type: integer
+          format: int64
+      - name: customerId
+        in: query
+        description: customerId
+        required: true
+        style: form
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ImportDatasourcesConfigResponse'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /ingestion/v1/listresourcegroupconfigbytenantid:
+    get:
+      tags:
+      - Supporting API
+      summary: List of all resource group config by tenant id
+      operationId: getResourceGroupDetailsByTenantIdUsingGET
+      parameters:
+      - name: tenantId
+        in: query
+        description: tenantId
+        required: true
+        style: form
+        schema:
+          type: integer
+          format: int64
+      - name: customerId
+        in: query
+        description: customerId
+        required: true
+        style: form
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ResourceGroupDetailsByTenantIdResponse'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+components:
+  schemas:
+    RINsByTenantName:
+      title: RINsByTenantName
+      type: object
+      properties:
+        gatewayAlive:
+          type: string
+        ingesterAlive:
+          type: string
+        ingesterId:
+          type: integer
+          format: int64
+        name:
+          type: string
+        rinversion:
+          type: string
+        tenantId:
+          type: integer
+          format: int64
+        tenantName:
+          type: string
+    DatasourcesResponse:
+      title: DatasourcesResponse
+      type: object
+      properties:
+        collectionMethodType:
+          type: string
+        datasourcePropertiesResponses:
+          type: array
+          items:
+            $ref: '#/components/schemas/DatasourcePropertiesResponse'
+        datasourceid:
+          type: integer
+          format: int64
+        datasourcename:
+          type: string
+        importtype:
+          type: string
+        tenantid:
+          type: integer
+          format: int64
+        tenantname:
+          type: string
+    ImportDatasourcesConfigResponse:
+      title: ImportDatasourcesConfigResponse
+      type: object
+      properties:
+        datasourceconfiguration:
+          type: array
+          items:
+            $ref: '#/components/schemas/DatasourcesResponse'
+    FetchTenantsByUsernameResponse:
+      title: FetchTenantsByUsernameResponse
+      type: object
+      properties:
+        tenants:
+          type: array
+          items:
+            $ref: '#/components/schemas/TenantMasterResponse'
+    FetchAllRINsByTenantName:
+      title: FetchAllRINsByTenantName
+      type: object
+      properties:
+        rins:
+          type: array
+          items:
+            $ref: '#/components/schemas/RINsByTenantName'
+    TenantMasterResponse:
+      title: TenantMasterResponse
+      type: object
+      properties:
+        shortcode:
+          type: string
+        tenantID:
+          type: integer
+          format: int64
+        tenantname:
+          type: string
+        timezone:
+          type: string
+    DatasourcePropertiesResponse:
+      title: DatasourcePropertiesResponse
+      type: object
+      properties:
+        propertyname:
+          type: string
+        propertyvalue:
+          type: string
+    ResourceGroupDetailsByTenantID:
+      title: ResourceGroupDetailsByTenantID
+      type: object
+      properties:
+        collectionMethod:
+          type: string
+        functionality:
+          type: string
+        ingesterNames:
+          type: string
+        parserName:
+          type: string
+        parsingTechnique:
+          type: string
+        resourcegroupId:
+          type: integer
+          format: int64
+        resourcegroupType:
+          type: string
+        resourcegroupname:
+          type: string
+        tenantId:
+          type: integer
+          format: int64
+        tenantName:
+          type: string
+        timezone:
+          type: string
+        vendor:
+          type: string
+    ResourceGroupDetailsByTenantIdResponse:
+      title: ResourceGroupDetailsByTenantIdResponse
+      type: object
+      properties:
+        resourceGroupDetails:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResourceGroupDetailsByTenantID'
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: wstoken

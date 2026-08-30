@@ -1,0 +1,507 @@
+openapi: 3.2.0
+info:
+  title: ThreatQ Object Sources API
+  description: "&copy; 2025<br/><br/><b>The API doc you are viewing is a BETA version that provides an early look at ThreatQ’s new API documentation format. At the moment, it does not cover the entire application program interface. Additional API resources, including the current standard format as well as previous versions, are available on the ThreatQ Help Center.</b><br/><br/>Last Updated: 07/11/2025\n## Introduction\n\nThe ThreatQ API is built on REST principles and uses JSON as a data interchange format.\n\n<script type=\"text/javascript\" src=\"ga.js\"></script>\n\n\n### Base URI\n\nAll URIs referenced in this document use the following base: https://**hostname**/api/, where **hostname** is replaced with the hostname or ip address of your ThreatQ instance.\n\n\n### Request Format\n\nThe ThreatQ API supports the following HTTP verbs:\n\n| Verb          | Description                        |\n| :-------------| :----------------------------------|\n| GET           | GET requests retrieve resources.   |\n| POST          | POST requests create resources.    |\n| PUT           | PUT requests update resources.     |\n| DELETE        | DELETE requests delete resources.  |\n\n\n### Response Format\n\nAll responses are returned in JSON. The response is wrapped in a top level data envelope which is an object or array depending on whether a single item or a collection is returned. If a single item is returned, the data field will be an object. If a collection is returned, the field will be an array.\n\n\n### Response Codes\n\nThe ThreatQ API uses HTTP status codes to indicate the status of your request.\n\n| Code          | Description                                                                           |\n| :-------------| :-------------------------------------------------------------------------------------|\n| 200           |  Object was retrieved successfully.                                                   |\n| 201           |  Object was created successfully.                                                     |\n| 204           |  Object(s) were successfully deleted.                                                 |\n| 400           |  Validation failed (usually as the result of an incorrect request)                    |\n| 401           |  Access denied (authorization access token in the header was incorrect / out of date) |\n| 403           |  Access forbidden (usually as the result of a bad request)                            |\n| 404           |  Object not found                                                                     |\n\n<hr />\n\n### Authentication\n\nThreatQ uses OAuth 2.0 to authenticate end users. You must have a ThreatQ user account to retrieve an API token. The API token is required for all API requests. The token does time out; therefore, you must periodically refresh the token.\n\n\n#### Authorization workflow\n\n1. Run a GET request to retrieve your client ID using the following format:\n\thttps://**hostname**/assets/js/config.js\n2. Run a POST/token request to retrieve your authorization access token. See POST/token in the Authorization section of this reference for the correct format.\n\n    Include the following parameters:\n\t  * grant_type (password)\n\t  * client-id (retrieved in step 1)\n\n    **Example:** https://**hostname**/api/token?grant_type=password&client_id=ab20a55dd9ac779246210d7102a45ee37\n\n    In the request body, include your ThreatQ credentials:\n\t  * email\n\t  * password\n\n3. Enter the access token as the authorization key in the header for all subsequent api requests."
+  license:
+    name: null
+    url: null
+  version: 1.0.0
+  x-logo:
+    url: null
+    backgroundColor: null
+    altText: ThreatQuotient
+servers:
+- description: SwaggerHub API Auto Mocking
+  url: https://virtserver.swaggerhub.com/securonix-b7a/ThreatQ/1.0.0
+- url: https://threatq.com/api
+  description: ThreatQ Server
+security:
+- BearerAuth: []
+tags:
+- name: Object Sources
+paths:
+  /{object_type}/{object_type_id}/sources:
+    get:
+      tags:
+      - Object Sources
+      summary: List Sources for an Object Type
+      description: 'This path can be used for any object type installed on the system. <br><br>
+
+        Examples: <br><br> Indicator Sources: <i>/indicators/:indicator_id/sources</i> <br><br>
+
+        Attack Pattern Sources: <i>/attack_pattern/:attack_pattern_id/sources</i>'
+      parameters:
+      - $ref: '#/components/parameters/ObjectType'
+      - $ref: '#/components/parameters/ObjectTypeId'
+      - $ref: '#/components/parameters/ObjectSourceWith'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                - properties:
+                    data:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/ObjectSourceWithRelations'
+                  type: object
+                - $ref: '#/components/schemas/TotalResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      x-visibility: public
+    post:
+      tags:
+      - Object Sources
+      summary: Create a Source for an Object Type
+      description: 'This path can be used for any object type installed on the system. <br><br>
+
+        Examples: <br><br> Indicator Sources: <i>/indicators/:indicator_id/sources</i> <br><br>
+
+        Attack Pattern Sources: <i>/attack_pattern/:attack_pattern_id/sources</i>'
+      parameters:
+      - $ref: '#/components/parameters/ObjectType'
+      - $ref: '#/components/parameters/ObjectTypeId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/SourceBasics'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                allOf:
+                - properties:
+                    data:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/ObjectSource'
+                  type: object
+                - $ref: '#/components/schemas/TotalResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      x-visibility: public
+  /{object_type}/{object_type_id}/sources/{object_type_source_id}:
+    get:
+      tags:
+      - Object Sources
+      summary: Get a Single Source for an Object Type
+      description: 'This path can be used for any object type installed on the system. <br><br>
+
+        Examples: <br><br> Indicator Sources: <i>/indicators/:indicator_id/sources/:indicator_source_id</i> <br><br>
+
+        Attack Pattern Sources: <i>/attack_pattern/:attack_pattern_id/sources/:attack_pattern_source_id</i>'
+      parameters:
+      - $ref: '#/components/parameters/ObjectType'
+      - $ref: '#/components/parameters/ObjectTypeId'
+      - $ref: '#/components/parameters/ObjectTypeSourceId'
+      - $ref: '#/components/parameters/ObjectSourceWith'
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ObjectSourceWithRelations'
+                type: object
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      x-visibility: public
+    put:
+      tags:
+      - Object Sources
+      summary: Update a Source for an Object Type
+      description: 'This path can be used for any object type installed on the system. <br><br>
+
+        Examples: <br><br> Indicator Sources: <i>/indicators/:indicator_id/sources/:indicator_source_id</i> <br><br>
+
+        Attack Pattern Sources: <i>/attack_pattern/:attack_pattern_id/sources/:attack_pattern_source_id</i>'
+      parameters:
+      - $ref: '#/components/parameters/ObjectType'
+      - $ref: '#/components/parameters/ObjectTypeId'
+      - $ref: '#/components/parameters/ObjectTypeSourceId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TLPRequestOptions'
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ObjectSource'
+                type: object
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      x-visibility: public
+    delete:
+      tags:
+      - Object Sources
+      summary: Delete a Source for an Object Type
+      description: 'This path can be used for any object type installed on the system. <br><br>
+
+        Examples: <br><br> Indicator Sources: <i>/indicators/:indicator_id/sources/:indicator_source_id</i> <br><br>
+
+        Attack Pattern Sources: <i>/attack_pattern/:attack_pattern_id/sources/:attack_pattern_source_id</i>'
+      parameters:
+      - $ref: '#/components/parameters/ObjectType'
+      - $ref: '#/components/parameters/ObjectTypeId'
+      - $ref: '#/components/parameters/ObjectTypeSourceId'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      x-visibility: public
+components:
+  responses:
+    Unauthorized:
+      description: Unauthorized
+    NotFound:
+      description: Object Not Found
+    NoContent:
+      description: Object(s) were successfully deleted.
+  schemas:
+    TouchedAtTimestamp:
+      properties:
+        touched_at:
+          description: Update Date for Object Context (Attributes, Comments, Sources, Relationships)
+          type: string
+          example: '2021-11-13 15:28:17'
+      type: object
+    ObjectSourceFillable:
+      properties:
+        name:
+          description: Source name
+          type: string
+          example: ThreatQ
+      type: object
+    SourceBasics:
+      oneOf:
+      - allOf:
+        - properties:
+            tlp_id:
+              description: Source TLP ID
+              type: integer
+              example: 3
+          type: object
+        - $ref: '#/components/schemas/SourceName'
+      - allOf:
+        - properties:
+            tlp:
+              $ref: '#/components/schemas/TLPName'
+          type: object
+        - $ref: '#/components/schemas/SourceName'
+    ObjectSourceId:
+      properties:
+        source_id:
+          description: Source ID
+          type: integer
+          example: 42
+      type: object
+    SourceName:
+      properties:
+        name:
+          description: Source Name
+          type: string
+          example: ThreatQ
+      type: object
+    ObjectSourceWithRelations:
+      allOf:
+      - properties:
+          tlp:
+            type: array
+            items:
+              $ref: '#/components/schemas/TLP'
+        type: object
+      - properties:
+          indicator:
+            type: array
+            items:
+              $ref: '#/components/schemas/Indicator'
+        type: object
+      - $ref: '#/components/schemas/ObjectSource'
+    ObjectTypeId:
+      properties:
+        <object_type>_id:
+          description: "Object Type ID - `<object_type>` should be replaced with the Object Type `code` field. This field will match the\n Object Type collection specified in the URL path. Example: indicator_id"
+          type: integer
+          example: 517
+      type: object
+    Indicator:
+      allOf:
+      - properties:
+          id:
+            description: Indicator ID
+            type: integer
+            example: 54
+        type: object
+      - properties:
+          hash:
+            description: Indicator Hash
+            type: string
+            example: 4aba5ab07a3bda558d5d725a09d93ba6
+          last_detected_at:
+            description: Date the Indicator was last encountered
+            type: string
+            example: '2020-02-28 13:42:51'
+          expires_at:
+            description: Date the Indicator will expire
+            type: string
+            example: '2020-04-01 03:17:23'
+          expired_at:
+            description: Date the Indicator expired
+            type: string
+            example: null
+          expired_needs_calc:
+            description: Determines whether the Indicator's expiration date needs updating
+            type: string
+            example: N
+          expires_calculated_at:
+            description: Date the Indicator's expiration date was calculated
+            type: string
+            example: '2020-02-28 18:36:24'
+        type: object
+      - $ref: '#/components/schemas/IndicatorFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+      - $ref: '#/components/schemas/TouchedAtTimestamp'
+    PublishedAtTimestamp:
+      properties:
+        published_at:
+          description: Publish Date for Object (Date it was first reported by the Source)
+          type: string
+          example: '2017-01-13 15:28:17'
+      type: object
+    CreatorSource:
+      properties:
+        creator_source_id:
+          description: Creator Source ID - Source ID of User, Feed, or other means that brought the object into the system
+          type: integer
+          example: 2
+      type: object
+    IndicatorFillable:
+      properties:
+        type_id:
+          description: Indicator Type ID
+          type: integer
+          example: 11
+        status_id:
+          description: Indicator Status ID
+          type: integer
+          example: 2
+        class:
+          description: 'Indicator Class - Options include: host, network'
+          type: string
+          example: network
+        value:
+          description: Indicator Value
+          type: string
+          example: www.danger-doom.com
+        description:
+          description: Indicator Description
+          type: string
+          example: Website encountered during incident investigation.
+      type: object
+    TLPName:
+      properties:
+        name:
+          description: TLP Name
+          type: string
+          example: WHITE
+      type: object
+    TotalResponse:
+      properties:
+        total:
+          description: Total Number of Objects Processed
+          type: integer
+          example: 1
+      type: object
+    TLP:
+      allOf:
+      - properties:
+          id:
+            description: TLP ID
+            type: integer
+            example: 1
+        type: object
+      - properties:
+          created_at:
+            description: TLP Creation Date
+            type: string
+            example: '2020-05-01 02:35:16'
+          updated_at:
+            description: TLP Update Date
+            type: string
+            example: '2020-05-03 04:27:51'
+        type: object
+      - $ref: '#/components/schemas/TLPFillable'
+    ThreatQTimestamps:
+      properties:
+        created_at:
+          description: Creation Date
+          type: string
+          example: '2021-07-29 13:58:03'
+        updated_at:
+          description: Update Date
+          type: string
+          example: '2022-04-12 08:32:16'
+      type: object
+    TLPFillable:
+      allOf:
+      - properties:
+          name:
+            description: TLP Name
+            type: string
+            example: WHITE
+          description:
+            description: TLP Description
+            type: string
+            example: Disclosure is not limited.
+          value:
+            description: TLP Value used for hierarchy comparisons
+            type: integer
+            example: 3
+          user_editable:
+            description: Determines whether the TLP record can be updated by a User
+            type: string
+            example: N
+        type: object
+      - $ref: '#/components/schemas/TLPName'
+    ObjectSource:
+      allOf:
+      - properties:
+          id:
+            description: Object Type Source ID
+            type: integer
+            example: 39
+          tlp_id:
+            description: TLP ID
+            type: integer
+            example: 1
+        type: object
+      - $ref: '#/components/schemas/ObjectTypeId'
+      - $ref: '#/components/schemas/ObjectSourceId'
+      - $ref: '#/components/schemas/CreatorSource'
+      - $ref: '#/components/schemas/ObjectSourceFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+      - $ref: '#/components/schemas/PublishedAtTimestamp'
+    TLPRequestOptions:
+      oneOf:
+      - properties:
+          tlp_id:
+            description: Source TLP ID
+            type: integer
+            example: 3
+        type: object
+      - properties:
+          tlp:
+            $ref: '#/components/schemas/TLPName'
+        type: object
+  parameters:
+    Limit:
+      name: limit
+      in: query
+      description: <br>The number of objects included in the response.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 10
+    ObjectTypeSourceId:
+      name: object_type_source_id
+      in: path
+      description: The ID of the Source record for the specified Object Type
+      required: true
+      schema:
+        type: integer
+        example: 7
+    ObjectSourceWith:
+      name: with
+      in: query
+      description: "<br>Object Relationships that can be included in the response.<br><br>Options include: `<object_code>`, tlp\n <br><br>The `<object_code>` placeholder in the options takes the value of the `code` field for an object definition.<br><br>"
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+          example: indicator,tlp
+    Offset:
+      name: offset
+      in: query
+      description: <br>The number of result set records that should be ignored.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 50
+    Sort:
+      name: sort
+      in: query
+      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+        example: id,created_at
+    ObjectType:
+      name: object_type
+      in: path
+      description: 'The collection identifier for the Object Type whose context you would like to retrieve. Options include:
+
+        adversaries, attachments, attack_pattern, campaign, course_of_action, event, exploit_target, identity, incident,
+
+        indicators, intrustion_set, malware, report, signature, tool, ttp, and vulnerability. If you have any additional custom
+
+        objects installed on your system, use the value for the `collection` field associated with the object definition.'
+      required: true
+      schema:
+        type: string
+        example: indicators
+    ObjectTypeId:
+      name: object_type_id
+      in: path
+      description: The ID for the record of the specified Object Type whose context you would like to retrieve
+      required: true
+      schema:
+        type: integer
+        example: 6
+  securitySchemes:
+    BearerAuth:
+      type: http
+      description: "Once authorized, all subsequent requests must include an `Authorization` header\n with the granted `access_token`. See the OAuth2 Authentication path for more information on how to authorize a User.<br><br>\n Example Header: `Authorization: Bearer <access_token>`"
+      name: Authorization
+      in: header
+      bearerFormat: Bearer `<access_token>`
+      scheme: bearer

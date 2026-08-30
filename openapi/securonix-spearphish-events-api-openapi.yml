@@ -1,0 +1,313 @@
+openapi: 3.2.0
+info:
+  title: ThreatQ Spearphish Events API
+  description: "&copy; 2025<br/><br/><b>The API doc you are viewing is a BETA version that provides an early look at ThreatQ’s new API documentation format. At the moment, it does not cover the entire application program interface. Additional API resources, including the current standard format as well as previous versions, are available on the ThreatQ Help Center.</b><br/><br/>Last Updated: 07/11/2025\n## Introduction\n\nThe ThreatQ API is built on REST principles and uses JSON as a data interchange format.\n\n<script type=\"text/javascript\" src=\"ga.js\"></script>\n\n\n### Base URI\n\nAll URIs referenced in this document use the following base: https://**hostname**/api/, where **hostname** is replaced with the hostname or ip address of your ThreatQ instance.\n\n\n### Request Format\n\nThe ThreatQ API supports the following HTTP verbs:\n\n| Verb          | Description                        |\n| :-------------| :----------------------------------|\n| GET           | GET requests retrieve resources.   |\n| POST          | POST requests create resources.    |\n| PUT           | PUT requests update resources.     |\n| DELETE        | DELETE requests delete resources.  |\n\n\n### Response Format\n\nAll responses are returned in JSON. The response is wrapped in a top level data envelope which is an object or array depending on whether a single item or a collection is returned. If a single item is returned, the data field will be an object. If a collection is returned, the field will be an array.\n\n\n### Response Codes\n\nThe ThreatQ API uses HTTP status codes to indicate the status of your request.\n\n| Code          | Description                                                                           |\n| :-------------| :-------------------------------------------------------------------------------------|\n| 200           |  Object was retrieved successfully.                                                   |\n| 201           |  Object was created successfully.                                                     |\n| 204           |  Object(s) were successfully deleted.                                                 |\n| 400           |  Validation failed (usually as the result of an incorrect request)                    |\n| 401           |  Access denied (authorization access token in the header was incorrect / out of date) |\n| 403           |  Access forbidden (usually as the result of a bad request)                            |\n| 404           |  Object not found                                                                     |\n\n<hr />\n\n### Authentication\n\nThreatQ uses OAuth 2.0 to authenticate end users. You must have a ThreatQ user account to retrieve an API token. The API token is required for all API requests. The token does time out; therefore, you must periodically refresh the token.\n\n\n#### Authorization workflow\n\n1. Run a GET request to retrieve your client ID using the following format:\n\thttps://**hostname**/assets/js/config.js\n2. Run a POST/token request to retrieve your authorization access token. See POST/token in the Authorization section of this reference for the correct format.\n\n    Include the following parameters:\n\t  * grant_type (password)\n\t  * client-id (retrieved in step 1)\n\n    **Example:** https://**hostname**/api/token?grant_type=password&client_id=ab20a55dd9ac779246210d7102a45ee37\n\n    In the request body, include your ThreatQ credentials:\n\t  * email\n\t  * password\n\n3. Enter the access token as the authorization key in the header for all subsequent api requests."
+  license:
+    name: null
+    url: null
+  version: 1.0.0
+  x-logo:
+    url: null
+    backgroundColor: null
+    altText: ThreatQuotient
+servers:
+- description: SwaggerHub API Auto Mocking
+  url: https://virtserver.swaggerhub.com/securonix-b7a/ThreatQ/1.0.0
+- url: https://threatq.com/api
+  description: ThreatQ Server
+security:
+- BearerAuth: []
+tags:
+- name: Spearphish Events
+paths:
+  /events/{event_id}/spearphish:
+    post:
+      tags:
+      - Spearphish Events
+      summary: Create a Spearphish Event
+      parameters:
+      - $ref: '#/components/parameters/EventId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpearphishFillable'
+      responses:
+        '201':
+          description: New Spearphish Event Created
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Spearphish'
+                type: object
+        '400':
+          $ref: '#/components/responses/FailedValidation'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-visibility: public
+  /events/{event_id}/spearphish/{spearphish_id}{?with}:
+    get:
+      tags:
+      - Spearphish Events
+      summary: Get a Single Spearphish Event
+      parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/SpearphishId'
+      - $ref: '#/components/parameters/SpearphishWith'
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SpearphishWithEvent'
+                type: object
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      x-visibility: public
+    put:
+      tags:
+      - Spearphish Events
+      summary: Update a Spearphish Event
+      parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/SpearphishId'
+      - $ref: '#/components/parameters/SpearphishWith'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpearphishFillable'
+      responses:
+        '201':
+          description: Spearphish Event Updated
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SpearphishWithEvent'
+                type: object
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      x-visibility: public
+  /events/{event_id}/spearphish{?limit,offset,sort,with}:
+    get:
+      tags:
+      - Spearphish Events
+      summary: List Spearphish Events
+      parameters:
+      - $ref: '#/components/parameters/EventId'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/SpearphishWith'
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                - properties:
+                    data:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/SpearphishWithEvent'
+                  type: object
+                - $ref: '#/components/schemas/TotalResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-visibility: public
+components:
+  responses:
+    Unauthorized:
+      description: Unauthorized
+    FailedValidation:
+      description: Validation Failed
+    NotFound:
+      description: Object Not Found
+  parameters:
+    SpearphishWith:
+      name: with
+      in: query
+      description: <br>Event Relationship that can be included in the response.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+        example: event
+    Limit:
+      name: limit
+      in: query
+      description: <br>The number of objects included in the response.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 10
+    Sort:
+      name: sort
+      in: query
+      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+        example: id,created_at
+    EventId:
+      name: event_id
+      in: path
+      description: Event ID
+      required: true
+      schema:
+        type: integer
+    SpearphishId:
+      name: spearphish_id
+      in: path
+      description: Spearphish ID
+      required: true
+      schema:
+        type: integer
+    Offset:
+      name: offset
+      in: query
+      description: <br>The number of result set records that should be ignored.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 50
+  schemas:
+    SpearphishWithEvent:
+      allOf:
+      - properties:
+          event:
+            $ref: '#/components/schemas/Event'
+        type: object
+      - $ref: '#/components/schemas/Spearphish'
+    TouchedAtTimestamp:
+      properties:
+        touched_at:
+          description: Update Date for Object Context (Attributes, Comments, Sources, Relationships)
+          type: string
+          example: '2021-11-13 15:28:17'
+      type: object
+    SpearphishFillable:
+      properties:
+        subject:
+          description: Spearphish Email Subject
+          type: string
+          example: 'Fwd:  for you ????'
+        sender:
+          description: Spearphish Email Sender
+          type: string
+          example: bad-email@do-not-trust.com
+        value:
+          description: Spearphish Email Body
+          type: string
+          example: 'Content-Type: text/plain; charset=''utf-8''...'
+      type: object
+    TotalResponse:
+      properties:
+        total:
+          description: Total Number of Objects Processed
+          type: integer
+          example: 1
+      type: object
+    EventFillable:
+      properties:
+        type_id:
+          description: Event Type ID
+          type: integer
+          example: 1
+        title:
+          description: Event Title
+          type: string
+          example: 'Fwd:  for you ????'
+        happened_at:
+          description: Date Event Occurred
+          type: string
+          example: '2019-12-18 16:57:00'
+        hash:
+          description: Hash of the Event happened_at and title
+          type: string
+          example: 02f0897a6516236de8bc4c958d2803ca
+        description:
+          description: Event Description
+          type: string
+          example: This Event was observed when...
+      type: object
+    ThreatQTimestamps:
+      properties:
+        created_at:
+          description: Creation Date
+          type: string
+          example: '2021-07-29 13:58:03'
+        updated_at:
+          description: Update Date
+          type: string
+          example: '2022-04-12 08:32:16'
+      type: object
+    Event:
+      allOf:
+      - properties:
+          id:
+            description: Event ID
+            type: integer
+            example: 54
+        type: object
+      - $ref: '#/components/schemas/EventFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+      - $ref: '#/components/schemas/TouchedAtTimestamp'
+    Spearphish:
+      allOf:
+      - properties:
+          id:
+            description: Spearphish ID
+            type: integer
+            example: 1
+          event_id:
+            description: ID for related Event
+            type: integer
+            example: 54
+        type: object
+      - properties:
+          hash:
+            description: Hash of the Spearphish value
+            type: string
+            example: dd829f2f1ce7a37b01c0cdb6adae8496
+          last_parsed_at:
+            description: Date the Spearphish Email was parsed (if the Spearphish was imported)
+            type: string
+            example: '2020-01-24 20:21:51'
+          created_at:
+            description: Spearphish Creation Date
+            type: string
+            example: '2020-05-01 02:35:16'
+          updated_at:
+            description: Spearphish Update Date
+            type: string
+            example: '2020-05-03 04:27:51'
+        type: object
+      - $ref: '#/components/schemas/SpearphishFillable'
+  securitySchemes:
+    BearerAuth:
+      type: http
+      description: "Once authorized, all subsequent requests must include an `Authorization` header\n with the granted `access_token`. See the OAuth2 Authentication path for more information on how to authorize a User.<br><br>\n Example Header: `Authorization: Bearer <access_token>`"
+      name: Authorization
+      in: header
+      bearerFormat: Bearer `<access_token>`
+      scheme: bearer

@@ -1,0 +1,557 @@
+openapi: 3.2.0
+info:
+  title: ThreatQ Object Attributes API
+  description: "&copy; 2025<br/><br/><b>The API doc you are viewing is a BETA version that provides an early look at ThreatQ’s new API documentation format. At the moment, it does not cover the entire application program interface. Additional API resources, including the current standard format as well as previous versions, are available on the ThreatQ Help Center.</b><br/><br/>Last Updated: 07/11/2025\n## Introduction\n\nThe ThreatQ API is built on REST principles and uses JSON as a data interchange format.\n\n<script type=\"text/javascript\" src=\"ga.js\"></script>\n\n\n### Base URI\n\nAll URIs referenced in this document use the following base: https://**hostname**/api/, where **hostname** is replaced with the hostname or ip address of your ThreatQ instance.\n\n\n### Request Format\n\nThe ThreatQ API supports the following HTTP verbs:\n\n| Verb          | Description                        |\n| :-------------| :----------------------------------|\n| GET           | GET requests retrieve resources.   |\n| POST          | POST requests create resources.    |\n| PUT           | PUT requests update resources.     |\n| DELETE        | DELETE requests delete resources.  |\n\n\n### Response Format\n\nAll responses are returned in JSON. The response is wrapped in a top level data envelope which is an object or array depending on whether a single item or a collection is returned. If a single item is returned, the data field will be an object. If a collection is returned, the field will be an array.\n\n\n### Response Codes\n\nThe ThreatQ API uses HTTP status codes to indicate the status of your request.\n\n| Code          | Description                                                                           |\n| :-------------| :-------------------------------------------------------------------------------------|\n| 200           |  Object was retrieved successfully.                                                   |\n| 201           |  Object was created successfully.                                                     |\n| 204           |  Object(s) were successfully deleted.                                                 |\n| 400           |  Validation failed (usually as the result of an incorrect request)                    |\n| 401           |  Access denied (authorization access token in the header was incorrect / out of date) |\n| 403           |  Access forbidden (usually as the result of a bad request)                            |\n| 404           |  Object not found                                                                     |\n\n<hr />\n\n### Authentication\n\nThreatQ uses OAuth 2.0 to authenticate end users. You must have a ThreatQ user account to retrieve an API token. The API token is required for all API requests. The token does time out; therefore, you must periodically refresh the token.\n\n\n#### Authorization workflow\n\n1. Run a GET request to retrieve your client ID using the following format:\n\thttps://**hostname**/assets/js/config.js\n2. Run a POST/token request to retrieve your authorization access token. See POST/token in the Authorization section of this reference for the correct format.\n\n    Include the following parameters:\n\t  * grant_type (password)\n\t  * client-id (retrieved in step 1)\n\n    **Example:** https://**hostname**/api/token?grant_type=password&client_id=ab20a55dd9ac779246210d7102a45ee37\n\n    In the request body, include your ThreatQ credentials:\n\t  * email\n\t  * password\n\n3. Enter the access token as the authorization key in the header for all subsequent api requests."
+  license:
+    name: null
+    url: null
+  version: 1.0.0
+  x-logo:
+    url: null
+    backgroundColor: null
+    altText: ThreatQuotient
+servers:
+- description: SwaggerHub API Auto Mocking
+  url: https://virtserver.swaggerhub.com/securonix-b7a/ThreatQ/1.0.0
+- url: https://threatq.com/api
+  description: ThreatQ Server
+security:
+- BearerAuth: []
+tags:
+- name: Object Attributes
+paths:
+  /{object_type}/attributes/{attribute_id}:
+    get:
+      tags:
+      - Object Attributes
+      summary: List Attributes for an Object Type by Attribute ID
+      description: 'This path can be used for any object type installed on the system. <br><br>
+
+        Examples: <br><br> Indicator Attributes by Attribute ID: <i>/indicators/:indicator_id/attributes/:attribute_id</i>
+
+        <br><br> Attack Pattern Attributes by Attribute ID: <i>/attack_pattern/:attack_pattern_id/attributes/:attribute_id</i>'
+      parameters:
+      - $ref: '#/components/parameters/ObjectType'
+      - $ref: '#/components/parameters/ObjectAttributeCollectionId'
+      - $ref: '#/components/parameters/ObjectAttributeQueryParamId'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ObjectAttributeCollection'
+                type: object
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-visibility: public
+  /{object_type}/{object_type_id}/attributes:
+    get:
+      tags:
+      - Object Attributes
+      summary: List Attributes for an Object Type
+      description: 'This path can be used for any object type installed on the system. <br><br>
+
+        Examples: <br><br> Indicator Attributes: <i>/indicators/:indicator_id/attributes</i> <br><br>
+
+        Attack Pattern Attributes: <i>/attack_pattern/:attack_pattern_id/attributes</i>'
+      parameters:
+      - $ref: '#/components/parameters/ObjectType'
+      - $ref: '#/components/parameters/ObjectTypeId'
+      - $ref: '#/components/parameters/AttributeWith'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                - properties:
+                    data:
+                      type: array
+                      items:
+                        allOf:
+                        - properties:
+                            sources:
+                              type: array
+                              items:
+                                allOf:
+                                - $ref: '#/components/schemas/ObjectAttributeSourceAsRelation'
+                                - $ref: '#/components/schemas/PublishedAtTimestamp'
+                                - $ref: '#/components/schemas/ObjectAttributeSourcePivot'
+                          type: object
+                        - $ref: '#/components/schemas/ObjectAttribute'
+                  type: object
+                - $ref: '#/components/schemas/TotalResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      x-visibility: public
+    post:
+      tags:
+      - Object Attributes
+      summary: Create One or More Attributes for an Object Type
+      parameters:
+      - $ref: '#/components/parameters/ObjectType'
+      - $ref: '#/components/parameters/ObjectTypeId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                allOf:
+                - properties:
+                    sources:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/SourceBasics'
+                  type: object
+                - $ref: '#/components/schemas/ObjectAttributeFillable'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                allOf:
+                - properties:
+                    data:
+                      type: array
+                      items:
+                        allOf:
+                        - properties:
+                            sources:
+                              type: array
+                              items:
+                                allOf:
+                                - $ref: '#/components/schemas/ObjectAttributeSourceAsRelation'
+                                - $ref: '#/components/schemas/PublishedAtTimestamp'
+                                - $ref: '#/components/schemas/ObjectAttributeSourcePivot'
+                          type: object
+                        - $ref: '#/components/schemas/ObjectAttribute'
+                  type: object
+                - $ref: '#/components/schemas/TotalResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-visibility: public
+  /{object_type}/{object_type_id}/attributes/{object_type_attribute_id}:
+    get:
+      tags:
+      - Object Attributes
+      summary: Get a Single Attribute for an Object Type
+      parameters:
+      - $ref: '#/components/parameters/ObjectType'
+      - $ref: '#/components/parameters/ObjectTypeId'
+      - $ref: '#/components/parameters/ObjectTypeAttributeId'
+      - $ref: '#/components/parameters/AttributeWith'
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      allOf:
+                      - properties:
+                          sources:
+                            type: array
+                            items:
+                              allOf:
+                              - $ref: '#/components/schemas/ObjectAttributeSourceAsRelation'
+                              - $ref: '#/components/schemas/PublishedAtTimestamp'
+                              - $ref: '#/components/schemas/ObjectAttributeSourcePivot'
+                        type: object
+                      - $ref: '#/components/schemas/ObjectAttribute'
+                type: object
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-visibility: public
+    put:
+      tags:
+      - Object Attributes
+      summary: Update an Attribute for an Object Type
+      parameters:
+      - $ref: '#/components/parameters/ObjectType'
+      - $ref: '#/components/parameters/ObjectTypeId'
+      - $ref: '#/components/parameters/ObjectTypeAttributeId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                allOf:
+                - $ref: '#/components/schemas/ObjectAttributeValue'
+                - $ref: '#/components/schemas/SourceTlp'
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      allOf:
+                      - properties:
+                          attribute:
+                            $ref: '#/components/schemas/Attribute'
+                        type: object
+                      - $ref: '#/components/schemas/ObjectAttribute'
+                type: object
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      x-visibility: public
+    delete:
+      tags:
+      - Object Attributes
+      summary: Delete an Attribute for an Object Type
+      parameters:
+      - $ref: '#/components/parameters/ObjectType'
+      - $ref: '#/components/parameters/ObjectTypeId'
+      - $ref: '#/components/parameters/ObjectTypeAttributeId'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      x-visibility: public
+components:
+  responses:
+    Unauthorized:
+      description: Unauthorized
+    NotFound:
+      description: Object Not Found
+    NoContent:
+      description: Object(s) were successfully deleted.
+  schemas:
+    ObjectSourceFillable:
+      properties:
+        name:
+          description: Source name
+          type: string
+          example: ThreatQ
+      type: object
+    SourceBasics:
+      oneOf:
+      - allOf:
+        - properties:
+            tlp_id:
+              description: Source TLP ID
+              type: integer
+              example: 3
+          type: object
+        - $ref: '#/components/schemas/SourceName'
+      - allOf:
+        - properties:
+            tlp:
+              $ref: '#/components/schemas/TLPName'
+          type: object
+        - $ref: '#/components/schemas/SourceName'
+    ObjectAttributeSourcePivot:
+      properties:
+        pivot:
+          type: object
+          allOf:
+          - properties:
+              id:
+                description: Object Attribute Source ID
+                type: integer
+                example: 11
+              <object_code>_attribute_id:
+                description: 'Object Type Attribute ID - `<object_code>` should be replaced with the Object Type `code` field. Example: indicator_attribute_id'
+                type: integer
+                example: 8
+            type: object
+          - $ref: '#/components/schemas/ObjectSourceId'
+          - $ref: '#/components/schemas/CreatorSource'
+      type: object
+    ObjectAttribute:
+      allOf:
+      - properties:
+          id:
+            description: Object Attribute ID
+            type: integer
+            example: 8
+        type: object
+      - $ref: '#/components/schemas/ObjectAttributeFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+    SourceTlp:
+      oneOf:
+      - properties:
+          tlp_id:
+            description: Source TLP ID
+            type: integer
+            example: 3
+        type: object
+      - properties:
+          tlp:
+            $ref: '#/components/schemas/TLPName'
+        type: object
+    SourceReferenceId:
+      properties:
+        reference_id:
+          description: Source Reference ID - points to related Client, Connector (Feed), Other Source, Plugin, or User
+          type: integer
+          example: 2
+      type: object
+    ObjectSourceId:
+      properties:
+        source_id:
+          description: Source ID
+          type: integer
+          example: 42
+      type: object
+    ObjectAttributeId:
+      properties:
+        attribute_id:
+          description: Attribute ID - the ID for the Attribute Key
+          type: integer
+          example: 7
+      type: object
+    SourceName:
+      properties:
+        name:
+          description: Source Name
+          type: string
+          example: ThreatQ
+      type: object
+    SourceType:
+      properties:
+        type:
+          description: 'Source Type - Options include: clients, connectors (Feeds), other_sources, plugins, or users'
+          type: string
+          example: other_sources
+      type: object
+    ObjectTypeId:
+      properties:
+        <object_type>_id:
+          description: "Object Type ID - `<object_type>` should be replaced with the Object Type `code` field. This field will match the\n Object Type collection specified in the URL path. Example: indicator_id"
+          type: integer
+          example: 517
+      type: object
+    PublishedAtTimestamp:
+      properties:
+        published_at:
+          description: Publish Date for Object (Date it was first reported by the Source)
+          type: string
+          example: '2017-01-13 15:28:17'
+      type: object
+    AttributeFillable:
+      properties:
+        name:
+          description: Attribute Name
+          type: string
+          example: Confidence
+      type: object
+    ObjectAttributeCollection:
+      allOf:
+      - properties:
+          id:
+            description: Object Attribute ID
+            type: integer
+            example: 11
+        type: object
+      - properties:
+          indicators:
+            type: array
+            items:
+              properties:
+                id:
+                  description: Object Type ID
+                  type: string
+                  example: 15
+              type: object
+        type: object
+      - $ref: '#/components/schemas/ObjectAttributeFillable'
+    ObjectAttributeValue:
+      properties:
+        value:
+          description: Attribute Value
+          type: string
+          example: High
+      type: object
+    CreatorSource:
+      properties:
+        creator_source_id:
+          description: Creator Source ID - Source ID of User, Feed, or other means that brought the object into the system
+          type: integer
+          example: 2
+      type: object
+    Attribute:
+      allOf:
+      - $ref: '#/components/schemas/AttributeId'
+      - $ref: '#/components/schemas/AttributeFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+    TLPName:
+      properties:
+        name:
+          description: TLP Name
+          type: string
+          example: WHITE
+      type: object
+    TotalResponse:
+      properties:
+        total:
+          description: Total Number of Objects Processed
+          type: integer
+          example: 1
+      type: object
+    ThreatQTimestamps:
+      properties:
+        created_at:
+          description: Creation Date
+          type: string
+          example: '2021-07-29 13:58:03'
+        updated_at:
+          description: Update Date
+          type: string
+          example: '2022-04-12 08:32:16'
+      type: object
+    AttributeId:
+      properties:
+        id:
+          description: Attribute ID
+          type: integer
+          example: 1
+      type: object
+    ObjectAttributeSourceAsRelation:
+      allOf:
+      - properties:
+          id:
+            description: Object Type Source ID
+            type: integer
+            example: 42
+          tlp_id:
+            description: TLP ID
+            type: integer
+            example: 1
+        type: object
+      - $ref: '#/components/schemas/SourceType'
+      - $ref: '#/components/schemas/SourceReferenceId'
+      - $ref: '#/components/schemas/ObjectSourceFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+      - $ref: '#/components/schemas/PublishedAtTimestamp'
+    ObjectAttributeFillable:
+      allOf:
+      - $ref: '#/components/schemas/ObjectAttributeId'
+      - $ref: '#/components/schemas/ObjectTypeId'
+      - $ref: '#/components/schemas/AttributeFillable'
+      - $ref: '#/components/schemas/ObjectAttributeValue'
+  parameters:
+    AttributeWith:
+      name: with
+      in: query
+      description: '<br>Object Relationships that can be included in the response.<br><br>Options include: sources'
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+          example: sources
+    ObjectTypeAttributeId:
+      name: object_type_attribute_id
+      in: path
+      description: The ID of the Attribute record for the specified Object Type
+      required: true
+      schema:
+        type: integer
+        example: 3
+    Limit:
+      name: limit
+      in: query
+      description: <br>The number of objects included in the response.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 10
+    Offset:
+      name: offset
+      in: query
+      description: <br>The number of result set records that should be ignored.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 50
+    Sort:
+      name: sort
+      in: query
+      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+        example: id,created_at
+    ObjectAttributeCollectionId:
+      name: attribute_id
+      in: path
+      description: Attribute ID - if not provided, the `id` query parameter must be used
+      required: false
+      schema:
+        type: integer
+        example: 5
+    ObjectType:
+      name: object_type
+      in: path
+      description: 'The collection identifier for the Object Type whose context you would like to retrieve. Options include:
+
+        adversaries, attachments, attack_pattern, campaign, course_of_action, event, exploit_target, identity, incident,
+
+        indicators, intrustion_set, malware, report, signature, tool, ttp, and vulnerability. If you have any additional custom
+
+        objects installed on your system, use the value for the `collection` field associated with the object definition.'
+      required: true
+      schema:
+        type: string
+        example: indicators
+    ObjectAttributeQueryParamId:
+      name: id
+      in: query
+      description: "Attribute ID. Can be used in lieu of path `attribute_id` parameter. Multiple Attribute IDs\n can be provided in a comma-delimited list."
+      required: false
+      schema:
+        type: integer
+        example: 14,22
+    ObjectTypeId:
+      name: object_type_id
+      in: path
+      description: The ID for the record of the specified Object Type whose context you would like to retrieve
+      required: true
+      schema:
+        type: integer
+        example: 6
+  securitySchemes:
+    BearerAuth:
+      type: http
+      description: "Once authorized, all subsequent requests must include an `Authorization` header\n with the granted `access_token`. See the OAuth2 Authentication path for more information on how to authorize a User.<br><br>\n Example Header: `Authorization: Bearer <access_token>`"
+      name: Authorization
+      in: header
+      bearerFormat: Bearer `<access_token>`
+      scheme: bearer

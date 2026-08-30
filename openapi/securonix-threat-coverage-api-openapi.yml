@@ -1,0 +1,853 @@
+openapi: 3.2.0
+info:
+  version: 3.1.4
+  title: Policy Management Service Threat Coverage API
+  description: "The Policy Management API allows users to create, retrieve, update, and manage security policies in the Unified Defense SIEM (UDS) platform.\n\n---\n\n### Authentication & Authorization\n- **Authentication**: All requests require a JWT Bearer token.\n- **Authorization**: Access is enforced using `role` and `tenant` claims present in the JWT.\n  - **Read APIs** require one of: `ROLE_ADMIN`, `ROLE_CONTENT_DEVELOPER`, `ROLE_READ_ONLY`.\n  - **Write APIs** require one of: `ROLE_ADMIN`, `ROLE_CONTENT_DEVELOPER`.\n\n Refer to the [Authentication Guide](https://documentation.securonix.com/r/content/authentication.htm) for token acquisition and usage.\n\n **⚠️ Important:** The **API Base URL** is region-specific and must be obtained from your Technical Account Manager or Securonix Customer Support."
+  contact:
+    name: Securonix Customer Support
+    url: ''
+    email: customer-support@securonix.com
+servers:
+- url: https://policymanagement.api.securonix.net
+  description: Policy Management API regional base URL
+security:
+- bearerAuth: []
+tags:
+- name: Threat Coverage
+  description: MITRE ATT&CK threat coverage analysis API for analyzing policy coverage across tactics and techniques.
+paths:
+  /v1/policies/threat-coverage/metrics:
+    get:
+      tags:
+      - Threat Coverage
+      summary: Get MITRE ATT&CK threat coverage metrics
+      description: 'Retrieves comprehensive MITRE ATT&CK coverage analysis including tactics, techniques, and coverage status for a specific tenant. Supports both JSON and CSV formats:
+
+
+        - **JSON format**: Set Accept header to ''application/json'' (default)
+
+        - **CSV format**: Set Accept header to ''text/csv'' for CSV response
+
+
+        CSV format provides a flat structure with columns: TacticID, TacticName, TechniqueID, TechniqueName, SubtechniqueID, SubtechniqueName, CoverageStatus. Each row represents a technique or subtechnique with its coverage status.'
+      operationId: getThreatCoverageMetrics
+      parameters:
+      - $ref: '#/components/parameters/ClientIdHeader'
+      - name: subTenant
+        in: query
+        description: 'Sub-tenant identifier. Can be one of the following:
+
+          - Numeric ID (e.g., "1", "122")
+
+          - Tenant name (e.g., "Securonix", "Alpha") - case-insensitive
+
+          - Short code (e.g., "SE", "ALPHA") - case-insensitive
+
+
+          The identifier must uniquely match a single subtenant. If multiple subtenants match the identifier, an error will be returned.'
+        required: true
+        schema:
+          type: string
+          example: '1'
+      - name: mitreVersion
+        in: query
+        description: MITRE ATT&CK version (optional). If not specified, uses the latest version.
+        required: false
+        schema:
+          type: string
+          example: '18'
+      - name: Accept
+        in: header
+        description: Response format - must be exactly 'text/csv' for CSV response or 'application/json' for JSON (default)
+        required: false
+        schema:
+          type: string
+          enum:
+          - application/json
+          - text/csv
+          default: application/json
+      responses:
+        '200':
+          description: Successfully retrieved threat coverage metrics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreatCoverageMetricsResponse'
+              examples:
+                Example 1:
+                  value:
+                    mitreVersion: '18'
+                    coverageSummary:
+                      totalTactics: 14
+                      totalTechniques: 193
+                      tacticsCoveredForApplicableEnabledPolicies: 12
+                      techniquesCoveredForApplicableEnabledPolicies: 145
+                      tacticsCoveredForOotbPolicies: 10
+                      techniquesCoveredForOotbPolicies: 98
+                    policyDistributionByTacticSummary:
+                    - tacticId: TA0001
+                      tacticName: Initial Access
+                      productionPolicyCount: 53
+                      sandboxPolicyCount: 25
+                    - tacticId: TA0002
+                      tacticName: Execution
+                      productionPolicyCount: 8
+                      sandboxPolicyCount: 39
+                    coverageAnalysisSummary:
+                    - tacticId: TA0001
+                      tacticName: Initial Access
+                      techniques:
+                      - techniqueId: T1566
+                        techniqueName: Phishing
+                        coverageStatus: FULLY_COVERED
+                        isExcluded: false
+                        subtechniques:
+                        - subtechniqueId: T1566.001
+                          subtechniqueName: Spearphishing Attachment
+                          isExcluded: false
+            text/csv:
+              schema:
+                type: string
+                description: CSV response with flat structure containing tactic, technique, and subtechnique information.
+              examples:
+                CSV Export:
+                  value: 'TacticID,TacticName,TechniqueID,TechniqueName,SubtechniqueID,SubtechniqueName,CoverageStatus
+
+                    TA0043,Reconnaissance,T1589,Gather Victim Identity Information,T1589.001,Credentials,NOT_SUPPORTED
+
+                    TA0043,Reconnaissance,T1589,Gather Victim Identity Information,T1589.002,Email Addresses,NOT_SUPPORTED
+
+                    TA0043,Reconnaissance,T1589,Gather Victim Identity Information,T1589.003,Employee Names,NOT_SUPPORTED'
+        '400':
+          description: Invalid request parameters or unsupported MITRE version
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/400BadRequest'
+              examples:
+                Unsupported MITRE Version:
+                  value:
+                    timestamp: '2025-12-05T13:11:23.943631Z'
+                    status: 400
+                    error: Bad Request
+                    message: 'Cannot calculate coverage: No MITRE ATT&CK data available for version 15. Supported version: 18'
+                    path: /v1/policies/threat-coverage/metrics
+                Subtenant Not Found:
+                  value:
+                    timestamp: '2025-12-05T13:11:23.943631Z'
+                    status: 400
+                    error: Bad Request
+                    message: Subtenant with identifier 'InvalidTenant' does not exist
+                    path: /v1/policies/threat-coverage/metrics
+                Duplicate Subtenant Identifier:
+                  value:
+                    timestamp: '2025-12-05T13:11:23.943631Z'
+                    status: 400
+                    error: Bad Request
+                    message: Multiple subtenants found with identifier 'COMMON'. Please use a unique identifier or numeric ID
+                    path: /v1/policies/threat-coverage/metrics
+        '401':
+          description: Unauthorized - Missing or invalid credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    statusCode: GATEWAY-10-1
+                    message: Access token expired
+        '403':
+          description: Forbidden - Valid credentials but insufficient permissions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    statusCode: 403 FORBIDDEN
+                    message: User is Not entitled for getting the requested data
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    statusCode: INTERNAL_ERROR
+                    message: An unexpected error occurred while processing the request.
+      security:
+      - bearerAuth: []
+  /v1/policies/threat-coverage/technique-details:
+    get:
+      tags:
+      - Threat Coverage
+      summary: Get MITRE ATT&CK technique details
+      description: Retrieves detailed information for a specific MITRE technique including metadata, associated tactics, mapped policies, and active datasources
+      operationId: getTechniqueDetails
+      parameters:
+      - $ref: '#/components/parameters/ClientIdHeader'
+      - name: subTenant
+        in: query
+        description: 'Sub-tenant identifier. Can be one of the following:
+
+          - Numeric ID (e.g., "1", "122")
+
+          - Tenant name (e.g., "Securonix", "Alpha") - case-insensitive
+
+          - Short code (e.g., "SE", "ALPHA") - case-insensitive
+
+
+          The identifier must uniquely match a single subtenant. If multiple subtenants match the identifier, an error will be returned.'
+        required: true
+        schema:
+          type: string
+          example: '1'
+      - name: techniqueId
+        in: query
+        description: MITRE ATT&CK technique ID (e.g., 'T1078' or 'T1078.001' for sub-techniques)
+        required: true
+        schema:
+          type: string
+          example: T1078
+      - name: mitreVersion
+        in: query
+        description: MITRE ATT&CK version (optional). If not specified, uses the latest version.
+        required: false
+        schema:
+          type: string
+          example: '18'
+      responses:
+        '200':
+          description: Successfully retrieved technique details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TechniqueDetailsResponse'
+              examples:
+                Example 1:
+                  value:
+                    techniqueId: T1078
+                    techniqueName: Valid Accounts
+                    techniqueDescription: Adversaries may obtain and abuse credentials of existing accounts as a means of gaining Initial Access, Persistence, Privilege Escalation, or Defense Evasion.
+                    mitreVersion: '18'
+                    isSubtechnique: false
+                    parentTechniqueId: null
+                    subTechniques:
+                    - techniqueId: T1078.001
+                      techniqueName: Default Accounts
+                      mappedPolicies: []
+                      coverageStatus: NOT_COVERED
+                      hasActiveDatasources: false
+                      hasIdentityBasedPolicies: false
+                      isExcluded: false
+                    - techniqueId: T1078.002
+                      techniqueName: Domain Accounts
+                      mappedPolicies:
+                      - policyId: 1234
+                        signatureId: uuid-1
+                        policyName: Suspicious Domain Account Activity
+                        policyDescription: Detects suspicious activity on domain accounts.
+                        enabled: true
+                        isSandbox: false
+                        deployed: true
+                        hasActiveDatasources: true
+                        isIdentityBasedPolicy: false
+                        functionality: Windows
+                        isApplicableToTenantLicense: null
+                      coverageStatus: FULLY_COVERED
+                      hasActiveDatasources: true
+                      hasIdentityBasedPolicies: false
+                      isExcluded: false
+                    associatedTactics:
+                    - tacticId: TA0001
+                      tacticName: Initial Access
+                    - tacticId: TA0003
+                      tacticName: Persistence
+                    mappedPolicies:
+                    - policyId: 5678
+                      signatureId: uuid-2
+                      policyName: Valid Account Abuse Detection
+                      policyDescription: Detects abuse of valid accounts across the environment.
+                      enabled: true
+                      isSandbox: false
+                      deployed: true
+                      hasActiveDatasources: true
+                      isIdentityBasedPolicy: false
+                      functionality: Windows
+                      isApplicableToTenantLicense: null
+                    - policyId: 9012
+                      signatureId: null
+                      policyName: Custom Account Monitoring
+                      policyDescription: Custom policy monitoring account usage patterns.
+                      enabled: false
+                      isSandbox: true
+                      deployed: false
+                      hasActiveDatasources: false
+                      isIdentityBasedPolicy: true
+                      functionality: null
+                      isApplicableToTenantLicense: null
+                    - policyId: null
+                      signatureId: uuid-ootb-1
+                      policyName: OOTB Available Policy
+                      policyDescription: null
+                      enabled: false
+                      isSandbox: false
+                      deployed: false
+                      hasActiveDatasources: false
+                      isIdentityBasedPolicy: false
+                      functionality: Windows
+                      isApplicableToTenantLicense: true
+                    activeDatasources:
+                    - Active Directory
+                    - AWS CloudTrail
+                    isContentAdmin: true
+                    isExcluded: false
+                    subTenantLicense: ADVANCED
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/400BadRequest'
+              examples:
+                Invalid Technique ID:
+                  value:
+                    timestamp: '2025-12-05T13:11:23.943631Z'
+                    status: 400
+                    error: Bad Request
+                    message: Invalid technique ID format
+                    path: /v1/policies/threat-coverage/technique-details
+        '401':
+          description: Unauthorized - Missing or invalid credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    statusCode: GATEWAY-10-1
+                    message: Access token expired
+        '403':
+          description: Forbidden - Valid credentials but insufficient permissions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    statusCode: 403 FORBIDDEN
+                    message: User is Not entitled for getting the requested data
+        '404':
+          description: Technique not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/400BadRequest'
+              examples:
+                Technique Not Found:
+                  value:
+                    timestamp: '2025-12-05T13:11:23.943631Z'
+                    status: 404
+                    error: Not Found
+                    message: Technique T9999 not found in MITRE ATT&CK version 18
+                    path: /v1/policies/threat-coverage/technique-details
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Example 1:
+                  value:
+                    statusCode: INTERNAL_ERROR
+                    message: An unexpected error occurred while processing the request.
+      security:
+      - bearerAuth: []
+components:
+  schemas:
+    MappedPolicy:
+      type: object
+      description: Policy mapped to a technique with deployment status
+      properties:
+        policyId:
+          type: integer
+          format: int64
+          description: Unique policy identifier
+          example: 1234
+        signatureId:
+          type: string
+          nullable: true
+          description: OOTB policy signature UUID (null for custom policies)
+          example: uuid-1
+        policyName:
+          type: string
+          description: Policy name
+          example: Suspicious Domain Account Activity
+        policyDescription:
+          type: string
+          nullable: true
+          description: Policy description from policy_master details. Null for OOTB (non-deployed) policies, which have no description.
+          example: Detects suspicious activity on domain accounts.
+        enabled:
+          type: boolean
+          description: Whether the policy is enabled
+          example: true
+        isSandbox:
+          type: boolean
+          description: Whether the policy is in sandbox mode
+          example: false
+        deployed:
+          type: boolean
+          description: Whether the policy is deployed
+          example: true
+        hasActiveDatasources:
+          type: boolean
+          description: Whether the policy has active datasources
+          example: true
+        isIdentityBasedPolicy:
+          type: boolean
+          description: Whether the policy is identity-based
+          example: false
+        functionality:
+          type: string
+          nullable: true
+          description: Functionality name for functionality-based policies; null for resource group policies
+          example: Windows
+        isApplicableToTenantLicense:
+          type: boolean
+          nullable: true
+          description: 'For non-deployed OOTB policies only: indicates whether the policy is applicable to the subtenant''s license tier. Null for deployed policies.'
+          example: true
+      required:
+      - policyId
+      - signatureId
+      - policyName
+      - enabled
+      - isSandbox
+      - deployed
+      - hasActiveDatasources
+      - isIdentityBasedPolicy
+    TacticCoverage:
+      type: object
+      description: MITRE ATT&CK tactic coverage details
+      properties:
+        tacticId:
+          type: string
+          description: MITRE tactic ID (e.g., TA0001)
+          example: TA0001
+        tacticName:
+          type: string
+          description: Tactic name (e.g., Initial Access)
+          example: Initial Access
+        techniques:
+          type: array
+          description: List of techniques (null for distribution)
+          items:
+            $ref: '#/components/schemas/TechniqueCoverage'
+        policyCount:
+          type: integer
+          description: Policy count (null for coverage analysis)
+          example: 15
+    CoverageSummary:
+      type: object
+      description: Coverage summary statistics
+      properties:
+        totalTactics:
+          type: integer
+          description: Total number of MITRE tactics
+          example: 14
+        totalTechniques:
+          type: integer
+          description: Total number of MITRE techniques
+          example: 193
+        tacticsCoveredForApplicableEnabledPolicies:
+          type: integer
+          description: Number of tactics covered by enabled policies
+          example: 12
+        techniquesCoveredForApplicableEnabledPolicies:
+          type: integer
+          description: Number of techniques covered by enabled policies
+          example: 145
+        tacticsCoveredForOotbPolicies:
+          type: integer
+          description: Number of tactics covered by OOTB policies
+          example: 10
+        techniquesCoveredForOotbPolicies:
+          type: integer
+          description: Number of techniques covered by OOTB policies
+          example: 98
+    AssociatedTactic:
+      type: object
+      description: MITRE tactic associated with a technique
+      properties:
+        tacticId:
+          type: string
+          description: MITRE tactic ID (e.g., TA0001)
+          example: TA0001
+        tacticName:
+          type: string
+          description: Tactic name (e.g., Initial Access)
+          example: Initial Access
+      required:
+      - tacticId
+      - tacticName
+    ErrorResponse:
+      type: object
+      description: Data model to indicate the status code and error message.
+      properties:
+        statusCode:
+          type: string
+        message:
+          type: string
+      required:
+      - statusCode
+      - message
+      examples:
+      - statusCode: 400 BAD_REQUEST
+        message: 'Client error: 404 NOT_FOUND'
+      - statusCode: 403 FORBIDDEN
+        message: User is Not entitled for getting the requested data
+      - statusCode: 422 Unprocessable Entity
+        message: Parent id not found in Auth token
+      - statusCode: GATEWAY-10-1
+        message: Access token expired
+      x-examples:
+        Example 1:
+          statusCode: 400 BAD_REQUEST
+          message: 'Client error: 404 NOT_FOUND'
+    400BadRequest:
+      type: object
+      properties:
+        time:
+          type: string
+          description: '*Optional* Timestamp for response'
+        message:
+          type: string
+          description: Error message
+        httpStatus:
+          type: string
+          description: http Status code
+      examples:
+      - time: '2025-07-17T15:10:33.263774233Z'
+        message: 'com.securonix.respexception.exception.InvalidInputException: Invalid value provided for additional criteria selection value. Must be one of [NonBusinessDomains]'
+        httpStatus: INTERNAL_SERVER_ERROR
+    PolicyDistributionByTacticSummary:
+      type: object
+      description: Policy distribution for a specific tactic across environments
+      properties:
+        tacticId:
+          type: string
+          description: MITRE tactic ID (e.g., TA0001)
+          example: TA0001
+        tacticName:
+          type: string
+          description: Tactic name (e.g., Initial Access)
+          example: Initial Access
+        productionPolicyCount:
+          type: integer
+          description: Number of production policies for this tactic
+          example: 53
+        sandboxPolicyCount:
+          type: integer
+          description: Number of sandbox policies for this tactic
+          example: 25
+      required:
+      - tacticId
+      - tacticName
+      - productionPolicyCount
+      - sandboxPolicyCount
+    TechniqueDetailsResponse:
+      type: object
+      description: Detailed information for a specific MITRE ATT&CK technique
+      properties:
+        techniqueId:
+          type: string
+          description: MITRE technique ID (e.g., 'T1078' or 'T1078.001')
+          example: T1078
+        techniqueName:
+          type: string
+          description: Human-readable technique name
+          example: Valid Accounts
+        techniqueDescription:
+          type: string
+          description: MITRE technique description
+          example: Adversaries may obtain and abuse credentials of existing accounts...
+        mitreVersion:
+          type: string
+          description: MITRE ATT&CK version
+          example: '18'
+        isSubtechnique:
+          type: boolean
+          description: Whether this is a sub-technique
+          example: false
+        parentTechniqueId:
+          type: string
+          nullable: true
+          description: Parent technique ID if this is a sub-technique
+          example: null
+        subTechniques:
+          type: array
+          description: List of sub-techniques if this is a parent technique
+          items:
+            $ref: '#/components/schemas/SubTechniqueDetails'
+        associatedTactics:
+          type: array
+          description: List of MITRE tactics associated with this technique
+          items:
+            $ref: '#/components/schemas/AssociatedTactic'
+        mappedPolicies:
+          type: array
+          description: List of policies mapped to this technique
+          items:
+            $ref: '#/components/schemas/MappedPolicy'
+        activeDatasources:
+          type: array
+          description: Set of active datasource names for this technique (unique values)
+          items:
+            type: string
+          example:
+          - Active Directory
+          - AWS CloudTrail
+        isContentAdmin:
+          type: boolean
+          description: Whether the user has content admin privileges
+          example: true
+        isExcluded:
+          type: boolean
+          description: Whether the technique is effectively excluded from coverage. True only when the technique is configured as excluded AND has no associated policy (enabled or disabled). A technique with any mapped policy is reported as not excluded.
+          example: false
+        subTenantLicense:
+          type: string
+          nullable: true
+          description: Subtenant license tier (BASIC, STANDARD, ADVANCED). Null if license not configured.
+          enum:
+          - BASIC
+          - STANDARD
+          - ADVANCED
+          example: ADVANCED
+      required:
+      - techniqueId
+      - techniqueName
+      - techniqueDescription
+      - mitreVersion
+      - isSubtechnique
+      - subTechniques
+      - associatedTactics
+      - mappedPolicies
+      - activeDatasources
+      - isContentAdmin
+    Subtechnique:
+      type: object
+      description: MITRE ATT&CK sub-technique information
+      properties:
+        subtechniqueId:
+          type: string
+          description: MITRE sub-technique ID (e.g., T1566.001)
+          example: T1566.001
+        subtechniqueName:
+          type: string
+          description: Sub-technique name (e.g., Spearphishing Attachment)
+          example: Spearphishing Attachment
+        isExcluded:
+          type: boolean
+          description: Whether the sub-technique is effectively excluded from coverage. True only when it is configured as excluded AND has no associated policy (enabled or disabled).
+          example: false
+    SubTechniqueDetails:
+      type: object
+      description: Sub-technique information with mapped policies
+      properties:
+        techniqueId:
+          type: string
+          description: MITRE sub-technique ID (e.g., T1078.001)
+          example: T1078.001
+        techniqueName:
+          type: string
+          description: Sub-technique name
+          example: Default Accounts
+        mappedPolicies:
+          type: array
+          description: List of policies mapped to this sub-technique
+          items:
+            $ref: '#/components/schemas/MappedPolicy'
+        coverageStatus:
+          type: string
+          description: Coverage status of the sub-technique
+          enum:
+          - FULLY_COVERED
+          - PARTIALLY_COVERED
+          - NOT_COVERED
+          - NOT_SUPPORTED
+          example: NOT_COVERED
+        hasActiveDatasources:
+          type: boolean
+          description: Whether the sub-technique has active datasources
+          example: true
+        hasIdentityBasedPolicies:
+          type: boolean
+          description: Whether the sub-technique has identity-based policies
+          example: false
+        isExcluded:
+          type: boolean
+          description: Whether the sub-technique is effectively excluded from coverage. True only when it is configured as excluded AND has no associated policy (enabled or disabled).
+          example: false
+      required:
+      - techniqueId
+      - techniqueName
+      - mappedPolicies
+      - coverageStatus
+      - hasActiveDatasources
+      - hasIdentityBasedPolicies
+    ThreatCoverageMetricsResponse:
+      type: object
+      description: Threat coverage metrics response containing MITRE ATT&CK coverage analysis
+      properties:
+        mitreVersion:
+          type: string
+          description: MITRE ATT&CK version used for the analysis
+          example: '18'
+        coverageSummary:
+          $ref: '#/components/schemas/CoverageSummary'
+        policyDistributionByTacticSummary:
+          type: array
+          description: Policy distribution across tactics
+          items:
+            $ref: '#/components/schemas/PolicyDistributionByTacticSummary'
+        coverageAnalysisSummary:
+          type: array
+          description: List of tactics with technique coverage details
+          items:
+            $ref: '#/components/schemas/TacticCoverage'
+      required:
+      - mitreVersion
+      - coverageSummary
+      - policyDistributionByTacticSummary
+      - coverageAnalysisSummary
+    TechniqueCoverage:
+      type: object
+      description: MITRE ATT&CK technique coverage details
+      properties:
+        techniqueId:
+          type: string
+          description: MITRE technique ID (e.g., T1566)
+          example: T1566
+        techniqueName:
+          type: string
+          description: Technique name (e.g., Phishing)
+          example: Phishing
+        coverageStatus:
+          type: string
+          enum:
+          - FULLY_COVERED
+          - PARTIALLY_COVERED
+          - NOT_COVERED
+          - NOT_SUPPORTED
+          description: Coverage status
+          example: FULLY_COVERED
+        isExcluded:
+          type: boolean
+          description: Whether the technique is effectively excluded from coverage. True only when the technique is configured as excluded AND has no associated policy (enabled or disabled).
+          example: false
+        mappedPolicyCount:
+          type: integer
+          description: Number of policies mapped to this technique
+          example: 5
+        datasourceCount:
+          type: integer
+          description: Number of active datasources for this technique
+          example: 3
+        subtechniques:
+          type: array
+          description: List of sub-techniques under this technique (optional)
+          items:
+            $ref: '#/components/schemas/Subtechnique'
+      required:
+      - techniqueId
+      - techniqueName
+      - coverageStatus
+      - mappedPolicyCount
+      - datasourceCount
+  parameters:
+    ClientIdHeader:
+      name: client-id
+      in: header
+      description: TenantId in the UDS platform. Used for authentication and validation.
+      required: true
+      schema:
+        type: string
+        examples:
+        - tenant1
+  securitySchemes:
+    bearerAuth:
+      type: http
+      description: "**Authentication**\n- The JWT is issued using the `wstoken` (obtained after successful authentication).\n- A valid JWT token must be provided via `Authorization: Bearer <token>`.  \n\n**Authorization**:\n- API access is controlled by validating the `role` and `tenant` claims from the JWT.   \n- All **read** APIs require one of the following roles: `ROLE_ADMIN`, `ROLE_CONTENT_DEVELOPER`, `ROLE_READ_ONLY`.\n- All **write** APIs require one of the following roles: `ROLE_ADMIN`, `ROLE_CONTENT_DEVELOPER`.\n\nPlease refer to the [Authentication Guide](../user-guide/developer-guide/authentication) for details.\n"
+      scheme: bearer
+      bearerFormat: JWT
+x-changelog:
+- version: 3.1.4
+  changes:
+  - Added optional violatorAttribute field in Create, Update, Fetch, and Fetch All policy APIs to expose the selected violator attribute.
+  - 'Added support for CIDR range operators in detection: cidrinlist modifier for matching IP addresses against CIDR range lookup tables. Restricted to CIDR-eligible attributes (ipaddress, sourceaddress, destinationaddress, deviceaddress, translatedipaddress). Negation via NOT in condition produces NOT_EQUALS_IN_CIDR_RANGE_LIST.'
+  - 'Added support for Regex operators in detection: regex modifier for regex pattern matching on field values, and regexinlist modifier for matching against a lookup table of regex patterns. Negation via NOT in condition produces REGEX_NOT_EQUALS and REGEX_NOT_EQUALS_IN_LIST respectively.'
+- version: 3.1.3
+  changes:
+  - Added isExcluded flag on techniques and sub-techniques in MITRE ATT&CK Coverage (metrics) and technique-details responses; true only when a technique is configured as excluded and has no associated policy (enabled or disabled).
+  - Added policyDescription field on each MappedPolicy in technique-details response (null for OOTB policies).
+  - Deprecated MITRE techniques are now excluded from coverage metrics and technique-details responses.
+- version: 3.1.2
+  changes:
+  - Added optional autoIncidentEnabled field in Create and Update policy APIs to enable or disable automatic incident creation.
+- version: 3.1.1
+  changes:
+  - Added subTenantLicense field at the parent level of technique-details response (BASIC, STANDARD, ADVANCED, or null).
+  - Added functionality field on each MappedPolicy in technique-details response (null for resource group policies).
+  - Added isApplicableToTenantLicense flag on each MappedPolicy for non-deployed OOTB policies; indicates whether the policy can be deployed under the subtenant's license tier.
+- version: 3.1.0
+  changes:
+  - Added YAML response support for Create and Update policy APIs in addition to JSON.
+  - 'Request YAML response using the Accept: application/yaml or Accept: application/x-yaml header.'
+  - JSON remains the default when the header is not provided or when YAML conversion fails.
+  - 'If YAML conversion fails, the response falls back to JSON with headers X-Response-Format-Fallback: json and X-Response-Format-Requested: yaml.'
+- version: 3.0.2
+  changes:
+  - Added Sub-Technique details in MITRE ATT&CK Coverage response.
+- version: 3.0.1
+  changes:
+  - Added RTActivityip as a supported violator type for policies.
+  - RTActivityip is allowed only for IEE (Individual Event Evaluator) policies.
+  - Create and Update APIs return 400 with error code POL_CONV_011A when RTActivityip is used for AEE or other policy types.
+- version: 3.0.0
+  changes:
+  - Added YAML response support for policy retrieval APIs (Fetch and Fetch All) in addition to JSON.
+  - 'Request YAML using the Accept: application/yaml or Accept: application/x-yaml header.'
+  - JSON remains the default when the header is not provided.
+  - YAML conversion is supported only for eligible policy types (see endpoint notes).
+  - Added MITRE ATT&CK Coverage Summary and Policy Distribution analytics endpoints.
+  - Provides comprehensive visibility into tenant's MITRE ATT&CK Coverage at technique level.
+  - Enables distribution analysis for better policy management.
+  - Added exporting MITRE ATT&CK Coverage for a tenant to CSV format at technique and sub-technique level.
+- version: 2.0.1
+  changes:
+  - Introduced optional field apisource in Create and Update APIs to identify the originating system.
+  - Accepts any value except 'PA'.
+  - Used for auditing and request source tracking.
+- version: 2.0.0
+  changes:
+  - Enhanced Delete API to support bulk deletion of multiple policies in a single request.
+  - This change is not backward compatible and is released as a major version update.
+  - 'Expanded Additional Event Analytics support: Check against TPI, Check against Active List, Match String.'
+- version: 1.2.0
+  changes:
+  - 'Added Additional Event Analytics support: Check against Watchlist, Check against Lookup, Email to Self.'
+- version: 1.1.0
+  changes:
+  - Added Aggregated Event Analytics (AEE) support.
+- version: 1.0.0
+  changes:
+  - Initial release.

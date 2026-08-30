@@ -1,0 +1,438 @@
+openapi: 3.2.0
+info:
+  title: ThreatQ TTP API
+  description: "&copy; 2025<br/><br/><b>The API doc you are viewing is a BETA version that provides an early look at ThreatQ’s new API documentation format. At the moment, it does not cover the entire application program interface. Additional API resources, including the current standard format as well as previous versions, are available on the ThreatQ Help Center.</b><br/><br/>Last Updated: 07/11/2025\n## Introduction\n\nThe ThreatQ API is built on REST principles and uses JSON as a data interchange format.\n\n<script type=\"text/javascript\" src=\"ga.js\"></script>\n\n\n### Base URI\n\nAll URIs referenced in this document use the following base: https://**hostname**/api/, where **hostname** is replaced with the hostname or ip address of your ThreatQ instance.\n\n\n### Request Format\n\nThe ThreatQ API supports the following HTTP verbs:\n\n| Verb          | Description                        |\n| :-------------| :----------------------------------|\n| GET           | GET requests retrieve resources.   |\n| POST          | POST requests create resources.    |\n| PUT           | PUT requests update resources.     |\n| DELETE        | DELETE requests delete resources.  |\n\n\n### Response Format\n\nAll responses are returned in JSON. The response is wrapped in a top level data envelope which is an object or array depending on whether a single item or a collection is returned. If a single item is returned, the data field will be an object. If a collection is returned, the field will be an array.\n\n\n### Response Codes\n\nThe ThreatQ API uses HTTP status codes to indicate the status of your request.\n\n| Code          | Description                                                                           |\n| :-------------| :-------------------------------------------------------------------------------------|\n| 200           |  Object was retrieved successfully.                                                   |\n| 201           |  Object was created successfully.                                                     |\n| 204           |  Object(s) were successfully deleted.                                                 |\n| 400           |  Validation failed (usually as the result of an incorrect request)                    |\n| 401           |  Access denied (authorization access token in the header was incorrect / out of date) |\n| 403           |  Access forbidden (usually as the result of a bad request)                            |\n| 404           |  Object not found                                                                     |\n\n<hr />\n\n### Authentication\n\nThreatQ uses OAuth 2.0 to authenticate end users. You must have a ThreatQ user account to retrieve an API token. The API token is required for all API requests. The token does time out; therefore, you must periodically refresh the token.\n\n\n#### Authorization workflow\n\n1. Run a GET request to retrieve your client ID using the following format:\n\thttps://**hostname**/assets/js/config.js\n2. Run a POST/token request to retrieve your authorization access token. See POST/token in the Authorization section of this reference for the correct format.\n\n    Include the following parameters:\n\t  * grant_type (password)\n\t  * client-id (retrieved in step 1)\n\n    **Example:** https://**hostname**/api/token?grant_type=password&client_id=ab20a55dd9ac779246210d7102a45ee37\n\n    In the request body, include your ThreatQ credentials:\n\t  * email\n\t  * password\n\n3. Enter the access token as the authorization key in the header for all subsequent api requests."
+  license:
+    name: null
+    url: null
+  version: 1.0.0
+  x-logo:
+    url: null
+    backgroundColor: null
+    altText: ThreatQuotient
+servers:
+- description: SwaggerHub API Auto Mocking
+  url: https://virtserver.swaggerhub.com/securonix-b7a/ThreatQ/1.0.0
+- url: https://threatq.com/api
+  description: ThreatQ Server
+security:
+- BearerAuth: []
+tags:
+- name: TTP
+paths:
+  /ttp:
+    get:
+      tags:
+      - TTP
+      summary: List TTP
+      parameters:
+      - $ref: '#/components/parameters/CommonObjectWith'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                - properties:
+                    data:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/TTP'
+                  type: object
+                - $ref: '#/components/schemas/TotalResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-visibility: public
+    post:
+      tags:
+      - TTP
+      summary: Create a(n) TTP
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                allOf:
+                - properties:
+                    attributes:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/AttributeBasics'
+                    sources:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/SourceBasics'
+                  type: object
+                - $ref: '#/components/schemas/TTPFillable'
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                - properties:
+                    data:
+                      type: array
+                      items:
+                        allOf:
+                        - properties:
+                            attributes:
+                              type: array
+                              items:
+                                $ref: '#/components/schemas/AttributeBasics'
+                            sources:
+                              type: array
+                              items:
+                                $ref: '#/components/schemas/SourceBasics'
+                          type: object
+                        - $ref: '#/components/schemas/TTP'
+                  type: object
+                - $ref: '#/components/schemas/TotalResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-visibility: public
+  /ttp/consume:
+    post:
+      tags:
+      - TTP
+      summary: TTP Consume
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                allOf:
+                - properties:
+                    ttp:
+                      description: Related TTP
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/TTPFillable'
+                  type: object
+                - $ref: '#/components/schemas/TTPFillable'
+                - $ref: '#/components/schemas/CommonObjectConsumeRequest'
+      responses:
+        '201':
+          description: Ingestion Completed Successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                - properties:
+                    data:
+                      type: array
+                      items:
+                        allOf:
+                        - properties:
+                            id:
+                              description: TTP ID
+                              type: integer
+                              default: 1
+                          type: object
+                        - $ref: '#/components/schemas/TTPFillable'
+                  type: object
+                - $ref: '#/components/schemas/TotalResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-visibility: public
+  /ttp/{ttp_id}:
+    get:
+      tags:
+      - TTP
+      summary: Get Single TTP
+      parameters:
+      - $ref: '#/components/parameters/TTPId'
+      - $ref: '#/components/parameters/CommonObjectWith'
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/TTP'
+                type: object
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      x-visibility: public
+    put:
+      tags:
+      - TTP
+      summary: Update a(n) TTP
+      parameters:
+      - $ref: '#/components/parameters/TTPId'
+      - $ref: '#/components/parameters/CommonObjectWith'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                allOf:
+                - properties:
+                    attributes:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/AttributeBasics'
+                    sources:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/SourceBasics'
+                  type: object
+                - $ref: '#/components/schemas/TTPFillable'
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                - properties:
+                    data:
+                      type: array
+                      items:
+                        allOf:
+                        - properties:
+                            attributes:
+                              type: array
+                              items:
+                                $ref: '#/components/schemas/AttributeBasics'
+                            sources:
+                              type: array
+                              items:
+                                $ref: '#/components/schemas/SourceBasics'
+                          type: object
+                        - $ref: '#/components/schemas/TTP'
+                  type: object
+                - $ref: '#/components/schemas/TotalResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      x-visibility: public
+    delete:
+      tags:
+      - TTP
+      summary: Delete TTP
+      parameters:
+      - $ref: '#/components/parameters/TTPId'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      x-visibility: public
+components:
+  responses:
+    Unauthorized:
+      description: Unauthorized
+    NotFound:
+      description: Object Not Found
+    NoContent:
+      description: Object(s) were successfully deleted.
+  schemas:
+    TouchedAtTimestamp:
+      properties:
+        touched_at:
+          description: Update Date for Object Context (Attributes, Comments, Sources, Relationships)
+          type: string
+          example: '2021-11-13 15:28:17'
+      type: object
+    SourceBasics:
+      oneOf:
+      - allOf:
+        - properties:
+            tlp_id:
+              description: Source TLP ID
+              type: integer
+              example: 3
+          type: object
+        - $ref: '#/components/schemas/SourceName'
+      - allOf:
+        - properties:
+            tlp:
+              $ref: '#/components/schemas/TLPName'
+          type: object
+        - $ref: '#/components/schemas/SourceName'
+    TTP:
+      allOf:
+      - properties:
+          id:
+            description: TTP ID
+            type: integer
+            example: 5120
+        type: object
+      - $ref: '#/components/schemas/TTPFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+      - $ref: '#/components/schemas/TouchedAtTimestamp'
+    AttributeBasics:
+      allOf:
+      - properties:
+          sources:
+            type: array
+            items:
+              $ref: '#/components/schemas/SourceBasics'
+        type: object
+      - $ref: '#/components/schemas/ObjectLinkAttributeFillable'
+    TTPFillable:
+      properties:
+        value:
+          description: TTP Value
+          type: string
+          example: Malware
+        description:
+          description: Description for the TTP
+          type: string
+          example: PIVY Variant
+      type: object
+    SourceName:
+      properties:
+        name:
+          description: Source Name
+          type: string
+          example: ThreatQ
+      type: object
+    CommonObjectConsumeRequest:
+      properties:
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttributeBasics'
+        sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/SourceBasics'
+        tlp:
+          $ref: '#/components/schemas/TLPName'
+        <object_code>:
+          description: 'Relate objects of other types by providing a list of IDs. Replace the `<object_code>` property key with
+
+            one of the options to relate objects of that type. <br><br> NOTE: Objects must be created separately before IDs can be
+
+            used in request. <br><br>Options include: adversaries, attachments, attack_pattern, campaign, course_of_action, events,
+
+            exploit_target, identity, incident, indicators, intrusion_set, malware, recipient, report, signatures, tool, ttp.'
+          type: array
+          items:
+            type: integer
+            example: 2
+      type: object
+    AttributeFillable:
+      properties:
+        name:
+          description: Attribute Name
+          type: string
+          example: Confidence
+      type: object
+    ObjectAttributeValue:
+      properties:
+        value:
+          description: Attribute Value
+          type: string
+          example: High
+      type: object
+    TLPName:
+      properties:
+        name:
+          description: TLP Name
+          type: string
+          example: WHITE
+      type: object
+    ObjectLinkAttributeFillable:
+      allOf:
+      - $ref: '#/components/schemas/AttributeFillable'
+      - $ref: '#/components/schemas/ObjectAttributeValue'
+    TotalResponse:
+      properties:
+        total:
+          description: Total Number of Objects Processed
+          type: integer
+          example: 1
+      type: object
+    ThreatQTimestamps:
+      properties:
+        created_at:
+          description: Creation Date
+          type: string
+          example: '2021-07-29 13:58:03'
+        updated_at:
+          description: Update Date
+          type: string
+          example: '2022-04-12 08:32:16'
+      type: object
+  parameters:
+    Limit:
+      name: limit
+      in: query
+      description: <br>The number of objects included in the response.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 10
+    Offset:
+      name: offset
+      in: query
+      description: <br>The number of result set records that should be ignored.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 50
+    CommonObjectWith:
+      name: with
+      in: query
+      description: '<br>Object Relationships that can be included in the response.<br><br>Options include: adversaries, asset,
+
+        attachments, attack_pattern, attributes, campaign, comments, course_of_action, events, exploit_target, identity,
+
+        incident, indicators, intrusion_set, malware, recipient, report, plugins, pluginActions, signatures, sources, tags,
+
+        tool, ttp, and watchlist.'
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+          example: adversaries,comments,sources
+    Sort:
+      name: sort
+      in: query
+      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+        example: id,created_at
+    TTPId:
+      name: ttp_id
+      in: path
+      description: TTP ID
+      required: true
+      schema:
+        type: integer
+  securitySchemes:
+    BearerAuth:
+      type: http
+      description: "Once authorized, all subsequent requests must include an `Authorization` header\n with the granted `access_token`. See the OAuth2 Authentication path for more information on how to authorize a User.<br><br>\n Example Header: `Authorization: Bearer <access_token>`"
+      name: Authorization
+      in: header
+      bearerFormat: Bearer `<access_token>`
+      scheme: bearer

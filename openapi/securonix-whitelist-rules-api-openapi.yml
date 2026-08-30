@@ -1,0 +1,342 @@
+openapi: 3.2.0
+info:
+  title: ThreatQ Whitelist Rules API
+  description: "&copy; 2025<br/><br/><b>The API doc you are viewing is a BETA version that provides an early look at ThreatQ’s new API documentation format. At the moment, it does not cover the entire application program interface. Additional API resources, including the current standard format as well as previous versions, are available on the ThreatQ Help Center.</b><br/><br/>Last Updated: 07/11/2025\n## Introduction\n\nThe ThreatQ API is built on REST principles and uses JSON as a data interchange format.\n\n<script type=\"text/javascript\" src=\"ga.js\"></script>\n\n\n### Base URI\n\nAll URIs referenced in this document use the following base: https://**hostname**/api/, where **hostname** is replaced with the hostname or ip address of your ThreatQ instance.\n\n\n### Request Format\n\nThe ThreatQ API supports the following HTTP verbs:\n\n| Verb          | Description                        |\n| :-------------| :----------------------------------|\n| GET           | GET requests retrieve resources.   |\n| POST          | POST requests create resources.    |\n| PUT           | PUT requests update resources.     |\n| DELETE        | DELETE requests delete resources.  |\n\n\n### Response Format\n\nAll responses are returned in JSON. The response is wrapped in a top level data envelope which is an object or array depending on whether a single item or a collection is returned. If a single item is returned, the data field will be an object. If a collection is returned, the field will be an array.\n\n\n### Response Codes\n\nThe ThreatQ API uses HTTP status codes to indicate the status of your request.\n\n| Code          | Description                                                                           |\n| :-------------| :-------------------------------------------------------------------------------------|\n| 200           |  Object was retrieved successfully.                                                   |\n| 201           |  Object was created successfully.                                                     |\n| 204           |  Object(s) were successfully deleted.                                                 |\n| 400           |  Validation failed (usually as the result of an incorrect request)                    |\n| 401           |  Access denied (authorization access token in the header was incorrect / out of date) |\n| 403           |  Access forbidden (usually as the result of a bad request)                            |\n| 404           |  Object not found                                                                     |\n\n<hr />\n\n### Authentication\n\nThreatQ uses OAuth 2.0 to authenticate end users. You must have a ThreatQ user account to retrieve an API token. The API token is required for all API requests. The token does time out; therefore, you must periodically refresh the token.\n\n\n#### Authorization workflow\n\n1. Run a GET request to retrieve your client ID using the following format:\n\thttps://**hostname**/assets/js/config.js\n2. Run a POST/token request to retrieve your authorization access token. See POST/token in the Authorization section of this reference for the correct format.\n\n    Include the following parameters:\n\t  * grant_type (password)\n\t  * client-id (retrieved in step 1)\n\n    **Example:** https://**hostname**/api/token?grant_type=password&client_id=ab20a55dd9ac779246210d7102a45ee37\n\n    In the request body, include your ThreatQ credentials:\n\t  * email\n\t  * password\n\n3. Enter the access token as the authorization key in the header for all subsequent api requests."
+  license:
+    name: null
+    url: null
+  version: 1.0.0
+  x-logo:
+    url: null
+    backgroundColor: null
+    altText: ThreatQuotient
+servers:
+- description: SwaggerHub API Auto Mocking
+  url: https://virtserver.swaggerhub.com/securonix-b7a/ThreatQ/1.0.0
+- url: https://threatq.com/api
+  description: ThreatQ Server
+security:
+- BearerAuth: []
+tags:
+- name: Whitelist Rules
+paths:
+  /whitelist/rules:
+    post:
+      tags:
+      - Whitelist Rules
+      summary: Create a Whitelist Rule
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WhitelistRuleFillable'
+      responses:
+        '201':
+          description: New Whitelist Rule Created
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/WhitelistRuleWithIndicatorCount'
+                type: object
+        '400':
+          $ref: '#/components/responses/FailedValidation'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-visibility: public
+  /whitelist/rules/count{?rule,type_id}:
+    get:
+      tags:
+      - Whitelist Rules
+      summary: Whitelist Rule Indicator Count
+      operationId: 9112fbf964a0de3c9db887030c936f8a
+      parameters:
+      - parameter: WhitelistRuleValue
+        name: rule
+        in: query
+        description: Whitelist Rule Value
+        required: true
+        schema:
+          type: string
+          example: '*.threatq.com'
+      - parameter: WhitelistRuleIndicatorTypeId
+        name: type_id
+        in: query
+        description: Whitelist Rule Indicator Type ID
+        required: true
+        schema:
+          type: integer
+          example: 11
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                properties:
+                  count:
+                    type: integer
+                    example: 37
+                type: object
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-visibility: public
+  /whitelist/rules/{whitelist_rule_id}:
+    delete:
+      tags:
+      - Whitelist Rules
+      summary: Delete a Whitelist Rule
+      parameters:
+      - $ref: '#/components/parameters/WhitelistRuleId'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      x-visibility: public
+  /whitelist/rules/{whitelist_rule_id}{?with}:
+    get:
+      tags:
+      - Whitelist Rules
+      summary: Get a Single Whitelist Rule
+      parameters:
+      - $ref: '#/components/parameters/WhitelistRuleId'
+      - $ref: '#/components/parameters/WhitelistRuleWith'
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/WhitelistRuleWithType'
+                type: object
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      x-visibility: public
+    put:
+      tags:
+      - Whitelist Rules
+      summary: Update a Whitelist Rule
+      parameters:
+      - $ref: '#/components/parameters/WhitelistRuleId'
+      - $ref: '#/components/parameters/WhitelistRuleWith'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WhitelistRuleFillable'
+      responses:
+        '201':
+          description: Whitelist Rule Updated
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/WhitelistRuleWithType'
+                type: object
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      x-visibility: public
+  /whitelist/rules{?limit,offset,sort,with}:
+    get:
+      tags:
+      - Whitelist Rules
+      summary: List Whitelist Rules
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/WhitelistRuleWith'
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                - properties:
+                    data:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/WhitelistRuleWithType'
+                  type: object
+                - $ref: '#/components/schemas/TotalResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-visibility: public
+components:
+  schemas:
+    WhitelistRule:
+      allOf:
+      - properties:
+          id:
+            description: Whitelist Rule ID
+            type: integer
+            example: 1
+        type: object
+      - properties:
+          created_at:
+            description: Whitelist Rule Creation Date
+            type: string
+            example: '2020-05-01 02:35:16'
+          updated_at:
+            description: Whitelist Rule Update Date
+            type: string
+            example: '2020-05-03 04:27:51'
+        type: object
+      - $ref: '#/components/schemas/WhitelistRuleFillable'
+    WhitelistRuleWithType:
+      allOf:
+      - properties:
+          type:
+            $ref: '#/components/schemas/IndicatorType'
+        type: object
+      - $ref: '#/components/schemas/WhitelistRule'
+    WhitelistRuleFillable:
+      properties:
+        type_id:
+          description: Indicator Type ID
+          type: integer
+          example: 11
+        status_id:
+          description: Indicator Status ID
+          type: integer
+          example: 2
+        rule:
+          description: Whitelist Rule Value
+          type: string
+          example: '*.threatq.com'
+        enabled:
+          description: Determines whether the Whitelist Rule is being actively applied
+          type: string
+          example: Y
+      type: object
+    IndicatorTypeFillable:
+      properties:
+        name:
+          description: Indicator Type Name
+          type: string
+          example: FQDN
+        class:
+          description: Indicator Type Class - Options include Network or Host
+          type: string
+          example: network
+        score:
+          description: Indicator Type Score - Ranges from -10 to 10
+          type: integer
+          example: 3
+      type: object
+    TotalResponse:
+      properties:
+        total:
+          description: Total Number of Objects Processed
+          type: integer
+          example: 1
+      type: object
+    IndicatorType:
+      allOf:
+      - properties:
+          id:
+            description: Indicator Type ID
+            type: integer
+            example: 1
+        type: object
+      - properties:
+          wildcard_matching:
+            description: Determines whether the Indicator Type matches wild cards
+            type: string
+            example: Y
+          created_at:
+            description: Indicator Type Creation Date
+            type: string
+            example: '2020-05-01 02:35:16'
+          updated_at:
+            description: Indicator Type Update Date
+            type: string
+            example: '2020-05-03 04:27:51'
+        type: object
+      - $ref: '#/components/schemas/IndicatorTypeFillable'
+    WhitelistRuleWithIndicatorCount:
+      allOf:
+      - properties:
+          updated_count:
+            description: Number of Indicators updated via new Whitelist Rule
+            type: integer
+            example: 3
+        type: object
+      - $ref: '#/components/schemas/WhitelistRule'
+  parameters:
+    Limit:
+      name: limit
+      in: query
+      description: <br>The number of objects included in the response.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 10
+    Sort:
+      name: sort
+      in: query
+      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+        example: id,created_at
+    WhitelistRuleId:
+      name: whitelist_rule_id
+      in: path
+      description: Whitelist Rule ID
+      required: true
+      schema:
+        type: integer
+    WhitelistRuleWith:
+      name: with
+      in: query
+      description: <br>Indicator Type relationship that can be included in the response.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+        example: type
+    Offset:
+      name: offset
+      in: query
+      description: <br>The number of result set records that should be ignored.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 50
+  responses:
+    Unauthorized:
+      description: Unauthorized
+    FailedValidation:
+      description: Validation Failed
+    NotFound:
+      description: Object Not Found
+    NoContent:
+      description: Object(s) were successfully deleted.
+  securitySchemes:
+    BearerAuth:
+      type: http
+      description: "Once authorized, all subsequent requests must include an `Authorization` header\n with the granted `access_token`. See the OAuth2 Authentication path for more information on how to authorize a User.<br><br>\n Example Header: `Authorization: Bearer <access_token>`"
+      name: Authorization
+      in: header
+      bearerFormat: Bearer `<access_token>`
+      scheme: bearer

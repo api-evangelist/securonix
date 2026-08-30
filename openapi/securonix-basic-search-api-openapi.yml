@@ -1,0 +1,268 @@
+openapi: 3.2.0
+info:
+  title: ThreatQ Basic Search API
+  description: "&copy; 2025<br/><br/><b>The API doc you are viewing is a BETA version that provides an early look at ThreatQ’s new API documentation format. At the moment, it does not cover the entire application program interface. Additional API resources, including the current standard format as well as previous versions, are available on the ThreatQ Help Center.</b><br/><br/>Last Updated: 07/11/2025\n## Introduction\n\nThe ThreatQ API is built on REST principles and uses JSON as a data interchange format.\n\n<script type=\"text/javascript\" src=\"ga.js\"></script>\n\n\n### Base URI\n\nAll URIs referenced in this document use the following base: https://**hostname**/api/, where **hostname** is replaced with the hostname or ip address of your ThreatQ instance.\n\n\n### Request Format\n\nThe ThreatQ API supports the following HTTP verbs:\n\n| Verb          | Description                        |\n| :-------------| :----------------------------------|\n| GET           | GET requests retrieve resources.   |\n| POST          | POST requests create resources.    |\n| PUT           | PUT requests update resources.     |\n| DELETE        | DELETE requests delete resources.  |\n\n\n### Response Format\n\nAll responses are returned in JSON. The response is wrapped in a top level data envelope which is an object or array depending on whether a single item or a collection is returned. If a single item is returned, the data field will be an object. If a collection is returned, the field will be an array.\n\n\n### Response Codes\n\nThe ThreatQ API uses HTTP status codes to indicate the status of your request.\n\n| Code          | Description                                                                           |\n| :-------------| :-------------------------------------------------------------------------------------|\n| 200           |  Object was retrieved successfully.                                                   |\n| 201           |  Object was created successfully.                                                     |\n| 204           |  Object(s) were successfully deleted.                                                 |\n| 400           |  Validation failed (usually as the result of an incorrect request)                    |\n| 401           |  Access denied (authorization access token in the header was incorrect / out of date) |\n| 403           |  Access forbidden (usually as the result of a bad request)                            |\n| 404           |  Object not found                                                                     |\n\n<hr />\n\n### Authentication\n\nThreatQ uses OAuth 2.0 to authenticate end users. You must have a ThreatQ user account to retrieve an API token. The API token is required for all API requests. The token does time out; therefore, you must periodically refresh the token.\n\n\n#### Authorization workflow\n\n1. Run a GET request to retrieve your client ID using the following format:\n\thttps://**hostname**/assets/js/config.js\n2. Run a POST/token request to retrieve your authorization access token. See POST/token in the Authorization section of this reference for the correct format.\n\n    Include the following parameters:\n\t  * grant_type (password)\n\t  * client-id (retrieved in step 1)\n\n    **Example:** https://**hostname**/api/token?grant_type=password&client_id=ab20a55dd9ac779246210d7102a45ee37\n\n    In the request body, include your ThreatQ credentials:\n\t  * email\n\t  * password\n\n3. Enter the access token as the authorization key in the header for all subsequent api requests."
+  license:
+    name: null
+    url: null
+  version: 1.0.0
+  x-logo:
+    url: null
+    backgroundColor: null
+    altText: ThreatQuotient
+servers:
+- description: SwaggerHub API Auto Mocking
+  url: https://virtserver.swaggerhub.com/securonix-b7a/ThreatQ/1.0.0
+- url: https://threatq.com/api
+  description: ThreatQ Server
+security:
+- BearerAuth: []
+tags:
+- name: Basic Search
+paths:
+  /all/attributes/search:
+    get:
+      tags:
+      - Basic Search
+      summary: Attribute Search
+      description: Get attributes matching the specified search query
+      operationId: ef800ae5e0fae452a1d00f54594ab4b1
+      parameters:
+      - $ref: '#/components/parameters/BasicSearchQuery'
+      - $ref: '#/components/parameters/BasicSearchLimit'
+      - $ref: '#/components/parameters/BasicSearchWith'
+      responses:
+        '200':
+          $ref: '#/components/responses/SearchAttribute'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-visibility: public
+  /all/tags/search:
+    get:
+      tags:
+      - Basic Search
+      summary: Tag Search
+      description: Get tags matching the specified search query
+      operationId: 595d29069b3d3b5b8c6e799da0b4cab7
+      parameters:
+      - $ref: '#/components/parameters/BasicSearchQuery'
+      - $ref: '#/components/parameters/BasicSearchLimit'
+      - $ref: '#/components/parameters/BasicSearchWith'
+      responses:
+        '200':
+          $ref: '#/components/responses/SearchTag'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-visibility: public
+  /search:
+    get:
+      tags:
+      - Basic Search
+      summary: Object Search
+      description: Get objects matching the specified search query
+      operationId: afadbbd422590b1ee4160409aee46dc8
+      parameters:
+      - $ref: '#/components/parameters/BasicSearchQuery'
+      - $ref: '#/components/parameters/BasicSearchLimit'
+      - $ref: '#/components/parameters/BasicSearchWith'
+      responses:
+        '200':
+          $ref: '#/components/responses/SearchObject'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-visibility: public
+components:
+  responses:
+    Unauthorized:
+      description: Unauthorized
+    SearchAttribute:
+      description: Request Successful
+      content:
+        application/json:
+          schema:
+            properties:
+              data:
+                description: Listing of search attributes
+                type: array
+                items:
+                  $ref: '#/components/schemas/SearchAttribute'
+            type: object
+    SearchTag:
+      description: Request Successful
+      content:
+        application/json:
+          schema:
+            properties:
+              data:
+                description: Listing of search tags
+                type: array
+                items:
+                  $ref: '#/components/schemas/SearchTag'
+            type: object
+    SearchObject:
+      description: Request Successful
+      content:
+        application/json:
+          schema:
+            properties:
+              data:
+                description: Listing of search objects
+                type: array
+                items:
+                  $ref: '#/components/schemas/SearchObject'
+            type: object
+  schemas:
+    SearchObject:
+      properties:
+        id:
+          description: Object id
+          type: integer
+          example: 1
+        type:
+          $ref: '#/components/schemas/ObjectType'
+        value:
+          description: Object value
+          type: string
+          example: www.threatquotient.com
+      type: object
+    SearchAttribute:
+      properties:
+        object_attribute_id:
+          description: Object attribute id
+          type: integer
+          example: 1
+        type:
+          description: Object type<br /><br /><b>Note:</b> Any created custom object name can be used
+          type: string
+          enum:
+          - adversary
+          - attachment
+          - attack_pattern
+          - campaign
+          - course_of_action
+          - event
+          - exploit_target
+          - identity
+          - incident
+          - indicator
+          - intrusion_set
+          - investigation
+          - malware
+          - report
+          - signature
+          - task
+          - tool
+          - ttp
+          - vulnerability
+          example: indicator
+        object_id:
+          description: Object id
+          type: integer
+          example: 1
+        attribute_id:
+          description: Attribute id
+          type: integer
+          example: 1
+        value:
+          description: Attribute value
+          type: string
+          example: www.threatquotient.com
+      type: object
+    SearchTag:
+      properties:
+        tag_id:
+          description: Tag id
+          type: integer
+          example: 1
+        object_id:
+          description: Object id
+          type: integer
+          example: 1
+        type:
+          description: Object type<br /><br /><b>Note:</b> Any created custom object name can be used
+          type: string
+          enum:
+          - adversary
+          - attachment
+          - attack_pattern
+          - campaign
+          - course_of_action
+          - event
+          - exploit_target
+          - identity
+          - incident
+          - indicator
+          - intrusion_set
+          - investigation
+          - malware
+          - report
+          - signature
+          - task
+          - tool
+          - ttp
+          - vulnerability
+          example: indicator
+        name:
+          description: Tag name
+          type: string
+          example: www.threatquotient.com
+      type: object
+    ObjectType:
+      description: Object type<br /><br /><b>Note:</b> Any created custom object name can be used
+      type: string
+      enum:
+      - adversary
+      - attachment
+      - attack_pattern
+      - campaign
+      - course_of_action
+      - event
+      - exploit_target
+      - identity
+      - incident
+      - indicator
+      - intrusion_set
+      - investigation
+      - malware
+      - report
+      - signature
+      - task
+      - tool
+      - ttp
+      - vulnerability
+      example: indicator
+  parameters:
+    BasicSearchWith:
+      name: with
+      in: query
+      description: <br />Comma-delimited list of primary and/or custom objects to be applied to the query.
+      required: false
+      schema:
+        type: string
+        default: all
+        example: indicators,malware
+    BasicSearchLimit:
+      name: limit
+      in: query
+      description: <br />Number of objects included in the response.
+      required: false
+      schema:
+        type: integer
+        default: 30
+        example: 10
+    BasicSearchQuery:
+      name: query
+      in: query
+      description: <br />Search value to be applied to the query.
+      required: true
+      schema:
+        type: string
+        example: www.threatquotient.com
+  securitySchemes:
+    BearerAuth:
+      type: http
+      description: "Once authorized, all subsequent requests must include an `Authorization` header\n with the granted `access_token`. See the OAuth2 Authentication path for more information on how to authorize a User.<br><br>\n Example Header: `Authorization: Bearer <access_token>`"
+      name: Authorization
+      in: header
+      bearerFormat: Bearer `<access_token>`
+      scheme: bearer

@@ -1,0 +1,125 @@
+openapi: 3.2.0
+info:
+  title: ThreatQ Authentication API
+  description: "&copy; 2025<br/><br/><b>The API doc you are viewing is a BETA version that provides an early look at ThreatQ’s new API documentation format. At the moment, it does not cover the entire application program interface. Additional API resources, including the current standard format as well as previous versions, are available on the ThreatQ Help Center.</b><br/><br/>Last Updated: 07/11/2025\n## Introduction\n\nThe ThreatQ API is built on REST principles and uses JSON as a data interchange format.\n\n<script type=\"text/javascript\" src=\"ga.js\"></script>\n\n\n### Base URI\n\nAll URIs referenced in this document use the following base: https://**hostname**/api/, where **hostname** is replaced with the hostname or ip address of your ThreatQ instance.\n\n\n### Request Format\n\nThe ThreatQ API supports the following HTTP verbs:\n\n| Verb          | Description                        |\n| :-------------| :----------------------------------|\n| GET           | GET requests retrieve resources.   |\n| POST          | POST requests create resources.    |\n| PUT           | PUT requests update resources.     |\n| DELETE        | DELETE requests delete resources.  |\n\n\n### Response Format\n\nAll responses are returned in JSON. The response is wrapped in a top level data envelope which is an object or array depending on whether a single item or a collection is returned. If a single item is returned, the data field will be an object. If a collection is returned, the field will be an array.\n\n\n### Response Codes\n\nThe ThreatQ API uses HTTP status codes to indicate the status of your request.\n\n| Code          | Description                                                                           |\n| :-------------| :-------------------------------------------------------------------------------------|\n| 200           |  Object was retrieved successfully.                                                   |\n| 201           |  Object was created successfully.                                                     |\n| 204           |  Object(s) were successfully deleted.                                                 |\n| 400           |  Validation failed (usually as the result of an incorrect request)                    |\n| 401           |  Access denied (authorization access token in the header was incorrect / out of date) |\n| 403           |  Access forbidden (usually as the result of a bad request)                            |\n| 404           |  Object not found                                                                     |\n\n<hr />\n\n### Authentication\n\nThreatQ uses OAuth 2.0 to authenticate end users. You must have a ThreatQ user account to retrieve an API token. The API token is required for all API requests. The token does time out; therefore, you must periodically refresh the token.\n\n\n#### Authorization workflow\n\n1. Run a GET request to retrieve your client ID using the following format:\n\thttps://**hostname**/assets/js/config.js\n2. Run a POST/token request to retrieve your authorization access token. See POST/token in the Authorization section of this reference for the correct format.\n\n    Include the following parameters:\n\t  * grant_type (password)\n\t  * client-id (retrieved in step 1)\n\n    **Example:** https://**hostname**/api/token?grant_type=password&client_id=ab20a55dd9ac779246210d7102a45ee37\n\n    In the request body, include your ThreatQ credentials:\n\t  * email\n\t  * password\n\n3. Enter the access token as the authorization key in the header for all subsequent api requests."
+  license:
+    name: null
+    url: null
+  version: 1.0.0
+  x-logo:
+    url: null
+    backgroundColor: null
+    altText: ThreatQuotient
+servers:
+- description: SwaggerHub API Auto Mocking
+  url: https://virtserver.swaggerhub.com/securonix-b7a/ThreatQ/1.0.0
+- url: https://threatq.com/api
+  description: ThreatQ Server
+security:
+- BearerAuth: []
+tags:
+- name: Authentication
+paths:
+  /token:
+    post:
+      tags:
+      - Authentication
+      summary: OAuth2 Authentication
+      description: "You must have a ThreatQ User account to retrieve an API token. The API token is required for all requests. The\n    token does time out; therefore, you must periodically refresh the token.<br><br>Before authentication is attempted,\n    the Client ID used should be retrieved via GET to `<hostname>/assets/js/config.js`.\n    <br><br>NOTE: The Authorization header can be ignored as authentication has not occurred yet."
+      operationId: 6dfefacb2109527235856b8df26618d5
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                grant_type:
+                  description: 'The grant_type you are authenticating with.<br><br>Options include: `password`'
+                  type: string
+                  example: password
+                client_id:
+                  description: Client ID retrieved from GET `<hostname>/assets/js/config.js
+                  type: string
+                  example: ngmwzmvkntc1owe4nmy0mjuyoda0nwq1
+                email:
+                  description: User's email
+                  type: string
+                  example: fMercury@threatq.com
+                password:
+                  description: User's password
+                  type: string
+                  example: '****************'
+              type: object
+      responses:
+        '200':
+          description: Successful Login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '400':
+          description: Failed Validation
+          content:
+            application/json:
+              schema:
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                      example: User credentials are not valid.
+                type: object
+        '503':
+          $ref: '#/components/responses/MaintenanceMode'
+      x-visibility: public
+  /logout:
+    get:
+      tags:
+      - Authentication
+      summary: Logout
+      operationId: 420845c6af8d2584f9ed8aed4babea13
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+      x-visibility: public
+components:
+  responses:
+    Success:
+      description: OK
+    MaintenanceMode:
+      description: System is in Maintenance Mode.
+      content:
+        application/json:
+          schema:
+            properties:
+              errors:
+                type: array
+                items:
+                  type: string
+                  example: ThreatQ is down for maintenance.
+            type: object
+  schemas:
+    Token:
+      properties:
+        access_token:
+          description: Access token for future API calls
+          type: string
+        token_type:
+          type: string
+        expires_in:
+          type: integer
+        refresh_token:
+          type: string
+      type: object
+      example:
+        access_token: AbCdEfGhIjKLm
+        token_type: bearer
+        expires_in: 3599
+        refresh_token: NoPqRsTuVwXyZ
+  securitySchemes:
+    BearerAuth:
+      type: http
+      description: "Once authorized, all subsequent requests must include an `Authorization` header\n with the granted `access_token`. See the OAuth2 Authentication path for more information on how to authorize a User.<br><br>\n Example Header: `Authorization: Bearer <access_token>`"
+      name: Authorization
+      in: header
+      bearerFormat: Bearer `<access_token>`
+      scheme: bearer

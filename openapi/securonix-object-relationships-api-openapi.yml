@@ -1,0 +1,1002 @@
+openapi: 3.2.0
+info:
+  title: ThreatQ Object Relationships API
+  description: "&copy; 2025<br/><br/><b>The API doc you are viewing is a BETA version that provides an early look at ThreatQ’s new API documentation format. At the moment, it does not cover the entire application program interface. Additional API resources, including the current standard format as well as previous versions, are available on the ThreatQ Help Center.</b><br/><br/>Last Updated: 07/11/2025\n## Introduction\n\nThe ThreatQ API is built on REST principles and uses JSON as a data interchange format.\n\n<script type=\"text/javascript\" src=\"ga.js\"></script>\n\n\n### Base URI\n\nAll URIs referenced in this document use the following base: https://**hostname**/api/, where **hostname** is replaced with the hostname or ip address of your ThreatQ instance.\n\n\n### Request Format\n\nThe ThreatQ API supports the following HTTP verbs:\n\n| Verb          | Description                        |\n| :-------------| :----------------------------------|\n| GET           | GET requests retrieve resources.   |\n| POST          | POST requests create resources.    |\n| PUT           | PUT requests update resources.     |\n| DELETE        | DELETE requests delete resources.  |\n\n\n### Response Format\n\nAll responses are returned in JSON. The response is wrapped in a top level data envelope which is an object or array depending on whether a single item or a collection is returned. If a single item is returned, the data field will be an object. If a collection is returned, the field will be an array.\n\n\n### Response Codes\n\nThe ThreatQ API uses HTTP status codes to indicate the status of your request.\n\n| Code          | Description                                                                           |\n| :-------------| :-------------------------------------------------------------------------------------|\n| 200           |  Object was retrieved successfully.                                                   |\n| 201           |  Object was created successfully.                                                     |\n| 204           |  Object(s) were successfully deleted.                                                 |\n| 400           |  Validation failed (usually as the result of an incorrect request)                    |\n| 401           |  Access denied (authorization access token in the header was incorrect / out of date) |\n| 403           |  Access forbidden (usually as the result of a bad request)                            |\n| 404           |  Object not found                                                                     |\n\n<hr />\n\n### Authentication\n\nThreatQ uses OAuth 2.0 to authenticate end users. You must have a ThreatQ user account to retrieve an API token. The API token is required for all API requests. The token does time out; therefore, you must periodically refresh the token.\n\n\n#### Authorization workflow\n\n1. Run a GET request to retrieve your client ID using the following format:\n\thttps://**hostname**/assets/js/config.js\n2. Run a POST/token request to retrieve your authorization access token. See POST/token in the Authorization section of this reference for the correct format.\n\n    Include the following parameters:\n\t  * grant_type (password)\n\t  * client-id (retrieved in step 1)\n\n    **Example:** https://**hostname**/api/token?grant_type=password&client_id=ab20a55dd9ac779246210d7102a45ee37\n\n    In the request body, include your ThreatQ credentials:\n\t  * email\n\t  * password\n\n3. Enter the access token as the authorization key in the header for all subsequent api requests."
+  license:
+    name: null
+    url: null
+  version: 1.0.0
+  x-logo:
+    url: null
+    backgroundColor: null
+    altText: ThreatQuotient
+servers:
+- description: SwaggerHub API Auto Mocking
+  url: https://virtserver.swaggerhub.com/securonix-b7a/ThreatQ/1.0.0
+- url: https://threatq.com/api
+  description: ThreatQ Server
+security:
+- BearerAuth: []
+tags:
+- name: Object Relationships
+paths:
+  /{src_object_collection}/{src_object_id}/{dest_object_collection}:
+    get:
+      tags:
+      - Object Relationships
+      summary: List Relationships for an Object Type
+      description: "This path can be used for any combination of objects installed on the system. <br><br>\n Examples: <br><br> Indicators related to an Adversary: <i>/adversaries/:adversary_id/indicators</i> <br><br>\n Indicators related to an Indicator: <i>/indicators/:indicator_id/indicators</i>"
+      parameters:
+      - $ref: '#/components/parameters/SrcObject'
+      - $ref: '#/components/parameters/SrcObjectId'
+      - $ref: '#/components/parameters/DestObject'
+      - $ref: '#/components/parameters/ObjectLinkWith'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                - properties:
+                    data:
+                      type: array
+                      items:
+                        allOf:
+                        - properties:
+                            sources:
+                              type: array
+                              items:
+                                $ref: '#/components/schemas/SourceName'
+                          type: object
+                        - properties:
+                            pivot:
+                              type: object
+                              allOf:
+                              - properties:
+                                  attributes:
+                                    type: array
+                                    items:
+                                      $ref: '#/components/schemas/ObjectLinkAttributeBasics'
+                                type: object
+                              - properties:
+                                  sources:
+                                    type: array
+                                    items:
+                                      $ref: '#/components/schemas/ObjectLinkSource'
+                                type: object
+                              - properties:
+                                  comments:
+                                    type: array
+                                    items:
+                                      $ref: '#/components/schemas/ObjectLinkCommentWithSource'
+                                type: object
+                              - $ref: '#/components/schemas/ObjectLinkBasePivot'
+                          type: object
+                        - $ref: '#/components/schemas/AnyObject'
+                        - $ref: '#/components/schemas/DeletedAtTimestamp'
+                  type: object
+                - $ref: '#/components/schemas/TotalResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      x-visibility: public
+    post:
+      tags:
+      - Object Relationships
+      summary: Create a Relationship for an Object Type
+      description: 'This path can be used for any combination of objects installed on the system. <br><br>
+
+        Examples: <br><br> Relate Indicators to an Adversary: <i>/adversaries/:adversary_id/indicators</i> <br><br>
+
+        Relate Indicators to an Indicator: <i>/indicators/:indicator_id/indicators</i>'
+      parameters:
+      - $ref: '#/components/parameters/SrcObject'
+      - $ref: '#/components/parameters/SrcObjectId'
+      - $ref: '#/components/parameters/DestObject'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                oneOf:
+                - properties:
+                    id:
+                      description: Destination Object ID - the ID for the object you would like to create a relationship with.
+                      type: integer
+                      example: 3
+                  type: object
+                - type: array
+                  items:
+                    properties:
+                      id:
+                        description: Destination Object ID - the ID for the object you would like to create a relationship with.
+                        type: integer
+                        example: 3
+                    type: object
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                - properties:
+                    data:
+                      type: array
+                      items:
+                        allOf:
+                        - properties:
+                            pivot:
+                              type: object
+                              allOf:
+                              - properties:
+                                  id:
+                                    description: Object Link ID
+                                    type: integer
+                                    example: 10
+                                type: object
+                              - $ref: '#/components/schemas/ThreatQTimestamps'
+                          type: object
+                        - $ref: '#/components/schemas/AnyObject'
+                  type: object
+                - $ref: '#/components/schemas/TotalResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      x-visibility: public
+  /{src_object_collection}/{src_object_id}/{dest_object_collection}/{object_link_id}:
+    get:
+      tags:
+      - Object Relationships
+      summary: Get a Single Relationship for an Object Type
+      description: 'This path can be used for any combination of objects installed on the system. <br><br>
+
+        Examples: <br><br> Indicator related to an Adversary: <i>/adversaries/:adversary_id/indicators/:object_link_id</i>
+
+        <br><br> Indicator related to an Indicator: <i>/indicators/:indicator_id/indicators/:object_link_id</i>'
+      parameters:
+      - $ref: '#/components/parameters/SrcObject'
+      - $ref: '#/components/parameters/SrcObjectId'
+      - $ref: '#/components/parameters/DestObject'
+      - $ref: '#/components/parameters/ObjectLinkId'
+      - $ref: '#/components/parameters/ObjectLinkWith'
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                - properties:
+                    data:
+                      type: object
+                      allOf:
+                      - properties:
+                          pivot:
+                            type: object
+                            allOf:
+                            - properties:
+                                attributes:
+                                  type: array
+                                  items:
+                                    $ref: '#/components/schemas/ObjectLinkAttributeBasics'
+                              type: object
+                            - properties:
+                                sources:
+                                  type: array
+                                  items:
+                                    $ref: '#/components/schemas/ObjectLinkSource'
+                              type: object
+                            - properties:
+                                comments:
+                                  type: array
+                                  items:
+                                    $ref: '#/components/schemas/ObjectLinkCommentWithSource'
+                              type: object
+                            - $ref: '#/components/schemas/ObjectLinkBasePivot'
+                        type: object
+                      - properties:
+                          sources:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/SourceName'
+                        type: object
+                      - $ref: '#/components/schemas/AnyObject'
+                  type: object
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      x-visibility: public
+    delete:
+      tags:
+      - Object Relationships
+      summary: Remove a Relationship for an Object Type
+      description: 'This path can be used for any combination of objects installed on the system. <br><br>
+
+        Examples: <br><br> Indicator related to an Adversary: <i>/adversaries/:adversary_id/indicators/:object_link_id</i>
+
+        <br><br> Indicator related to an Indicator: <i>/indicators/:indicator_id/indicators/:object_link_id</i>'
+      parameters:
+      - $ref: '#/components/parameters/SrcObject'
+      - $ref: '#/components/parameters/SrcObjectId'
+      - $ref: '#/components/parameters/DestObject'
+      - $ref: '#/components/parameters/ObjectLinkId'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      x-visibility: public
+components:
+  schemas:
+    VulnerabilityFillable:
+      properties:
+        value:
+          description: Vulnerability Value
+          type: string
+          example: CVE-2016-1234
+        description:
+          description: Description for the Vulnerability
+          type: string
+          example: Stack-based buffer overflow in the glob implementation...
+      type: object
+    Campaign:
+      allOf:
+      - properties:
+          id:
+            description: Campaign ID
+            type: integer
+            example: 67
+        type: object
+      - $ref: '#/components/schemas/CampaignFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+      - $ref: '#/components/schemas/TouchedAtTimestamp'
+    ObjectLinkCommentBase:
+      allOf:
+      - properties:
+          id:
+            description: Object Link Comment ID
+            type: integer
+            example: 4
+        type: object
+      - $ref: '#/components/schemas/ObjectCommentFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+    TouchedAtTimestamp:
+      properties:
+        touched_at:
+          description: Update Date for Object Context (Attributes, Comments, Sources, Relationships)
+          type: string
+          example: '2021-11-13 15:28:17'
+      type: object
+    SignatureFillable:
+      properties:
+        name:
+          description: Signature Name
+          type: string
+          example: ET EXPLOIT Arkeia full remote...
+        hash:
+          description: Signature Hash (Unique Hash of Signature Name)
+          type: string
+          example: 737309fe355ef23e1c03a5e98bc364b5
+        value:
+          description: Signature Value
+          type: string
+          example: alert tcp $EXTERNAL_NET any -> $HOME...
+        type_id:
+          description: Signature Type ID
+          type: integer
+          example: 2
+        status_id:
+          description: Signature Status ID
+          type: integer
+          example: 5
+        description:
+          description: Signature Description
+          type: string
+          example: Signature Description...
+      type: object
+    Report:
+      allOf:
+      - properties:
+          id:
+            description: Report ID
+            type: integer
+            example: 1213
+        type: object
+      - $ref: '#/components/schemas/ReportFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+      - $ref: '#/components/schemas/TouchedAtTimestamp'
+    ExploitTargetFillable:
+      properties:
+        value:
+          description: Exploit Target Value
+          type: string
+          example: Weakness - CWE-89
+        description:
+          description: Description for the Exploit Target
+          type: string
+          example: Improper String Handling
+      type: object
+    Adversary:
+      allOf:
+      - properties:
+          id:
+            description: Adversary ID
+            type: integer
+            example: 54
+        type: object
+      - $ref: '#/components/schemas/AdversaryFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+      - $ref: '#/components/schemas/TouchedAtTimestamp'
+    ObjectCommentFillable:
+      properties:
+        value:
+          description: Comment value
+          type: string
+          example: There's something odd happening...
+      type: object
+    ExploitTarget:
+      allOf:
+      - properties:
+          id:
+            description: Exploit Target ID
+            type: integer
+            example: 139
+        type: object
+      - $ref: '#/components/schemas/ExploitTargetFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+      - $ref: '#/components/schemas/TouchedAtTimestamp'
+    TTP:
+      allOf:
+      - properties:
+          id:
+            description: TTP ID
+            type: integer
+            example: 5120
+        type: object
+      - $ref: '#/components/schemas/TTPFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+      - $ref: '#/components/schemas/TouchedAtTimestamp'
+    Identity:
+      allOf:
+      - properties:
+          id:
+            description: Identity ID
+            type: integer
+            example: 67
+        type: object
+      - $ref: '#/components/schemas/IdentityFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+      - $ref: '#/components/schemas/TouchedAtTimestamp'
+    AnyObject:
+      oneOf:
+      - $ref: '#/components/schemas/Adversary'
+      - $ref: '#/components/schemas/Attachment'
+      - $ref: '#/components/schemas/AttackPattern'
+      - $ref: '#/components/schemas/Campaign'
+      - $ref: '#/components/schemas/CourseOfAction'
+      - $ref: '#/components/schemas/Event'
+      - $ref: '#/components/schemas/ExploitTarget'
+      - $ref: '#/components/schemas/Identity'
+      - $ref: '#/components/schemas/Incident'
+      - $ref: '#/components/schemas/Indicator'
+      - $ref: '#/components/schemas/IntrusionSet'
+      - $ref: '#/components/schemas/Malware'
+      - $ref: '#/components/schemas/Report'
+      - $ref: '#/components/schemas/Signature'
+      - $ref: '#/components/schemas/Tool'
+      - $ref: '#/components/schemas/TTP'
+      - $ref: '#/components/schemas/Vulnerability'
+    IntrusionSetFillable:
+      properties:
+        value:
+          description: Intrusion Set Value
+          type: string
+          example: APT BPP
+        description:
+          description: Description for the Intrusion Set
+          type: string
+          example: An advanced persistent threat that seeks to disrupt...
+        started_at:
+          description: Date the Intrusion Set was first seen
+          type: string
+          example: '2016-01-08 15:59:24'
+        ended_at:
+          description: Date the Intrusion Set was last seen
+          type: string
+          example: '2016-07-13 05:46:13'
+      type: object
+    ObjectLinkBasePivot:
+      allOf:
+      - properties:
+          id:
+            description: Object Link ID
+            type: integer
+            example: '2542'
+          src_type:
+            description: Source Object Type
+            type: string
+            example: indicator
+          src_object_id:
+            description: Source Object ID
+            type: integer
+            example: 1
+          dest_type:
+            description: Destination Object Type
+            type: string
+            example: adversary
+          dest_object_id:
+            description: Destination Object ID
+            type: integer
+            example: 1
+        type: object
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+    SourceName:
+      properties:
+        name:
+          description: Source Name
+          type: string
+          example: ThreatQ
+      type: object
+    TTPFillable:
+      properties:
+        value:
+          description: TTP Value
+          type: string
+          example: Malware
+        description:
+          description: Description for the TTP
+          type: string
+          example: PIVY Variant
+      type: object
+    EventFillable:
+      properties:
+        type_id:
+          description: Event Type ID
+          type: integer
+          example: 1
+        title:
+          description: Event Title
+          type: string
+          example: 'Fwd:  for you ????'
+        happened_at:
+          description: Date Event Occurred
+          type: string
+          example: '2019-12-18 16:57:00'
+        hash:
+          description: Hash of the Event happened_at and title
+          type: string
+          example: 02f0897a6516236de8bc4c958d2803ca
+        description:
+          description: Event Description
+          type: string
+          example: This Event was observed when...
+      type: object
+    Malware:
+      allOf:
+      - properties:
+          id:
+            description: Malware ID
+            type: integer
+            example: 211
+        type: object
+      - $ref: '#/components/schemas/MalwareFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+      - $ref: '#/components/schemas/TouchedAtTimestamp'
+    AttackPatternFillable:
+      properties:
+        value:
+          description: Attack Pattern Value
+          type: string
+          example: TXXXX - Scripting
+        description:
+          description: Description for the Attack Pattern
+          type: string
+          example: Adversaries may use scripts...
+      type: object
+    ReportFillable:
+      properties:
+        value:
+          description: Report Value
+          type: string
+          example: Critical Vulnerability in Log4j Java Library
+        description:
+          description: Description for the Report
+          type: string
+          example: A zero-day remote code execution vulnerability in Apache Log4j may leverage...
+      type: object
+    Tool:
+      allOf:
+      - properties:
+          id:
+            description: Tool ID
+            type: integer
+            example: 4781
+        type: object
+      - $ref: '#/components/schemas/ToolFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+      - $ref: '#/components/schemas/TouchedAtTimestamp'
+    AdversaryFillable:
+      properties:
+        name:
+          description: Adversary Name
+          type: string
+          example: Sad Panda
+      type: object
+    ToolFillable:
+      properties:
+        value:
+          description: Tool Value
+          type: string
+          example: Ping
+        description:
+          description: Description for the Tool
+          type: string
+          example: Ping is an operating system utility commonly used to troubleshoot...
+      type: object
+    ObjectLinkCommentWithSource:
+      allOf:
+      - properties:
+          source:
+            type: object
+            allOf:
+            - properties:
+                id:
+                  description: Source ID
+                  type: integer
+                  example: 21
+                name:
+                  description: Source name
+                  type: string
+                  example: Analyst
+                type:
+                  description: Source type
+                  type: string
+                  example: users
+                reference_id:
+                  description: Source Reference ID
+                  type: integer
+                  example: 2
+              type: object
+        type: object
+      - $ref: '#/components/schemas/ObjectLinkCommentBase'
+    Incident:
+      allOf:
+      - properties:
+          id:
+            description: Incident ID
+            type: integer
+            example: 67
+        type: object
+      - $ref: '#/components/schemas/IncidentFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+      - $ref: '#/components/schemas/TouchedAtTimestamp'
+    Indicator:
+      allOf:
+      - properties:
+          id:
+            description: Indicator ID
+            type: integer
+            example: 54
+        type: object
+      - properties:
+          hash:
+            description: Indicator Hash
+            type: string
+            example: 4aba5ab07a3bda558d5d725a09d93ba6
+          last_detected_at:
+            description: Date the Indicator was last encountered
+            type: string
+            example: '2020-02-28 13:42:51'
+          expires_at:
+            description: Date the Indicator will expire
+            type: string
+            example: '2020-04-01 03:17:23'
+          expired_at:
+            description: Date the Indicator expired
+            type: string
+            example: null
+          expired_needs_calc:
+            description: Determines whether the Indicator's expiration date needs updating
+            type: string
+            example: N
+          expires_calculated_at:
+            description: Date the Indicator's expiration date was calculated
+            type: string
+            example: '2020-02-28 18:36:24'
+        type: object
+      - $ref: '#/components/schemas/IndicatorFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+      - $ref: '#/components/schemas/TouchedAtTimestamp'
+    AttributeFillable:
+      properties:
+        name:
+          description: Attribute Name
+          type: string
+          example: Confidence
+      type: object
+    ObjectAttributeValue:
+      properties:
+        value:
+          description: Attribute Value
+          type: string
+          example: High
+      type: object
+    CourseOfAction:
+      allOf:
+      - properties:
+          id:
+            description: Course of Action ID
+            type: integer
+            example: 6274
+        type: object
+      - $ref: '#/components/schemas/CourseOfActionFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+      - $ref: '#/components/schemas/TouchedAtTimestamp'
+    ObjectLinkSource:
+      properties:
+        id:
+          description: Object Link Source ID
+          type: integer
+          example: 11
+        name:
+          description: Source name
+          type: string
+          example: Integration
+        type:
+          description: Source type
+          type: string
+          example: connectors
+        pivot:
+          $ref: '#/components/schemas/ThreatQTimestamps'
+      type: object
+    Attachment:
+      allOf:
+      - properties:
+          id:
+            description: Attachment (File) ID
+            type: integer
+            example: 72
+        type: object
+      - $ref: '#/components/schemas/AttachmentFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+      - $ref: '#/components/schemas/TouchedAtTimestamp'
+    Event:
+      allOf:
+      - properties:
+          id:
+            description: Event ID
+            type: integer
+            example: 54
+        type: object
+      - $ref: '#/components/schemas/EventFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+      - $ref: '#/components/schemas/TouchedAtTimestamp'
+    CampaignFillable:
+      properties:
+        value:
+          description: Campaign Value
+          type: string
+          example: Operation Omega
+        description:
+          description: Description for the Campaign
+          type: string
+          example: Campaign against systems at big box retailers...
+        objective:
+          description: Objective for the Campaign
+          type: string
+          example: Campaign against U.S. industry...
+        started_at:
+          description: Date the Campaign was first seen
+          type: string
+          example: '2019-02-28 15:59:24'
+        ended_at:
+          description: Date the Campaign was last seen
+          type: string
+          example: '2020-05-13 05:46:13'
+      type: object
+    IndicatorFillable:
+      properties:
+        type_id:
+          description: Indicator Type ID
+          type: integer
+          example: 11
+        status_id:
+          description: Indicator Status ID
+          type: integer
+          example: 2
+        class:
+          description: 'Indicator Class - Options include: host, network'
+          type: string
+          example: network
+        value:
+          description: Indicator Value
+          type: string
+          example: www.danger-doom.com
+        description:
+          description: Indicator Description
+          type: string
+          example: Website encountered during incident investigation.
+      type: object
+    AttackPattern:
+      allOf:
+      - properties:
+          id:
+            description: Attack Pattern ID
+            type: integer
+            example: 67
+        type: object
+      - $ref: '#/components/schemas/AttackPatternFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+      - $ref: '#/components/schemas/TouchedAtTimestamp'
+    ObjectLinkAttributeBasics:
+      allOf:
+      - properties:
+          id:
+            description: Object Link Attribute ID
+            type: integer
+            example: 11
+        type: object
+      - $ref: '#/components/schemas/ObjectLinkAttributeFillable'
+      - $ref: '#/components/schemas/ObjectAttributeValue'
+    DeletedAtTimestamp:
+      properties:
+        deleted_at:
+          description: Date Object was soft-deleted
+          type: string
+          example: '2021-11-13 15:28:17'
+      type: object
+    ObjectLinkAttributeFillable:
+      allOf:
+      - $ref: '#/components/schemas/AttributeFillable'
+      - $ref: '#/components/schemas/ObjectAttributeValue'
+    MalwareFillable:
+      properties:
+        value:
+          description: Malware Value
+          type: string
+          example: x4z9arb backdoor
+        description:
+          description: Description for the Malware
+          type: string
+          example: This malware attempts to download remote files after...
+      type: object
+    TotalResponse:
+      properties:
+        total:
+          description: Total Number of Objects Processed
+          type: integer
+          example: 1
+      type: object
+    ThreatQTimestamps:
+      properties:
+        created_at:
+          description: Creation Date
+          type: string
+          example: '2021-07-29 13:58:03'
+        updated_at:
+          description: Update Date
+          type: string
+          example: '2022-04-12 08:32:16'
+      type: object
+    Vulnerability:
+      allOf:
+      - properties:
+          id:
+            description: Vulnerability ID
+            type: integer
+            example: 7177
+        type: object
+      - $ref: '#/components/schemas/VulnerabilityFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+      - $ref: '#/components/schemas/TouchedAtTimestamp'
+    Signature:
+      allOf:
+      - properties:
+          id:
+            description: Signature ID
+            type: integer
+            example: 221
+        type: object
+      - $ref: '#/components/schemas/SignatureFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+      - $ref: '#/components/schemas/TouchedAtTimestamp'
+    IdentityFillable:
+      properties:
+        value:
+          description: Identity Value
+          type: string
+          example: Disco Team
+        description:
+          description: Description for the Identity
+          type: string
+          example: Disco Team is the name of an organized threat actor...
+        contact_information:
+          description: Contact Information for the Identity
+          type: string
+          example: disco-team@stealthemail.com
+      type: object
+    IntrusionSet:
+      allOf:
+      - properties:
+          id:
+            description: Intrusion Set ID
+            type: integer
+            example: 67
+        type: object
+      - $ref: '#/components/schemas/IntrusionSetFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+      - $ref: '#/components/schemas/TouchedAtTimestamp'
+    AttachmentFillable:
+      properties:
+        type_id:
+          description: Attachment (File) Type ID
+          type: integer
+          example: 14
+        title:
+          description: Attachment (File) Title
+          type: string
+          example: malicious.exe
+        name:
+          description: Attachment (File) Name
+          type: string
+          example: malicious.exe
+        hash:
+          description: Attachment (File) Hash (Unique Hash of File Contents)
+          type: string
+          example: 701505c38aa35d0c523b6e85bced420f
+        content_type_id:
+          description: Attachment (File) Content Type ID
+          type: integer
+          example: 1
+        description:
+          description: Attachment (File) Description
+          type: string
+          example: This file is malicious...
+        file_size:
+          description: Attachment (File) Size
+          type: integer
+          example: 11300
+        path:
+          description: Attachment (File) Path
+          type: string
+          example: 6/5/247ebe955ec180c8568f9bbc1dbfd4
+        malware_locked:
+          description: Attachment (File) is Malware Locked
+          type: integer
+          example: 1
+        placeholder:
+          description: Attachment (File) is Placeholder
+          type: integer
+          example: 1
+      type: object
+    CourseOfActionFillable:
+      properties:
+        value:
+          description: Course of Action Value
+          type: string
+          example: TXXXX - Account Discovery Mitigation
+        description:
+          description: Description for the Course of Action
+          type: string
+          example: Prevent administrator accounts from...
+      type: object
+    IncidentFillable:
+      properties:
+        value:
+          description: Incident Value
+          type: string
+          example: Malware on Systems 3,4,7
+        description:
+          description: Description for the Incident
+          type: string
+          example: Systems 3,4,7 owned by ACME, Inc. have malware. APT31 is suspected.
+        started_at:
+          description: Incident First Seen Date
+          type: string
+          example: '2019-02-28 15:59:24'
+        ended_at:
+          description: Incident Last Seen Date
+          type: string
+          example: '2020-05-13 05:46:13'
+      type: object
+  responses:
+    Unauthorized:
+      description: Unauthorized
+    NotFound:
+      description: Object Not Found
+    NoContent:
+      description: Object(s) were successfully deleted.
+  parameters:
+    Limit:
+      name: limit
+      in: query
+      description: <br>The number of objects included in the response.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 10
+    ObjectLinkWith:
+      name: with
+      in: query
+      description: "<br>Object Relationships that can be included in the response.<br><br>Options include: sources,\n       pivot.attributes, pivot.comments, pivot.sources"
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+          example: sources,pivot.attributes
+    ObjectLinkId:
+      name: object_link_id
+      in: path
+      description: Object Link ID - the ID of the relationship record
+      required: true
+      schema:
+        type: integer
+        example: 3
+    Offset:
+      name: offset
+      in: query
+      description: <br>The number of result set records that should be ignored.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 50
+    Sort:
+      name: sort
+      in: query
+      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+        example: id,created_at
+    SrcObject:
+      name: src_object_collection
+      in: path
+      description: "Source Object collection - the object type collection whose relationships you would like\n to retrieve. Options include: adversaries, attachments, attack_pattern, campaign, course_of_action, event,\n exploit_target, identity, incident, indicators, intrustion_set, malware, report, signature, tool, ttp,\n and vulnerability. If you have any additional custom objects installed on your system, use the `object_code`\n associated with the object definition."
+      required: true
+      schema:
+        type: string
+        example: indicators
+    SrcObjectId:
+      name: src_object_id
+      in: path
+      description: Source Object ID - the ID of the object whose relationships you would like to retrieve
+      required: true
+      schema:
+        type: integer
+        example: 2
+    DestObject:
+      name: dest_object_collection
+      in: path
+      description: "Destination Object collection - the collection for an object type that may have relationships\n associated with the Source Object collection. Options include: adversaries, attachments, attack_pattern,\n campaign, course_of_action, event, exploit_target, identity, incident, indicators, intrustion_set, malware,\n report, signature, tool, ttp, and vulnerability. If you have any additional custom objects installed on your\n system, use the `object_code` associated with the object definition."
+      required: true
+      schema:
+        type: string
+        example: adversaries
+  securitySchemes:
+    BearerAuth:
+      type: http
+      description: "Once authorized, all subsequent requests must include an `Authorization` header\n with the granted `access_token`. See the OAuth2 Authentication path for more information on how to authorize a User.<br><br>\n Example Header: `Authorization: Bearer <access_token>`"
+      name: Authorization
+      in: header
+      bearerFormat: Bearer `<access_token>`
+      scheme: bearer
