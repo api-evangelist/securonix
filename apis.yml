@@ -368,6 +368,8 @@ apis:
   humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
   baseURL: https://policymanagement.api.securonix.net
   tags:
+  - Event
+  tags_raw:
   - Events
   properties:
   - type: OpenAPI
@@ -1206,6 +1208,8 @@ apis:
   humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
   baseURL: https://policymanagement.api.securonix.net
   tags:
+  - Task
+  tags_raw:
   - Tasks
   properties:
   - type: OpenAPI
