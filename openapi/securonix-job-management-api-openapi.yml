@@ -198,6 +198,97 @@ paths:
           description: Not Found
 components:
   schemas:
+    AllImportTriggerDetails:
+      title: AllImportTriggerDetails
+      type: object
+      properties:
+        duration:
+          type: string
+        eventsPulledDuringTrigger:
+          type: string
+        jobid:
+          type: integer
+          format: int64
+        resourcegroupID:
+          type: string
+        resourcegroupname:
+          type: string
+        status:
+          type: string
+        triggerEndTime:
+          type: string
+        triggerStartTime:
+          type: string
+    HoursJobResponse:
+      title: HoursJobResponse
+      type: object
+      properties:
+        connectionType:
+          type: string
+        createdBy:
+          type: integer
+          format: int64
+        endTime:
+          type: string
+          format: date-time
+        lastStartTime:
+          type: string
+          format: date-time
+        nextFireTime:
+          type: string
+          format: date-time
+        resourceGroupId:
+          type: integer
+          format: int64
+        startTime:
+          type: string
+          format: date-time
+        status:
+          type: string
+        tenantId:
+          type: integer
+          format: int64
+        triggerName:
+          type: string
+    AllImportTriggersResponse:
+      title: AllImportTriggersResponse
+      type: object
+      properties:
+        importTriggers:
+          type: array
+          items:
+            $ref: '#/components/schemas/AllImportTriggerDetails'
+    InProgressJobsResponse:
+      title: InProgressJobsResponse
+      type: object
+      properties:
+        connectionType:
+          type: string
+        createdBy:
+          type: integer
+          format: int64
+        endTime:
+          type: string
+          format: date-time
+        lastStartTime:
+          type: string
+          format: date-time
+        nextFireTime:
+          type: string
+          format: date-time
+        resourceGroupId:
+          type: integer
+          format: int64
+        startTime:
+          type: string
+          format: date-time
+        status:
+          type: string
+        tenantId:
+          type: integer
+          format: int64
+        triggerName:
+          type: string
     ResponseEntity:
       title: ResponseEntity
       type: object
@@ -278,97 +369,6 @@ components:
         statusCodeValue:
           type: integer
           format: int32
-    InProgressJobsResponse:
-      title: InProgressJobsResponse
-      type: object
-      properties:
-        connectionType:
-          type: string
-        createdBy:
-          type: integer
-          format: int64
-        endTime:
-          type: string
-          format: date-time
-        lastStartTime:
-          type: string
-          format: date-time
-        nextFireTime:
-          type: string
-          format: date-time
-        resourceGroupId:
-          type: integer
-          format: int64
-        startTime:
-          type: string
-          format: date-time
-        status:
-          type: string
-        tenantId:
-          type: integer
-          format: int64
-        triggerName:
-          type: string
-    AllImportTriggersResponse:
-      title: AllImportTriggersResponse
-      type: object
-      properties:
-        importTriggers:
-          type: array
-          items:
-            $ref: '#/components/schemas/AllImportTriggerDetails'
-    AllImportTriggerDetails:
-      title: AllImportTriggerDetails
-      type: object
-      properties:
-        duration:
-          type: string
-        eventsPulledDuringTrigger:
-          type: string
-        jobid:
-          type: integer
-          format: int64
-        resourcegroupID:
-          type: string
-        resourcegroupname:
-          type: string
-        status:
-          type: string
-        triggerEndTime:
-          type: string
-        triggerStartTime:
-          type: string
-    HoursJobResponse:
-      title: HoursJobResponse
-      type: object
-      properties:
-        connectionType:
-          type: string
-        createdBy:
-          type: integer
-          format: int64
-        endTime:
-          type: string
-          format: date-time
-        lastStartTime:
-          type: string
-          format: date-time
-        nextFireTime:
-          type: string
-          format: date-time
-        resourceGroupId:
-          type: integer
-          format: int64
-        startTime:
-          type: string
-          format: date-time
-        status:
-          type: string
-        tenantId:
-          type: integer
-          format: int64
-        triggerName:
-          type: string
     JobReschedulerPayload:
       title: JobReschedulerPayload
       type: object

@@ -1,7 +1,10 @@
 openapi: 3.2.0
 info:
   title: ThreatQ Object Relationship Comments API
-  description: "&copy; 2025<br/><br/><b>The API doc you are viewing is a BETA version that provides an early look at ThreatQ’s new API documentation format. At the moment, it does not cover the entire application program interface. Additional API resources, including the current standard format as well as previous versions, are available on the ThreatQ Help Center.</b><br/><br/>Last Updated: 07/11/2025\n## Introduction\n\nThe ThreatQ API is built on REST principles and uses JSON as a data interchange format.\n\n<script type=\"text/javascript\" src=\"ga.js\"></script>\n\n\n### Base URI\n\nAll URIs referenced in this document use the following base: https://**hostname**/api/, where **hostname** is replaced with the hostname or ip address of your ThreatQ instance.\n\n\n### Request Format\n\nThe ThreatQ API supports the following HTTP verbs:\n\n| Verb          | Description                        |\n| :-------------| :----------------------------------|\n| GET           | GET requests retrieve resources.   |\n| POST          | POST requests create resources.    |\n| PUT           | PUT requests update resources.     |\n| DELETE        | DELETE requests delete resources.  |\n\n\n### Response Format\n\nAll responses are returned in JSON. The response is wrapped in a top level data envelope which is an object or array depending on whether a single item or a collection is returned. If a single item is returned, the data field will be an object. If a collection is returned, the field will be an array.\n\n\n### Response Codes\n\nThe ThreatQ API uses HTTP status codes to indicate the status of your request.\n\n| Code          | Description                                                                           |\n| :-------------| :-------------------------------------------------------------------------------------|\n| 200           |  Object was retrieved successfully.                                                   |\n| 201           |  Object was created successfully.                                                     |\n| 204           |  Object(s) were successfully deleted.                                                 |\n| 400           |  Validation failed (usually as the result of an incorrect request)                    |\n| 401           |  Access denied (authorization access token in the header was incorrect / out of date) |\n| 403           |  Access forbidden (usually as the result of a bad request)                            |\n| 404           |  Object not found                                                                     |\n\n<hr />\n\n### Authentication\n\nThreatQ uses OAuth 2.0 to authenticate end users. You must have a ThreatQ user account to retrieve an API token. The API token is required for all API requests. The token does time out; therefore, you must periodically refresh the token.\n\n\n#### Authorization workflow\n\n1. Run a GET request to retrieve your client ID using the following format:\n\thttps://**hostname**/assets/js/config.js\n2. Run a POST/token request to retrieve your authorization access token. See POST/token in the Authorization section of this reference for the correct format.\n\n    Include the following parameters:\n\t  * grant_type (password)\n\t  * client-id (retrieved in step 1)\n\n    **Example:** https://**hostname**/api/token?grant_type=password&client_id=ab20a55dd9ac779246210d7102a45ee37\n\n    In the request body, include your ThreatQ credentials:\n\t  * email\n\t  * password\n\n3. Enter the access token as the authorization key in the header for all subsequent api requests."
+  description: '© 2025
+
+
+    The API doc you are viewing is a BETA version that provides an early look at ThreatQ’s new API documentation format.'
   license:
     name: null
     url: null
@@ -57,17 +60,26 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
       x-visibility: public
+      operationId: getBySrcObjectCollectionBySrcObjectIdByDestObjectCollectionByObjectLinkIdComments
+      x-operation-id-source: derived
     post:
       tags:
       - Object Relationship Comments
       summary: Create a Relationship Comment for an Object Type
-      description: 'This path can be used for any combination of objects installed on the system. <br><br>
+      description: 'This path can be used for any combination of objects installed on the system.
 
-        Examples: <br><br> Comments for an Indicator / Adversary relationship:
 
-        <i>/adversaries/:adversary_id/indicators/:object_link_id/comments</i> <br><br> Comments for an
+        Examples:
 
-        Indicator / Indicator relationship: <i>/indicators/:indicator_id/indicators/:object_link_id/comments</i>'
+
+        Comments for an Indicator / Adversary relationship:
+
+        /adversaries/:adversary_id/indicators/:object_link_id/comments
+
+
+        Comments for an
+
+        Indicator / Indicator relationship: /indicators/:indicator_id/indicators/:object_link_id/comments'
       parameters:
       - $ref: '#/components/parameters/SrcObject'
       - $ref: '#/components/parameters/SrcObjectId'
@@ -101,20 +113,27 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
       x-visibility: public
+      operationId: postBySrcObjectCollectionBySrcObjectIdByDestObjectCollectionByObjectLinkIdComments
+      x-operation-id-source: derived
   /{src_object_collection}/{src_object_id}/{dest_object_collection}/{object_link_id}/comments/{object_link_comment_id}:
     get:
       tags:
       - Object Relationship Comments
       summary: Get a Single Relationship Comment for an Object Type
-      description: 'This path can be used for any combination of objects installed on the system. <br><br>
+      description: 'This path can be used for any combination of objects installed on the system.
 
-        Examples: <br><br> A Comment for an Indicator / Adversary relationship:
 
-        <i>/adversaries/:adversary_id/indicators/:object_link_id/comments/:object_link_comment_id</i> <br><br>
+        Examples:
+
+
+        A Comment for an Indicator / Adversary relationship:
+
+        /adversaries/:adversary_id/indicators/:object_link_id/comments/:object_link_comment_id
+
 
         An Comment for an Indicator / Indicator relationship:
 
-        <i>/indicators/:indicator_id/indicators/:object_link_id/comments/:object_link_comment_id</i>'
+        /indicators/:indicator_id/indicators/:object_link_id/comments/:object_link_comment_id'
       parameters:
       - $ref: '#/components/parameters/SrcObject'
       - $ref: '#/components/parameters/SrcObjectId'
@@ -151,19 +170,26 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
       x-visibility: public
+      operationId: getBySrcObjectCollectionBySrcObjectIdByDestObjectCollectionByObjectLinkIdCommentsByObjectLinkCommentId
+      x-operation-id-source: derived
     put:
       tags:
       - Object Relationship Comments
       summary: Update a Relationship Comment for an Object Type
-      description: 'This path can be used for any combination of objects installed on the system. <br><br>
+      description: 'This path can be used for any combination of objects installed on the system.
 
-        Examples: <br><br> A Comment for an Indicator / Adversary relationship:
 
-        <i>/adversaries/:adversary_id/indicators/:object_link_id/comments/:object_link_comment_id</i> <br><br>
+        Examples:
+
+
+        A Comment for an Indicator / Adversary relationship:
+
+        /adversaries/:adversary_id/indicators/:object_link_id/comments/:object_link_comment_id
+
 
         An Attribute for an Indicator / Indicator relationship:
 
-        <i>/indicators/:indicator_id/indicators/:object_link_id/comments/:object_link_comment_id</i>'
+        /indicators/:indicator_id/indicators/:object_link_id/comments/:object_link_comment_id'
       parameters:
       - $ref: '#/components/parameters/SrcObject'
       - $ref: '#/components/parameters/SrcObjectId'
@@ -198,19 +224,26 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
       x-visibility: public
+      operationId: putBySrcObjectCollectionBySrcObjectIdByDestObjectCollectionByObjectLinkIdCommentsByObjectLinkCommentId
+      x-operation-id-source: derived
     delete:
       tags:
       - Object Relationship Comments
       summary: Remove a Relationship Comment for an Object Type
-      description: 'This path can be used for any combination of objects installed on the system. <br><br>
+      description: 'This path can be used for any combination of objects installed on the system.
 
-        Examples: <br><br> A Comment for an Indicator / Adversary relationship:
 
-        <i>/adversaries/:adversary_id/indicators/:object_link_id/comments/:object_link_comment_id</i> <br><br>
+        Examples:
+
+
+        A Comment for an Indicator / Adversary relationship:
+
+        /adversaries/:adversary_id/indicators/:object_link_id/comments/:object_link_comment_id
+
 
         A Comment for an Indicator / Indicator relationship:
 
-        <i>/indicators/:indicator_id/indicators/:object_link_id/comments/:object_link_comment_id</i>'
+        /indicators/:indicator_id/indicators/:object_link_id/comments/:object_link_comment_id'
       parameters:
       - $ref: '#/components/parameters/SrcObject'
       - $ref: '#/components/parameters/SrcObjectId'
@@ -225,14 +258,80 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
       x-visibility: public
+      operationId: deleteBySrcObjectCollectionBySrcObjectIdByDestObjectCollectionByObjectLinkIdCommentsByObjectLinkCommentId
+      x-operation-id-source: derived
 components:
-  responses:
-    Unauthorized:
-      description: Unauthorized
-    NotFound:
-      description: Object Not Found
-    NoContent:
-      description: Object(s) were successfully deleted.
+  parameters:
+    DestObject:
+      name: dest_object_collection
+      in: path
+      description: "Destination Object collection - the collection for an object type that may have relationships\n associated with the Source Object collection. Options include: adversaries, attachments, attack_pattern,\n campaign, course_of_action, event, exploit_target, identity, incident, indicators, intrustion_set, malware,\n report, signature, tool, ttp, and vulnerability. If you have any additional custom objects installed on your\n system, use the `object_code` associated with the object definition."
+      required: true
+      schema:
+        type: string
+        example: adversaries
+    Limit:
+      name: limit
+      in: query
+      description: <br>The number of objects included in the response.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 10
+    Sort:
+      name: sort
+      in: query
+      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+        example: id,created_at
+    SrcObjectId:
+      name: src_object_id
+      in: path
+      description: Source Object ID - the ID of the object whose relationships you would like to retrieve
+      required: true
+      schema:
+        type: integer
+        example: 2
+    ObjectLinkId:
+      name: object_link_id
+      in: path
+      description: Object Link ID - the ID of the relationship record
+      required: true
+      schema:
+        type: integer
+        example: 3
+    SrcObject:
+      name: src_object_collection
+      in: path
+      description: "Source Object collection - the object type collection whose relationships you would like\n to retrieve. Options include: adversaries, attachments, attack_pattern, campaign, course_of_action, event,\n exploit_target, identity, incident, indicators, intrustion_set, malware, report, signature, tool, ttp,\n and vulnerability. If you have any additional custom objects installed on your system, use the `object_code`\n associated with the object definition."
+      required: true
+      schema:
+        type: string
+        example: indicators
+    ObjectLinkCommentId:
+      name: object_link_comment_id
+      in: path
+      description: Object Link Comment ID
+      required: true
+      schema:
+        type: integer
+        example: 4
+    Offset:
+      name: offset
+      in: query
+      description: <br>The number of result set records that should be ignored.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 50
   schemas:
     ObjectLinkCommentBase:
       allOf:
@@ -244,27 +343,6 @@ components:
         type: object
       - $ref: '#/components/schemas/ObjectCommentFillable'
       - $ref: '#/components/schemas/ThreatQTimestamps'
-    ObjectCommentFillable:
-      properties:
-        value:
-          description: Comment value
-          type: string
-          example: There's something odd happening...
-      type: object
-    SourceReferenceId:
-      properties:
-        reference_id:
-          description: Source Reference ID - points to related Client, Connector (Feed), Other Source, Plugin, or User
-          type: integer
-          example: 2
-      type: object
-    SourceName:
-      properties:
-        name:
-          description: Source Name
-          type: string
-          example: ThreatQ
-      type: object
     SourceType:
       properties:
         type:
@@ -272,16 +350,6 @@ components:
           type: string
           example: other_sources
       type: object
-    ObjectLinkComment:
-      allOf:
-      - properties:
-          object_link_id:
-            description: Object Link ID - ID for the relationship record
-            type: integer
-            example: 4
-        type: object
-      - $ref: '#/components/schemas/CreatorSource'
-      - $ref: '#/components/schemas/ObjectLinkCommentBase'
     CreatorSource:
       properties:
         creator_source_id:
@@ -289,6 +357,28 @@ components:
           type: integer
           example: 2
       type: object
+    TotalResponse:
+      properties:
+        total:
+          description: Total Number of Objects Processed
+          type: integer
+          example: 1
+      type: object
+    SourceFillable:
+      allOf:
+      - properties:
+          score:
+            description: Source Score - Ranges from -10 to 10
+            type: integer
+            example: 6
+          default_tlp_id:
+            description: Source Default TLP ID - the TLP that should be assigned for the Source if none is provided
+            type: integer
+            example: 3
+        type: object
+      - $ref: '#/components/schemas/SourceType'
+      - $ref: '#/components/schemas/SourceReferenceId'
+      - $ref: '#/components/schemas/SourceName'
     Source:
       allOf:
       - properties:
@@ -307,28 +397,6 @@ components:
         type: object
       - $ref: '#/components/schemas/SourceFillable'
       - $ref: '#/components/schemas/ThreatQTimestamps'
-    SourceFillable:
-      allOf:
-      - properties:
-          score:
-            description: Source Score - Ranges from -10 to 10
-            type: integer
-            example: 6
-          default_tlp_id:
-            description: Source Default TLP ID - the TLP that should be assigned for the Source if none is provided
-            type: integer
-            example: 3
-        type: object
-      - $ref: '#/components/schemas/SourceType'
-      - $ref: '#/components/schemas/SourceReferenceId'
-      - $ref: '#/components/schemas/SourceName'
-    TotalResponse:
-      properties:
-        total:
-          description: Total Number of Objects Processed
-          type: integer
-          example: 1
-      type: object
     ThreatQTimestamps:
       properties:
         created_at:
@@ -340,6 +408,23 @@ components:
           type: string
           example: '2022-04-12 08:32:16'
       type: object
+    SourceName:
+      properties:
+        name:
+          description: Source Name
+          type: string
+          example: ThreatQ
+      type: object
+    ObjectLinkComment:
+      allOf:
+      - properties:
+          object_link_id:
+            description: Object Link ID - ID for the relationship record
+            type: integer
+            example: 4
+        type: object
+      - $ref: '#/components/schemas/CreatorSource'
+      - $ref: '#/components/schemas/ObjectLinkCommentBase'
     ObjectLinkCommentSource:
       allOf:
       - properties:
@@ -355,77 +440,27 @@ components:
             - $ref: '#/components/schemas/CreatorSource'
         type: object
       - $ref: '#/components/schemas/Source'
-  parameters:
-    ObjectLinkCommentId:
-      name: object_link_comment_id
-      in: path
-      description: Object Link Comment ID
-      required: true
-      schema:
-        type: integer
-        example: 4
-    Limit:
-      name: limit
-      in: query
-      description: <br>The number of objects included in the response.
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: integer
-        example: 10
-    ObjectLinkId:
-      name: object_link_id
-      in: path
-      description: Object Link ID - the ID of the relationship record
-      required: true
-      schema:
-        type: integer
-        example: 3
-    Offset:
-      name: offset
-      in: query
-      description: <br>The number of result set records that should be ignored.
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: integer
-        example: 50
-    Sort:
-      name: sort
-      in: query
-      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: string
-        example: id,created_at
-    SrcObject:
-      name: src_object_collection
-      in: path
-      description: "Source Object collection - the object type collection whose relationships you would like\n to retrieve. Options include: adversaries, attachments, attack_pattern, campaign, course_of_action, event,\n exploit_target, identity, incident, indicators, intrustion_set, malware, report, signature, tool, ttp,\n and vulnerability. If you have any additional custom objects installed on your system, use the `object_code`\n associated with the object definition."
-      required: true
-      schema:
-        type: string
-        example: indicators
-    SrcObjectId:
-      name: src_object_id
-      in: path
-      description: Source Object ID - the ID of the object whose relationships you would like to retrieve
-      required: true
-      schema:
-        type: integer
-        example: 2
-    DestObject:
-      name: dest_object_collection
-      in: path
-      description: "Destination Object collection - the collection for an object type that may have relationships\n associated with the Source Object collection. Options include: adversaries, attachments, attack_pattern,\n campaign, course_of_action, event, exploit_target, identity, incident, indicators, intrustion_set, malware,\n report, signature, tool, ttp, and vulnerability. If you have any additional custom objects installed on your\n system, use the `object_code` associated with the object definition."
-      required: true
-      schema:
-        type: string
-        example: adversaries
+    SourceReferenceId:
+      properties:
+        reference_id:
+          description: Source Reference ID - points to related Client, Connector (Feed), Other Source, Plugin, or User
+          type: integer
+          example: 2
+      type: object
+    ObjectCommentFillable:
+      properties:
+        value:
+          description: Comment value
+          type: string
+          example: There's something odd happening...
+      type: object
+  responses:
+    Unauthorized:
+      description: Unauthorized
+    NotFound:
+      description: Object Not Found
+    NoContent:
+      description: Object(s) were successfully deleted.
   securitySchemes:
     BearerAuth:
       type: http

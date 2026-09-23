@@ -2,7 +2,7 @@ openapi: 3.2.0
 info:
   version: 3.1.4
   title: Policy Management Service Threat Coverage API
-  description: "The Policy Management API allows users to create, retrieve, update, and manage security policies in the Unified Defense SIEM (UDS) platform.\n\n---\n\n### Authentication & Authorization\n- **Authentication**: All requests require a JWT Bearer token.\n- **Authorization**: Access is enforced using `role` and `tenant` claims present in the JWT.\n  - **Read APIs** require one of: `ROLE_ADMIN`, `ROLE_CONTENT_DEVELOPER`, `ROLE_READ_ONLY`.\n  - **Write APIs** require one of: `ROLE_ADMIN`, `ROLE_CONTENT_DEVELOPER`.\n\n Refer to the [Authentication Guide](https://documentation.securonix.com/r/content/authentication.htm) for token acquisition and usage.\n\n **⚠️ Important:** The **API Base URL** is region-specific and must be obtained from your Technical Account Manager or Securonix Customer Support."
+  description: The Policy Management API allows users to create, retrieve, update, and manage security policies in the Unified Defense SIEM (UDS) platform.
   contact:
     name: Securonix Customer Support
     url: ''
@@ -372,6 +372,55 @@ paths:
       - bearerAuth: []
 components:
   schemas:
+    ErrorResponse:
+      type: object
+      description: Data model to indicate the status code and error message.
+      properties:
+        statusCode:
+          type: string
+        message:
+          type: string
+      required:
+      - statusCode
+      - message
+      examples:
+      - statusCode: 400 BAD_REQUEST
+        message: 'Client error: 404 NOT_FOUND'
+      - statusCode: 403 FORBIDDEN
+        message: User is Not entitled for getting the requested data
+      - statusCode: 422 Unprocessable Entity
+        message: Parent id not found in Auth token
+      - statusCode: GATEWAY-10-1
+        message: Access token expired
+      x-examples:
+        Example 1:
+          statusCode: 400 BAD_REQUEST
+          message: 'Client error: 404 NOT_FOUND'
+    ThreatCoverageMetricsResponse:
+      type: object
+      description: Threat coverage metrics response containing MITRE ATT&CK coverage analysis
+      properties:
+        mitreVersion:
+          type: string
+          description: MITRE ATT&CK version used for the analysis
+          example: '18'
+        coverageSummary:
+          $ref: '#/components/schemas/CoverageSummary'
+        policyDistributionByTacticSummary:
+          type: array
+          description: Policy distribution across tactics
+          items:
+            $ref: '#/components/schemas/PolicyDistributionByTacticSummary'
+        coverageAnalysisSummary:
+          type: array
+          description: List of tactics with technique coverage details
+          items:
+            $ref: '#/components/schemas/TacticCoverage'
+      required:
+      - mitreVersion
+      - coverageSummary
+      - policyDistributionByTacticSummary
+      - coverageAnalysisSummary
     MappedPolicy:
       type: object
       description: Policy mapped to a technique with deployment status
@@ -434,6 +483,22 @@ components:
       - deployed
       - hasActiveDatasources
       - isIdentityBasedPolicy
+    Subtechnique:
+      type: object
+      description: MITRE ATT&CK sub-technique information
+      properties:
+        subtechniqueId:
+          type: string
+          description: MITRE sub-technique ID (e.g., T1566.001)
+          example: T1566.001
+        subtechniqueName:
+          type: string
+          description: Sub-technique name (e.g., Spearphishing Attachment)
+          example: Spearphishing Attachment
+        isExcluded:
+          type: boolean
+          description: Whether the sub-technique is effectively excluded from coverage. True only when it is configured as excluded AND has no associated policy (enabled or disabled).
+          example: false
     TacticCoverage:
       type: object
       description: MITRE ATT&CK tactic coverage details
@@ -455,6 +520,21 @@ components:
           type: integer
           description: Policy count (null for coverage analysis)
           example: 15
+    AssociatedTactic:
+      type: object
+      description: MITRE tactic associated with a technique
+      properties:
+        tacticId:
+          type: string
+          description: MITRE tactic ID (e.g., TA0001)
+          example: TA0001
+        tacticName:
+          type: string
+          description: Tactic name (e.g., Initial Access)
+          example: Initial Access
+      required:
+      - tacticId
+      - tacticName
     CoverageSummary:
       type: object
       description: Coverage summary statistics
@@ -483,61 +563,6 @@ components:
           type: integer
           description: Number of techniques covered by OOTB policies
           example: 98
-    AssociatedTactic:
-      type: object
-      description: MITRE tactic associated with a technique
-      properties:
-        tacticId:
-          type: string
-          description: MITRE tactic ID (e.g., TA0001)
-          example: TA0001
-        tacticName:
-          type: string
-          description: Tactic name (e.g., Initial Access)
-          example: Initial Access
-      required:
-      - tacticId
-      - tacticName
-    ErrorResponse:
-      type: object
-      description: Data model to indicate the status code and error message.
-      properties:
-        statusCode:
-          type: string
-        message:
-          type: string
-      required:
-      - statusCode
-      - message
-      examples:
-      - statusCode: 400 BAD_REQUEST
-        message: 'Client error: 404 NOT_FOUND'
-      - statusCode: 403 FORBIDDEN
-        message: User is Not entitled for getting the requested data
-      - statusCode: 422 Unprocessable Entity
-        message: Parent id not found in Auth token
-      - statusCode: GATEWAY-10-1
-        message: Access token expired
-      x-examples:
-        Example 1:
-          statusCode: 400 BAD_REQUEST
-          message: 'Client error: 404 NOT_FOUND'
-    400BadRequest:
-      type: object
-      properties:
-        time:
-          type: string
-          description: '*Optional* Timestamp for response'
-        message:
-          type: string
-          description: Error message
-        httpStatus:
-          type: string
-          description: http Status code
-      examples:
-      - time: '2025-07-17T15:10:33.263774233Z'
-        message: 'com.securonix.respexception.exception.InvalidInputException: Invalid value provided for additional criteria selection value. Must be one of [NonBusinessDomains]'
-        httpStatus: INTERNAL_SERVER_ERROR
     PolicyDistributionByTacticSummary:
       type: object
       description: Policy distribution for a specific tactic across environments
@@ -563,6 +588,22 @@ components:
       - tacticName
       - productionPolicyCount
       - sandboxPolicyCount
+    400BadRequest:
+      type: object
+      properties:
+        time:
+          type: string
+          description: '*Optional* Timestamp for response'
+        message:
+          type: string
+          description: Error message
+        httpStatus:
+          type: string
+          description: http Status code
+      examples:
+      - time: '2025-07-17T15:10:33.263774233Z'
+        message: 'com.securonix.respexception.exception.InvalidInputException: Invalid value provided for additional criteria selection value. Must be one of [NonBusinessDomains]'
+        httpStatus: INTERNAL_SERVER_ERROR
     TechniqueDetailsResponse:
       type: object
       description: Detailed information for a specific MITRE ATT&CK technique
@@ -643,22 +684,50 @@ components:
       - mappedPolicies
       - activeDatasources
       - isContentAdmin
-    Subtechnique:
+    TechniqueCoverage:
       type: object
-      description: MITRE ATT&CK sub-technique information
+      description: MITRE ATT&CK technique coverage details
       properties:
-        subtechniqueId:
+        techniqueId:
           type: string
-          description: MITRE sub-technique ID (e.g., T1566.001)
-          example: T1566.001
-        subtechniqueName:
+          description: MITRE technique ID (e.g., T1566)
+          example: T1566
+        techniqueName:
           type: string
-          description: Sub-technique name (e.g., Spearphishing Attachment)
-          example: Spearphishing Attachment
+          description: Technique name (e.g., Phishing)
+          example: Phishing
+        coverageStatus:
+          type: string
+          enum:
+          - FULLY_COVERED
+          - PARTIALLY_COVERED
+          - NOT_COVERED
+          - NOT_SUPPORTED
+          description: Coverage status
+          example: FULLY_COVERED
         isExcluded:
           type: boolean
-          description: Whether the sub-technique is effectively excluded from coverage. True only when it is configured as excluded AND has no associated policy (enabled or disabled).
+          description: Whether the technique is effectively excluded from coverage. True only when the technique is configured as excluded AND has no associated policy (enabled or disabled).
           example: false
+        mappedPolicyCount:
+          type: integer
+          description: Number of policies mapped to this technique
+          example: 5
+        datasourceCount:
+          type: integer
+          description: Number of active datasources for this technique
+          example: 3
+        subtechniques:
+          type: array
+          description: List of sub-techniques under this technique (optional)
+          items:
+            $ref: '#/components/schemas/Subtechnique'
+      required:
+      - techniqueId
+      - techniqueName
+      - coverageStatus
+      - mappedPolicyCount
+      - datasourceCount
     SubTechniqueDetails:
       type: object
       description: Sub-technique information with mapped policies
@@ -704,75 +773,6 @@ components:
       - coverageStatus
       - hasActiveDatasources
       - hasIdentityBasedPolicies
-    ThreatCoverageMetricsResponse:
-      type: object
-      description: Threat coverage metrics response containing MITRE ATT&CK coverage analysis
-      properties:
-        mitreVersion:
-          type: string
-          description: MITRE ATT&CK version used for the analysis
-          example: '18'
-        coverageSummary:
-          $ref: '#/components/schemas/CoverageSummary'
-        policyDistributionByTacticSummary:
-          type: array
-          description: Policy distribution across tactics
-          items:
-            $ref: '#/components/schemas/PolicyDistributionByTacticSummary'
-        coverageAnalysisSummary:
-          type: array
-          description: List of tactics with technique coverage details
-          items:
-            $ref: '#/components/schemas/TacticCoverage'
-      required:
-      - mitreVersion
-      - coverageSummary
-      - policyDistributionByTacticSummary
-      - coverageAnalysisSummary
-    TechniqueCoverage:
-      type: object
-      description: MITRE ATT&CK technique coverage details
-      properties:
-        techniqueId:
-          type: string
-          description: MITRE technique ID (e.g., T1566)
-          example: T1566
-        techniqueName:
-          type: string
-          description: Technique name (e.g., Phishing)
-          example: Phishing
-        coverageStatus:
-          type: string
-          enum:
-          - FULLY_COVERED
-          - PARTIALLY_COVERED
-          - NOT_COVERED
-          - NOT_SUPPORTED
-          description: Coverage status
-          example: FULLY_COVERED
-        isExcluded:
-          type: boolean
-          description: Whether the technique is effectively excluded from coverage. True only when the technique is configured as excluded AND has no associated policy (enabled or disabled).
-          example: false
-        mappedPolicyCount:
-          type: integer
-          description: Number of policies mapped to this technique
-          example: 5
-        datasourceCount:
-          type: integer
-          description: Number of active datasources for this technique
-          example: 3
-        subtechniques:
-          type: array
-          description: List of sub-techniques under this technique (optional)
-          items:
-            $ref: '#/components/schemas/Subtechnique'
-      required:
-      - techniqueId
-      - techniqueName
-      - coverageStatus
-      - mappedPolicyCount
-      - datasourceCount
   parameters:
     ClientIdHeader:
       name: client-id

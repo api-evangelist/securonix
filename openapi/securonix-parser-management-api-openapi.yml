@@ -102,31 +102,6 @@ paths:
           description: Not Found
 components:
   schemas:
-    ParsersResponse:
-      title: ParsersResponse
-      type: object
-      properties:
-        collectionmethod:
-          type: string
-        crpid:
-          type: integer
-          format: int64
-        format:
-          type: string
-        functionality:
-          type: string
-        resourcetype:
-          type: string
-        vendor:
-          type: string
-    FetchParsersByVendorOrResourcetypeOrCollectionmethod:
-      title: FetchParsersByVendorOrResourcetypeOrCollectionmethod
-      type: object
-      properties:
-        parsers:
-          type: array
-          items:
-            $ref: '#/components/schemas/ParsersResponse'
     ConfigResourceParsers:
       title: ConfigResourceParsers
       type: object
@@ -175,6 +150,31 @@ components:
         uiconfigxml:
           type: string
         userconfigxml:
+          type: string
+        vendor:
+          type: string
+    FetchParsersByVendorOrResourcetypeOrCollectionmethod:
+      title: FetchParsersByVendorOrResourcetypeOrCollectionmethod
+      type: object
+      properties:
+        parsers:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParsersResponse'
+    ParsersResponse:
+      title: ParsersResponse
+      type: object
+      properties:
+        collectionmethod:
+          type: string
+        crpid:
+          type: integer
+          format: int64
+        format:
+          type: string
+        functionality:
+          type: string
+        resourcetype:
           type: string
         vendor:
           type: string

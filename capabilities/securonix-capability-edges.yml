@@ -1,0 +1,181 @@
+slug: securonix
+provider: Securonix
+generated_by: planning/capability-mapping/scripts/classify_capabilities.py
+model: claude-opus-5
+frame:
+- Software & Technology
+min_confidence: 0.7
+capability_model:
+  source: https://github.com/vincentmakes/turbo-ea-capabilities
+  license: CC-BY-4.0
+  attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
+    CC BY 4.0
+  notice: NOTICE
+edge_count: 17
+edges:
+- tag: Indicators
+  spec_file: securonix-indicators-api-openapi.yml
+  capability_id: BC-620.30
+  capability_id_l1: BC-620
+  capability_name: Threat Detection & Response Management
+  confidence: 0.9
+  evidence: '"GET /indicators    List Indicators", schemas "Indicator", "IndicatorFillable", "TLPName"'
+  reason: Indicators of compromise in the ThreatQ threat intelligence platform, with TLP handling markings
+    — plainly threat detection and response tooling for the SOC.
+- tag: Intrusion Set
+  spec_file: securonix-intrusion-set-api-openapi.yml
+  capability_id: BC-620.30
+  capability_id_l1: BC-620
+  capability_name: Threat Detection & Response Management
+  confidence: 0.9
+  evidence: '"GET /intrusion_set    List Intrusion Set", schemas "IntrusionSet", "IntrusionSetFillable",
+    "TLPName"'
+  reason: Intrusion sets are adversary/threat-actor groupings in the ThreatQ threat intelligence model
+    — core threat detection and response capability.
+- tag: Malware
+  spec_file: securonix-malware-api-openapi.yml
+  capability_id: BC-620.30
+  capability_id_l1: BC-620
+  capability_name: Threat Detection & Response Management
+  confidence: 0.9
+  evidence: '"GET /malware    List Malware", schemas "Malware", "MalwareFillable", "TLPName"'
+  reason: Malware objects in a threat intelligence platform used by the SOC — unambiguously threat detection
+    and response.
+- tag: Investigations
+  spec_file: securonix-investigations-api-openapi.yml
+  capability_id: BC-620.30
+  capability_id_l1: BC-620
+  capability_name: Threat Detection & Response Management
+  confidence: 0.85
+  evidence: '"POST /investigations    Create a(n) Investigation", schemas "Investigation", "InvestigationFillable",
+    "TLPName"'
+  reason: Investigations in the ThreatQ threat intelligence platform are security analyst investigations
+    of threats, i.e. SOC incident response workflow, not audit or HR investigations.
+- tag: Attack Pattern
+  spec_file: securonix-attack-pattern-api-openapi.yml
+  capability_id: BC-620.30
+  capability_id_l1: BC-620
+  capability_name: Threat Detection & Response Management
+  confidence: 0.8
+  evidence: '"GET /attack_pattern List Attack Pattern", schema "AttackPattern", "POST /attack_pattern/consume"'
+  reason: Attack patterns (adversary TTPs) curated in a threat intelligence platform feeding SIEM/SOC
+    detection — squarely threat detection and response, not any marketing or product sense.
+- tag: Incident
+  spec_file: securonix-incident-api-openapi.yml
+  capability_id: BC-620.30
+  capability_id_l1: BC-620
+  capability_name: Threat Detection & Response Management
+  confidence: 0.8
+  evidence: '"ThreatQ Incident API" — "POST /incident    Create a(n) Incident", "POST /incident/consume    Incident
+    Consume", schema "IncidentFillable"'
+  reason: Incident objects in a SIEM/threat-intelligence platform represent security incidents managed
+    alongside indicators, malware and intrusion sets — SOC/SIEM incident response rather than ITSM or
+    product incident management.
+- tag: Policy Management
+  spec_file: securonix-policy-management-api-openapi.yml
+  capability_id: BC-620.30
+  capability_id_l1: BC-620
+  capability_name: Threat Detection & Response Management
+  confidence: 0.8
+  evidence: '''The Policy Management API allows users to create, retrieve, update, and manage security
+    policies in the Unified Defense SIEM (UDS) platform''; schemas ViolationSummary, LogSource, FrequencyBasedThreshold,
+    AddToWatchlist'
+  reason: Despite the 'Policy Management' homograph, these are SIEM detection rules/policies producing
+    violations from log sources — SOC/SIEM detection engineering, not corporate policy lifecycle (BC-130.20).
+- tag: Spearphish Events
+  spec_file: securonix-spearphish-events-api-openapi.yml
+  capability_id: BC-620.30
+  capability_id_l1: BC-620
+  capability_name: Threat Detection & Response Management
+  confidence: 0.8
+  evidence: '"Create a Spearphish Event", "List Spearphish Events" with schemas SpearphishWithEvent, EventFillable'
+  reason: Records spearphishing security events tied to threat events in the intel platform — squarely
+    threat detection and response work, not marketing or messaging.
+- tag: Signatures
+  spec_file: securonix-signatures-api-openapi.yml
+  capability_id: BC-620.30
+  capability_id_l1: BC-620
+  capability_name: Threat Detection & Response Management
+  confidence: 0.78
+  evidence: ThreatQ Signatures API — "List Signatures", "Create a(n) Signature", "Signature Consume" with
+    schemas Signature, SourceBasics, TLPName
+  reason: Detection signatures curated in the ThreatQ threat intelligence platform; the object lifecycle
+    serves SOC threat detection and response rather than any business-domain capability.
+- tag: TTP
+  spec_file: securonix-ttp-api-openapi.yml
+  capability_id: BC-620.30
+  capability_id_l1: BC-620
+  capability_name: Threat Detection & Response Management
+  confidence: 0.78
+  evidence: '"List TTP", "Create a(n) TTP", "TTP Consume" with schemas TTPFillable, SourceBasics'
+  reason: Adversary tactics, techniques and procedures objects in a threat intelligence platform, consumed
+    to support detection and response analysis.
+- tag: Vulnerability
+  spec_file: securonix-vulnerability-api-openapi.yml
+  capability_id: BC-620.40
+  capability_id_l1: BC-620
+  capability_name: Vulnerability Management
+  confidence: 0.78
+  evidence: '"List Vulnerability", "Create a(n) Vulnerability", "Vulnerability Consume" with schema VulnerabilityFillable'
+  reason: Creation and consumption of vulnerability records in the threat intelligence platform maps to
+    vulnerability management, though the objects are intel entries rather than scan remediation workflow.
+- tag: Adversaries
+  spec_file: securonix-adversaries-api-openapi.yml
+  capability_id: BC-620.30
+  capability_id_l1: BC-620
+  capability_name: Threat Detection & Response Management
+  confidence: 0.75
+  evidence: ThreatQ Adversaries API ... List Adversaries / Create a(n) Adversary; schema AdversaryFillable,
+    TLPName
+  reason: 'Securonix ThreatQ threat intelligence platform: adversary (threat actor) objects with TLP markings
+    are threat-intelligence entities managed for detection and response, fitting Threat Detection & Response
+    Management. Some ambiguity as this is CRUD over intel objects rather than incident response itself,
+    hence moderate confidence.'
+- tag: Campaign
+  spec_file: securonix-campaign-api-openapi.yml
+  capability_id: BC-620.30
+  capability_id_l1: BC-620
+  capability_name: Threat Detection & Response Management
+  confidence: 0.75
+  evidence: '"GET /campaign List Campaign", "POST /campaign/consume Campaign Consume", schemas "Campaign",
+    "TLPName"'
+  reason: 'Homograph risk noted: in ThreatQ a Campaign is a threat-actor campaign intel object (TLP-marked,
+    source-attributed), not a marketing campaign. Supports SOC threat detection/response.'
+- tag: Threat Coverage
+  spec_file: securonix-threat-coverage-api-openapi.yml
+  capability_id: BC-620.30
+  capability_id_l1: BC-620
+  capability_name: Threat Detection & Response Management
+  confidence: 0.72
+  evidence: '"Get MITRE ATT&CK threat coverage metrics", schemas TacticCoverage, TechniqueCoverage, MappedPolicy'
+  reason: Measures how SIEM detection policies cover MITRE ATT&CK tactics/techniques — detection engineering
+    coverage within SOC threat detection; some chance it is better read as security governance reporting.
+- tag: Whitelist Rules
+  spec_file: securonix-whitelist-rules-api-openapi.yml
+  capability_id: BC-620.30
+  capability_id_l1: BC-620
+  capability_name: Threat Detection & Response Management
+  confidence: 0.72
+  evidence: '"Create a Whitelist Rule", "Whitelist Rule Indicator Count", schemas WhitelistRuleWithIndicatorCount,
+    IndicatorType — ThreatQ threat intelligence platform'
+  reason: Whitelist rules suppress threat-intelligence indicators in the ThreatQ TI platform, part of
+    SOC threat detection and response tooling rather than any business allow-listing.
+- tag: Course of Action
+  spec_file: securonix-course-of-action-api-openapi.yml
+  capability_id: BC-620.30
+  capability_id_l1: BC-620
+  capability_name: Threat Detection & Response Management
+  confidence: 0.7
+  evidence: '"GET /course_of_action List Course of Action", schema "CourseOfAction", "POST /course_of_action/consume"'
+  reason: STIX-style Course of Action objects record mitigation/response actions against threats within
+    the threat intel platform, supporting SOC incident response.
+- tag: Tool
+  spec_file: securonix-tool-api-openapi.yml
+  capability_id: BC-620.30
+  capability_id_l1: BC-620
+  capability_name: Threat Detection & Response Management
+  confidence: 0.7
+  evidence: '"List Tool", "Tool Consume" with schemas ToolFillable, SourceBasics, TLPName'
+  reason: '''Tool'' here is a STIX-style threat intelligence object (adversary tooling) managed alongside
+    TTPs and signatures in ThreatQ, supporting threat detection and response; the generic tag word lowers
+    confidence.'

@@ -135,12 +135,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
-    InternalServerError:
-      description: Internal server error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
     TooManyRequests:
       description: Rate limit exceeded
       content:
@@ -153,6 +147,12 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
     BadRequest:
       description: Bad request - invalid parameters
       content:
@@ -160,10 +160,6 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
   schemas:
-    ListDevicesResponse:
-      type: array
-      items:
-        $ref: '#/components/schemas/Device'
     ErrorResponse:
       type: object
       properties:
@@ -177,6 +173,10 @@ components:
       - error
       - code
       additionalProperties: false
+    ListDevicesResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/Device'
     Device:
       type: object
       properties:
