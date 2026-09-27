@@ -129,20 +129,14 @@ paths:
           $ref: '#/components/responses/InternalServerError'
 components:
   responses:
-    Unauthorized:
-      description: Unauthorized - missing or invalid token
+    Forbidden:
+      description: Forbidden - insufficient permissions
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
     TooManyRequests:
       description: Rate limit exceeded
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-    Forbidden:
-      description: Forbidden - insufficient permissions
       content:
         application/json:
           schema:
@@ -159,24 +153,13 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Unauthorized - missing or invalid token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
   schemas:
-    ErrorResponse:
-      type: object
-      properties:
-        error:
-          type: string
-          example: Invalid request parameters
-        code:
-          type: string
-          example: BAD_REQUEST
-      required:
-      - error
-      - code
-      additionalProperties: false
-    ListDevicesResponse:
-      type: array
-      items:
-        $ref: '#/components/schemas/Device'
     Device:
       type: object
       properties:
@@ -241,6 +224,19 @@ components:
           description: Notification Type Incident or Email
           example: Incident
       additionalProperties: false
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Invalid request parameters
+        code:
+          type: string
+          example: BAD_REQUEST
+      required:
+      - error
+      - code
+      additionalProperties: false
     DevicesRequest:
       type: object
       properties:
@@ -300,6 +296,10 @@ components:
       required:
       - status
       additionalProperties: false
+    ListDevicesResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/Device'
   securitySchemes:
     tokenAuth:
       type: apiKey

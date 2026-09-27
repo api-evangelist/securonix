@@ -250,14 +250,14 @@ paths:
       operationId: deleteNoteByNoteId
       x-operation-id-source: derived
 components:
-  responses:
-    Unauthorized:
-      description: Unauthorized
-    NotFound:
-      description: Object Not Found
-    NoContent:
-      description: Object(s) were successfully deleted.
   schemas:
+    SourceName:
+      properties:
+        name:
+          description: Source Name
+          type: string
+          example: ThreatQ
+      type: object
     TotalResponse:
       properties:
         total:
@@ -265,20 +265,29 @@ components:
           type: integer
           example: 1
       type: object
-    ObjectAttributeValue:
-      properties:
-        value:
-          description: Attribute Value
-          type: string
-          example: High
-      type: object
-    AttributeFillable:
+    TLPName:
       properties:
         name:
-          description: Attribute Name
+          description: TLP Name
           type: string
-          example: Confidence
+          example: WHITE
       type: object
+    SourceBasics:
+      oneOf:
+      - allOf:
+        - properties:
+            tlp_id:
+              description: Source TLP ID
+              type: integer
+              example: 3
+          type: object
+        - $ref: '#/components/schemas/SourceName'
+      - allOf:
+        - properties:
+            tlp:
+              $ref: '#/components/schemas/TLPName'
+          type: object
+        - $ref: '#/components/schemas/SourceName'
     CommonObjectConsumeRequest:
       properties:
         attributes:
@@ -304,29 +313,24 @@ components:
             type: integer
             example: 2
       type: object
-    SourceName:
+    ObjectLinkAttributeFillable:
+      allOf:
+      - $ref: '#/components/schemas/AttributeFillable'
+      - $ref: '#/components/schemas/ObjectAttributeValue'
+    ObjectAttributeValue:
+      properties:
+        value:
+          description: Attribute Value
+          type: string
+          example: High
+      type: object
+    AttributeFillable:
       properties:
         name:
-          description: Source Name
+          description: Attribute Name
           type: string
-          example: ThreatQ
+          example: Confidence
       type: object
-    SourceBasics:
-      oneOf:
-      - allOf:
-        - properties:
-            tlp_id:
-              description: Source TLP ID
-              type: integer
-              example: 3
-          type: object
-        - $ref: '#/components/schemas/SourceName'
-      - allOf:
-        - properties:
-            tlp:
-              $ref: '#/components/schemas/TLPName'
-          type: object
-        - $ref: '#/components/schemas/SourceName'
     AttributeBasics:
       allOf:
       - properties:
@@ -336,17 +340,13 @@ components:
               $ref: '#/components/schemas/SourceBasics'
         type: object
       - $ref: '#/components/schemas/ObjectLinkAttributeFillable'
-    TLPName:
-      properties:
-        name:
-          description: TLP Name
-          type: string
-          example: WHITE
-      type: object
-    ObjectLinkAttributeFillable:
-      allOf:
-      - $ref: '#/components/schemas/AttributeFillable'
-      - $ref: '#/components/schemas/ObjectAttributeValue'
+  responses:
+    NoContent:
+      description: Object(s) were successfully deleted.
+    NotFound:
+      description: Object Not Found
+    Unauthorized:
+      description: Unauthorized
   parameters:
     Limit:
       name: limit
@@ -358,6 +358,26 @@ components:
       schema:
         type: integer
         example: 10
+    Sort:
+      name: sort
+      in: query
+      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+        example: id,created_at
+    Offset:
+      name: offset
+      in: query
+      description: <br>The number of result set records that should be ignored.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 50
     CommonObjectWith:
       name: with
       in: query
@@ -376,26 +396,6 @@ components:
         items:
           type: string
           example: adversaries,comments,sources
-    Offset:
-      name: offset
-      in: query
-      description: <br>The number of result set records that should be ignored.
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: integer
-        example: 50
-    Sort:
-      name: sort
-      in: query
-      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: string
-        example: id,created_at
   securitySchemes:
     BearerAuth:
       type: http

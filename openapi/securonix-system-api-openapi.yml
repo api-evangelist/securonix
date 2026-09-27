@@ -64,9 +64,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
       x-visibility: public
 components:
-  responses:
-    Unauthorized:
-      description: Unauthorized
   schemas:
     License:
       properties:
@@ -88,6 +85,9 @@ components:
           example:
             investigations: '2021-04-15 15:04:48'
       type: object
+  responses:
+    Unauthorized:
+      description: Unauthorized
   securitySchemes:
     BearerAuth:
       type: http

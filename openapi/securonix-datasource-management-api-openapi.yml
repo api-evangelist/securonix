@@ -331,24 +331,35 @@ paths:
           description: Not Found
 components:
   schemas:
-    SyslogFiltersResponse:
-      title: SyslogFiltersResponse
+    ConfigDatasourceResponse:
+      title: ConfigDatasourceResponse
       type: object
       properties:
-        syslogFilterDetails:
-          type: object
-          additionalProperties:
-            type: array
-            items:
-              $ref: '#/components/schemas/SyslogFilterData'
-    ValidateSyslogDetailsPayload:
-      title: ValidateSyslogDetailsPayload
+        created_at:
+          type: string
+          format: date-time
+        description:
+          type: string
+        resourceGroupId:
+          type: integer
+          format: int64
+    SyslogDetailsPayload:
+      title: SyslogDetailsPayload
       type: object
       properties:
-        syslogDetails:
+        filtersId:
           type: array
           items:
-            $ref: '#/components/schemas/SyslogDetailsPayload'
+            type: integer
+            format: int64
+        ingesterId:
+          type: integer
+          format: int64
+        sourcesId:
+          type: array
+          items:
+            type: integer
+            format: int64
     ConfigCollectorSource:
       title: ConfigCollectorSource
       type: object
@@ -368,40 +379,6 @@ components:
           format: int64
         type:
           type: string
-    ConfigDatasourceResponse:
-      title: ConfigDatasourceResponse
-      type: object
-      properties:
-        created_at:
-          type: string
-          format: date-time
-        description:
-          type: string
-        resourceGroupId:
-          type: integer
-          format: int64
-    SyslogFilterData:
-      title: SyslogFilterData
-      type: object
-      properties:
-        filterExpression:
-          type: string
-        filterId:
-          type: integer
-          format: int64
-        filterName:
-          type: string
-        ingesterId:
-          type: integer
-          format: int64
-        isSelectedOnUI:
-          type: boolean
-        resourceTypeId:
-          type: integer
-          format: int64
-        rgId:
-          type: integer
-          format: int64
     ResourceGroups:
       title: ResourceGroups
       type: object
@@ -529,6 +506,93 @@ components:
           type: string
         vendor:
           type: string
+    SyslogNewSourcePayload:
+      title: SyslogNewSourcePayload
+      type: object
+      properties:
+        ingesterId:
+          type: integer
+          format: int64
+        sourceExpression:
+          type: string
+        sourceName:
+          type: string
+        tenantId:
+          type: integer
+          format: int64
+    ConfigDataSourcePayload:
+      title: ConfigDataSourcePayload
+      type: object
+      properties:
+        collectionMethodName:
+          type: string
+        columnIdentifier:
+          type: string
+        crpId:
+          type: integer
+          format: int64
+        datasourceProperties:
+          type: object
+          additionalProperties:
+            type: string
+        functionality:
+          type: string
+        headerRegex:
+          type: string
+        importScheduleJob:
+          type: string
+        indexerConfig:
+          type: string
+        ingesterIdList:
+          type: array
+          items:
+            type: integer
+            format: int64
+        internalRawTopicName:
+          type: string
+        invalidEventAction:
+          type: string
+        jobMinutesRunCountInterval:
+          type: string
+        jobRunCountHourlyInterval:
+          type: string
+        jobSecondsRunCountInterval:
+          type: string
+        keyValueSeparator:
+          type: string
+        minutesInterval:
+          type: integer
+          format: int32
+        parserName:
+          type: string
+        parsingTechnique:
+          type: string
+        resourceGroupName:
+          type: string
+        resourceType:
+          type: string
+        scheduledImportFrequencyInterval:
+          type: string
+        secondsInterval:
+          type: integer
+          format: int32
+        tenantId:
+          type: integer
+          format: int64
+        timeZone:
+          type: string
+        vendor:
+          type: string
+    SyslogFiltersResponse:
+      title: SyslogFiltersResponse
+      type: object
+      properties:
+        syslogFilterDetails:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              $ref: '#/components/schemas/SyslogFilterData'
     SyslogSourcesResponse:
       title: SyslogSourcesResponse
       type: object
@@ -537,6 +601,50 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ConfigCollectorSource'
+    SyslogFilterData:
+      title: SyslogFilterData
+      type: object
+      properties:
+        filterExpression:
+          type: string
+        filterId:
+          type: integer
+          format: int64
+        filterName:
+          type: string
+        ingesterId:
+          type: integer
+          format: int64
+        isSelectedOnUI:
+          type: boolean
+        resourceTypeId:
+          type: integer
+          format: int64
+        rgId:
+          type: integer
+          format: int64
+    ValidateSyslogDetailsPayload:
+      title: ValidateSyslogDetailsPayload
+      type: object
+      properties:
+        syslogDetails:
+          type: array
+          items:
+            $ref: '#/components/schemas/SyslogDetailsPayload'
+    SyslogNewFilterPayload:
+      title: SyslogNewFilterPayload
+      type: object
+      properties:
+        filterExpression:
+          type: string
+        filterName:
+          type: string
+        ingesterId:
+          type: integer
+          format: int64
+        sourceId:
+          type: integer
+          format: int64
     ConfigSyslogDataSourcePayload:
       title: ConfigSyslogDataSourcePayload
       type: object
@@ -606,114 +714,6 @@ components:
           type: string
         vendor:
           type: string
-    SyslogNewSourcePayload:
-      title: SyslogNewSourcePayload
-      type: object
-      properties:
-        ingesterId:
-          type: integer
-          format: int64
-        sourceExpression:
-          type: string
-        sourceName:
-          type: string
-        tenantId:
-          type: integer
-          format: int64
-    SyslogNewFilterPayload:
-      title: SyslogNewFilterPayload
-      type: object
-      properties:
-        filterExpression:
-          type: string
-        filterName:
-          type: string
-        ingesterId:
-          type: integer
-          format: int64
-        sourceId:
-          type: integer
-          format: int64
-    ConfigDataSourcePayload:
-      title: ConfigDataSourcePayload
-      type: object
-      properties:
-        collectionMethodName:
-          type: string
-        columnIdentifier:
-          type: string
-        crpId:
-          type: integer
-          format: int64
-        datasourceProperties:
-          type: object
-          additionalProperties:
-            type: string
-        functionality:
-          type: string
-        headerRegex:
-          type: string
-        importScheduleJob:
-          type: string
-        indexerConfig:
-          type: string
-        ingesterIdList:
-          type: array
-          items:
-            type: integer
-            format: int64
-        internalRawTopicName:
-          type: string
-        invalidEventAction:
-          type: string
-        jobMinutesRunCountInterval:
-          type: string
-        jobRunCountHourlyInterval:
-          type: string
-        jobSecondsRunCountInterval:
-          type: string
-        keyValueSeparator:
-          type: string
-        minutesInterval:
-          type: integer
-          format: int32
-        parserName:
-          type: string
-        parsingTechnique:
-          type: string
-        resourceGroupName:
-          type: string
-        resourceType:
-          type: string
-        scheduledImportFrequencyInterval:
-          type: string
-        secondsInterval:
-          type: integer
-          format: int32
-        tenantId:
-          type: integer
-          format: int64
-        timeZone:
-          type: string
-        vendor:
-          type: string
-    SyslogDetailsPayload:
-      title: SyslogDetailsPayload
-      type: object
-      properties:
-        filtersId:
-          type: array
-          items:
-            type: integer
-            format: int64
-        ingesterId:
-          type: integer
-          format: int64
-        sourcesId:
-          type: array
-          items:
-            type: integer
-            format: int64
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

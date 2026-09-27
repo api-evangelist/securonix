@@ -96,6 +96,8 @@ paths:
       x-visibility: public
 components:
   responses:
+    Success:
+      description: OK
     MaintenanceMode:
       description: System is in Maintenance Mode.
       content:
@@ -108,8 +110,6 @@ components:
                   type: string
                   example: ThreatQ is down for maintenance.
             type: object
-    Success:
-      description: OK
   schemas:
     Token:
       properties:

@@ -1355,6 +1355,8 @@ apis:
   humanURL: https://documentation.securonix.com/r/content/policy-management-api.htm
   baseURL: https://policymanagement.api.securonix.net
   tags:
+  - Vulnerabilities
+  tags_raw:
   - Vulnerability
   properties:
   - type: OpenAPI

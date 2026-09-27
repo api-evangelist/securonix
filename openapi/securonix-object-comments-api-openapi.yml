@@ -260,78 +260,6 @@ paths:
       operationId: deleteByObjectTypeByObjectTypeIdCommentsByObjectTypeCommentId
       x-operation-id-source: derived
 components:
-  parameters:
-    Limit:
-      name: limit
-      in: query
-      description: <br>The number of objects included in the response.
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: integer
-        example: 10
-    Sort:
-      name: sort
-      in: query
-      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: string
-        example: id,created_at
-    ObjectCommentWith:
-      name: with
-      in: query
-      description: "<br>Object Relationships that can be included in the response.<br><br>Options include: `<object_code>`, sources\n <br><br>The `<object_code>` placeholder in the options takes the value of the `code` field for an object definition.<br><br>"
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-          example: indicator,sources
-    ObjectTypeId:
-      name: object_type_id
-      in: path
-      description: The ID for the record of the specified Object Type whose context you would like to retrieve
-      required: true
-      schema:
-        type: integer
-        example: 6
-    ObjectTypeCommentId:
-      name: object_type_comment_id
-      in: path
-      description: The ID of the Comment record for the specified Object Type
-      required: true
-      schema:
-        type: integer
-    Offset:
-      name: offset
-      in: query
-      description: <br>The number of result set records that should be ignored.
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: integer
-        example: 50
-    ObjectType:
-      name: object_type
-      in: path
-      description: 'The collection identifier for the Object Type whose context you would like to retrieve. Options include:
-
-        adversaries, attachments, attack_pattern, campaign, course_of_action, event, exploit_target, identity, incident,
-
-        indicators, intrustion_set, malware, report, signature, tool, ttp, and vulnerability. If you have any additional custom
-
-        objects installed on your system, use the value for the `collection` field associated with the object definition.'
-      required: true
-      schema:
-        type: string
-        example: indicators
   schemas:
     SourceType:
       properties:
@@ -340,19 +268,37 @@ components:
           type: string
           example: other_sources
       type: object
-    CreatorSource:
-      properties:
-        creator_source_id:
-          description: Creator Source ID - Source ID of User, Feed, or other means that brought the object into the system
-          type: integer
-          example: 2
-      type: object
     TotalResponse:
       properties:
         total:
           description: Total Number of Objects Processed
           type: integer
           example: 1
+      type: object
+    Source:
+      allOf:
+      - properties:
+          id:
+            description: Source ID
+            type: integer
+            example: 1
+          expire_days:
+            description: Number of days after which Objects with this Source will expire
+            type: integer
+            example: 12
+          expires_needs_calc:
+            description: Determines whether expiration for Objects with this Source needs recalculating
+            type: string
+            example: N
+        type: object
+      - $ref: '#/components/schemas/SourceFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+    CreatorSource:
+      properties:
+        creator_source_id:
+          description: Creator Source ID - Source ID of User, Feed, or other means that brought the object into the system
+          type: integer
+          example: 2
       type: object
     IndicatorFillable:
       properties:
@@ -377,6 +323,80 @@ components:
           type: string
           example: Website encountered during incident investigation.
       type: object
+    ObjectCommentFillable:
+      properties:
+        value:
+          description: Comment value
+          type: string
+          example: There's something odd happening...
+      type: object
+    ThreatQTimestamps:
+      properties:
+        created_at:
+          description: Creation Date
+          type: string
+          example: '2021-07-29 13:58:03'
+        updated_at:
+          description: Update Date
+          type: string
+          example: '2022-04-12 08:32:16'
+      type: object
+    SourceReferenceId:
+      properties:
+        reference_id:
+          description: Source Reference ID - points to related Client, Connector (Feed), Other Source, Plugin, or User
+          type: integer
+          example: 2
+      type: object
+    ObjectComment:
+      allOf:
+      - properties:
+          id:
+            description: Object Type Comment ID
+            type: integer
+            example: 39
+        type: object
+      - $ref: '#/components/schemas/ObjectTypeId'
+      - $ref: '#/components/schemas/CreatorSource'
+      - $ref: '#/components/schemas/ObjectCommentFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+    SourceName:
+      properties:
+        name:
+          description: Source Name
+          type: string
+          example: ThreatQ
+      type: object
+    ObjectCommentSource:
+      allOf:
+      - properties:
+          pivot:
+            type: object
+            allOf:
+            - properties:
+                id:
+                  description: Object Comment Source ID
+                  type: integer
+                  example: 81
+              type: object
+            - $ref: '#/components/schemas/CreatorSource'
+        type: object
+      - $ref: '#/components/schemas/Source'
+    ObjectCommentWithRelations:
+      allOf:
+      - properties:
+          sources:
+            type: array
+            items:
+              $ref: '#/components/schemas/ObjectCommentSource'
+        type: object
+      - properties:
+          indicator:
+            type: array
+            items:
+              $ref: '#/components/schemas/Indicator'
+        type: object
+      - $ref: '#/components/schemas/ObjectComment'
     SourceFillable:
       allOf:
       - properties:
@@ -399,84 +419,13 @@ components:
           type: integer
           example: 517
       type: object
-    ObjectCommentSource:
-      allOf:
-      - properties:
-          pivot:
-            type: object
-            allOf:
-            - properties:
-                id:
-                  description: Object Comment Source ID
-                  type: integer
-                  example: 81
-              type: object
-            - $ref: '#/components/schemas/CreatorSource'
-        type: object
-      - $ref: '#/components/schemas/Source'
-    Source:
-      allOf:
-      - properties:
-          id:
-            description: Source ID
-            type: integer
-            example: 1
-          expire_days:
-            description: Number of days after which Objects with this Source will expire
-            type: integer
-            example: 12
-          expires_needs_calc:
-            description: Determines whether expiration for Objects with this Source needs recalculating
-            type: string
-            example: N
-        type: object
-      - $ref: '#/components/schemas/SourceFillable'
-      - $ref: '#/components/schemas/ThreatQTimestamps'
-    ThreatQTimestamps:
+    TouchedAtTimestamp:
       properties:
-        created_at:
-          description: Creation Date
+        touched_at:
+          description: Update Date for Object Context (Attributes, Comments, Sources, Relationships)
           type: string
-          example: '2021-07-29 13:58:03'
-        updated_at:
-          description: Update Date
-          type: string
-          example: '2022-04-12 08:32:16'
+          example: '2021-11-13 15:28:17'
       type: object
-    ObjectCommentWithRelations:
-      allOf:
-      - properties:
-          sources:
-            type: array
-            items:
-              $ref: '#/components/schemas/ObjectCommentSource'
-        type: object
-      - properties:
-          indicator:
-            type: array
-            items:
-              $ref: '#/components/schemas/Indicator'
-        type: object
-      - $ref: '#/components/schemas/ObjectComment'
-    SourceName:
-      properties:
-        name:
-          description: Source Name
-          type: string
-          example: ThreatQ
-      type: object
-    ObjectComment:
-      allOf:
-      - properties:
-          id:
-            description: Object Type Comment ID
-            type: integer
-            example: 39
-        type: object
-      - $ref: '#/components/schemas/ObjectTypeId'
-      - $ref: '#/components/schemas/CreatorSource'
-      - $ref: '#/components/schemas/ObjectCommentFillable'
-      - $ref: '#/components/schemas/ThreatQTimestamps'
     Indicator:
       allOf:
       - properties:
@@ -514,34 +463,85 @@ components:
       - $ref: '#/components/schemas/IndicatorFillable'
       - $ref: '#/components/schemas/ThreatQTimestamps'
       - $ref: '#/components/schemas/TouchedAtTimestamp'
-    TouchedAtTimestamp:
-      properties:
-        touched_at:
-          description: Update Date for Object Context (Attributes, Comments, Sources, Relationships)
-          type: string
-          example: '2021-11-13 15:28:17'
-      type: object
-    ObjectCommentFillable:
-      properties:
-        value:
-          description: Comment value
-          type: string
-          example: There's something odd happening...
-      type: object
-    SourceReferenceId:
-      properties:
-        reference_id:
-          description: Source Reference ID - points to related Client, Connector (Feed), Other Source, Plugin, or User
-          type: integer
-          example: 2
-      type: object
   responses:
-    Unauthorized:
-      description: Unauthorized
-    NotFound:
-      description: Object Not Found
     NoContent:
       description: Object(s) were successfully deleted.
+    NotFound:
+      description: Object Not Found
+    Unauthorized:
+      description: Unauthorized
+  parameters:
+    ObjectTypeId:
+      name: object_type_id
+      in: path
+      description: The ID for the record of the specified Object Type whose context you would like to retrieve
+      required: true
+      schema:
+        type: integer
+        example: 6
+    ObjectType:
+      name: object_type
+      in: path
+      description: 'The collection identifier for the Object Type whose context you would like to retrieve. Options include:
+
+        adversaries, attachments, attack_pattern, campaign, course_of_action, event, exploit_target, identity, incident,
+
+        indicators, intrustion_set, malware, report, signature, tool, ttp, and vulnerability. If you have any additional custom
+
+        objects installed on your system, use the value for the `collection` field associated with the object definition.'
+      required: true
+      schema:
+        type: string
+        example: indicators
+    Limit:
+      name: limit
+      in: query
+      description: <br>The number of objects included in the response.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 10
+    Sort:
+      name: sort
+      in: query
+      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+        example: id,created_at
+    ObjectCommentWith:
+      name: with
+      in: query
+      description: "<br>Object Relationships that can be included in the response.<br><br>Options include: `<object_code>`, sources\n <br><br>The `<object_code>` placeholder in the options takes the value of the `code` field for an object definition.<br><br>"
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+          example: indicator,sources
+    ObjectTypeCommentId:
+      name: object_type_comment_id
+      in: path
+      description: The ID of the Comment record for the specified Object Type
+      required: true
+      schema:
+        type: integer
+    Offset:
+      name: offset
+      in: query
+      description: <br>The number of result set records that should be ignored.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 50
   securitySchemes:
     BearerAuth:
       type: http

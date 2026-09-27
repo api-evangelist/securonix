@@ -261,101 +261,13 @@ paths:
       operationId: deleteBySrcObjectCollectionBySrcObjectIdByDestObjectCollectionByObjectLinkIdCommentsByObjectLinkCommentId
       x-operation-id-source: derived
 components:
-  parameters:
-    DestObject:
-      name: dest_object_collection
-      in: path
-      description: "Destination Object collection - the collection for an object type that may have relationships\n associated with the Source Object collection. Options include: adversaries, attachments, attack_pattern,\n campaign, course_of_action, event, exploit_target, identity, incident, indicators, intrustion_set, malware,\n report, signature, tool, ttp, and vulnerability. If you have any additional custom objects installed on your\n system, use the `object_code` associated with the object definition."
-      required: true
-      schema:
-        type: string
-        example: adversaries
-    Limit:
-      name: limit
-      in: query
-      description: <br>The number of objects included in the response.
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: integer
-        example: 10
-    Sort:
-      name: sort
-      in: query
-      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: string
-        example: id,created_at
-    SrcObjectId:
-      name: src_object_id
-      in: path
-      description: Source Object ID - the ID of the object whose relationships you would like to retrieve
-      required: true
-      schema:
-        type: integer
-        example: 2
-    ObjectLinkId:
-      name: object_link_id
-      in: path
-      description: Object Link ID - the ID of the relationship record
-      required: true
-      schema:
-        type: integer
-        example: 3
-    SrcObject:
-      name: src_object_collection
-      in: path
-      description: "Source Object collection - the object type collection whose relationships you would like\n to retrieve. Options include: adversaries, attachments, attack_pattern, campaign, course_of_action, event,\n exploit_target, identity, incident, indicators, intrustion_set, malware, report, signature, tool, ttp,\n and vulnerability. If you have any additional custom objects installed on your system, use the `object_code`\n associated with the object definition."
-      required: true
-      schema:
-        type: string
-        example: indicators
-    ObjectLinkCommentId:
-      name: object_link_comment_id
-      in: path
-      description: Object Link Comment ID
-      required: true
-      schema:
-        type: integer
-        example: 4
-    Offset:
-      name: offset
-      in: query
-      description: <br>The number of result set records that should be ignored.
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: integer
-        example: 50
   schemas:
-    ObjectLinkCommentBase:
-      allOf:
-      - properties:
-          id:
-            description: Object Link Comment ID
-            type: integer
-            example: 4
-        type: object
-      - $ref: '#/components/schemas/ObjectCommentFillable'
-      - $ref: '#/components/schemas/ThreatQTimestamps'
     SourceType:
       properties:
         type:
           description: 'Source Type - Options include: clients, connectors (Feeds), other_sources, plugins, or users'
           type: string
           example: other_sources
-      type: object
-    CreatorSource:
-      properties:
-        creator_source_id:
-          description: Creator Source ID - Source ID of User, Feed, or other means that brought the object into the system
-          type: integer
-          example: 2
       type: object
     TotalResponse:
       properties:
@@ -364,21 +276,6 @@ components:
           type: integer
           example: 1
       type: object
-    SourceFillable:
-      allOf:
-      - properties:
-          score:
-            description: Source Score - Ranges from -10 to 10
-            type: integer
-            example: 6
-          default_tlp_id:
-            description: Source Default TLP ID - the TLP that should be assigned for the Source if none is provided
-            type: integer
-            example: 3
-        type: object
-      - $ref: '#/components/schemas/SourceType'
-      - $ref: '#/components/schemas/SourceReferenceId'
-      - $ref: '#/components/schemas/SourceName'
     Source:
       allOf:
       - properties:
@@ -397,6 +294,20 @@ components:
         type: object
       - $ref: '#/components/schemas/SourceFillable'
       - $ref: '#/components/schemas/ThreatQTimestamps'
+    CreatorSource:
+      properties:
+        creator_source_id:
+          description: Creator Source ID - Source ID of User, Feed, or other means that brought the object into the system
+          type: integer
+          example: 2
+      type: object
+    ObjectCommentFillable:
+      properties:
+        value:
+          description: Comment value
+          type: string
+          example: There's something odd happening...
+      type: object
     ThreatQTimestamps:
       properties:
         created_at:
@@ -408,23 +319,13 @@ components:
           type: string
           example: '2022-04-12 08:32:16'
       type: object
-    SourceName:
+    SourceReferenceId:
       properties:
-        name:
-          description: Source Name
-          type: string
-          example: ThreatQ
+        reference_id:
+          description: Source Reference ID - points to related Client, Connector (Feed), Other Source, Plugin, or User
+          type: integer
+          example: 2
       type: object
-    ObjectLinkComment:
-      allOf:
-      - properties:
-          object_link_id:
-            description: Object Link ID - ID for the relationship record
-            type: integer
-            example: 4
-        type: object
-      - $ref: '#/components/schemas/CreatorSource'
-      - $ref: '#/components/schemas/ObjectLinkCommentBase'
     ObjectLinkCommentSource:
       allOf:
       - properties:
@@ -440,27 +341,126 @@ components:
             - $ref: '#/components/schemas/CreatorSource'
         type: object
       - $ref: '#/components/schemas/Source'
-    SourceReferenceId:
+    SourceName:
       properties:
-        reference_id:
-          description: Source Reference ID - points to related Client, Connector (Feed), Other Source, Plugin, or User
-          type: integer
-          example: 2
-      type: object
-    ObjectCommentFillable:
-      properties:
-        value:
-          description: Comment value
+        name:
+          description: Source Name
           type: string
-          example: There's something odd happening...
+          example: ThreatQ
       type: object
+    SourceFillable:
+      allOf:
+      - properties:
+          score:
+            description: Source Score - Ranges from -10 to 10
+            type: integer
+            example: 6
+          default_tlp_id:
+            description: Source Default TLP ID - the TLP that should be assigned for the Source if none is provided
+            type: integer
+            example: 3
+        type: object
+      - $ref: '#/components/schemas/SourceType'
+      - $ref: '#/components/schemas/SourceReferenceId'
+      - $ref: '#/components/schemas/SourceName'
+    ObjectLinkCommentBase:
+      allOf:
+      - properties:
+          id:
+            description: Object Link Comment ID
+            type: integer
+            example: 4
+        type: object
+      - $ref: '#/components/schemas/ObjectCommentFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+    ObjectLinkComment:
+      allOf:
+      - properties:
+          object_link_id:
+            description: Object Link ID - ID for the relationship record
+            type: integer
+            example: 4
+        type: object
+      - $ref: '#/components/schemas/CreatorSource'
+      - $ref: '#/components/schemas/ObjectLinkCommentBase'
   responses:
-    Unauthorized:
-      description: Unauthorized
-    NotFound:
-      description: Object Not Found
     NoContent:
       description: Object(s) were successfully deleted.
+    NotFound:
+      description: Object Not Found
+    Unauthorized:
+      description: Unauthorized
+  parameters:
+    DestObject:
+      name: dest_object_collection
+      in: path
+      description: "Destination Object collection - the collection for an object type that may have relationships\n associated with the Source Object collection. Options include: adversaries, attachments, attack_pattern,\n campaign, course_of_action, event, exploit_target, identity, incident, indicators, intrustion_set, malware,\n report, signature, tool, ttp, and vulnerability. If you have any additional custom objects installed on your\n system, use the `object_code` associated with the object definition."
+      required: true
+      schema:
+        type: string
+        example: adversaries
+    SrcObject:
+      name: src_object_collection
+      in: path
+      description: "Source Object collection - the object type collection whose relationships you would like\n to retrieve. Options include: adversaries, attachments, attack_pattern, campaign, course_of_action, event,\n exploit_target, identity, incident, indicators, intrustion_set, malware, report, signature, tool, ttp,\n and vulnerability. If you have any additional custom objects installed on your system, use the `object_code`\n associated with the object definition."
+      required: true
+      schema:
+        type: string
+        example: indicators
+    SrcObjectId:
+      name: src_object_id
+      in: path
+      description: Source Object ID - the ID of the object whose relationships you would like to retrieve
+      required: true
+      schema:
+        type: integer
+        example: 2
+    Limit:
+      name: limit
+      in: query
+      description: <br>The number of objects included in the response.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 10
+    ObjectLinkId:
+      name: object_link_id
+      in: path
+      description: Object Link ID - the ID of the relationship record
+      required: true
+      schema:
+        type: integer
+        example: 3
+    Sort:
+      name: sort
+      in: query
+      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+        example: id,created_at
+    Offset:
+      name: offset
+      in: query
+      description: <br>The number of result set records that should be ignored.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 50
+    ObjectLinkCommentId:
+      name: object_link_comment_id
+      in: path
+      description: Object Link Comment ID
+      required: true
+      schema:
+        type: integer
+        example: 4
   securitySchemes:
     BearerAuth:
       type: http

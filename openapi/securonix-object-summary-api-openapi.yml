@@ -59,21 +59,11 @@ paths:
       x-operation-id-source: derived
 components:
   responses:
-    Unauthorized:
-      description: Unauthorized
     NotFound:
       description: Object Not Found
+    Unauthorized:
+      description: Unauthorized
   parameters:
-    ObjectSummaryLimit:
-      name: limit
-      in: query
-      description: <br>The number of objects that should be included in each relationship section of the PDF.
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: integer
-        example: 10
     ObjectTypeId:
       name: object_type_id
       in: path
@@ -96,6 +86,16 @@ components:
       schema:
         type: string
         example: indicators
+    ObjectSummaryLimit:
+      name: limit
+      in: query
+      description: <br>The number of objects that should be included in each relationship section of the PDF.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 10
   securitySchemes:
     BearerAuth:
       type: http

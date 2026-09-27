@@ -139,13 +139,61 @@ paths:
       operationId: getEventsByEventIdSpearphish{?limit,offset,sort,with}
       x-operation-id-source: derived
 components:
-  responses:
-    Unauthorized:
-      description: Unauthorized
-    FailedValidation:
-      description: Validation Failed
-    NotFound:
-      description: Object Not Found
+  parameters:
+    Limit:
+      name: limit
+      in: query
+      description: <br>The number of objects included in the response.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 10
+    SpearphishId:
+      name: spearphish_id
+      in: path
+      description: Spearphish ID
+      required: true
+      schema:
+        type: integer
+    EventId:
+      name: event_id
+      in: path
+      description: Event ID
+      required: true
+      schema:
+        type: integer
+    Sort:
+      name: sort
+      in: query
+      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+        example: id,created_at
+    SpearphishWith:
+      name: with
+      in: query
+      description: <br>Event Relationship that can be included in the response.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+        example: event
+    Offset:
+      name: offset
+      in: query
+      description: <br>The number of result set records that should be ignored.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 50
   schemas:
     TotalResponse:
       properties:
@@ -164,6 +212,39 @@ components:
           description: Update Date
           type: string
           example: '2022-04-12 08:32:16'
+      type: object
+    Event:
+      allOf:
+      - properties:
+          id:
+            description: Event ID
+            type: integer
+            example: 54
+        type: object
+      - $ref: '#/components/schemas/EventFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+      - $ref: '#/components/schemas/TouchedAtTimestamp'
+    SpearphishWithEvent:
+      allOf:
+      - properties:
+          event:
+            $ref: '#/components/schemas/Event'
+        type: object
+      - $ref: '#/components/schemas/Spearphish'
+    SpearphishFillable:
+      properties:
+        subject:
+          description: Spearphish Email Subject
+          type: string
+          example: 'Fwd:  for you ????'
+        sender:
+          description: Spearphish Email Sender
+          type: string
+          example: bad-email@do-not-trust.com
+        value:
+          description: Spearphish Email Body
+          type: string
+          example: 'Content-Type: text/plain; charset=''utf-8''...'
       type: object
     EventFillable:
       properties:
@@ -188,20 +269,6 @@ components:
           type: string
           example: This Event was observed when...
       type: object
-    TouchedAtTimestamp:
-      properties:
-        touched_at:
-          description: Update Date for Object Context (Attributes, Comments, Sources, Relationships)
-          type: string
-          example: '2021-11-13 15:28:17'
-      type: object
-    SpearphishWithEvent:
-      allOf:
-      - properties:
-          event:
-            $ref: '#/components/schemas/Event'
-        type: object
-      - $ref: '#/components/schemas/Spearphish'
     Spearphish:
       allOf:
       - properties:
@@ -233,87 +300,20 @@ components:
             example: '2020-05-03 04:27:51'
         type: object
       - $ref: '#/components/schemas/SpearphishFillable'
-    Event:
-      allOf:
-      - properties:
-          id:
-            description: Event ID
-            type: integer
-            example: 54
-        type: object
-      - $ref: '#/components/schemas/EventFillable'
-      - $ref: '#/components/schemas/ThreatQTimestamps'
-      - $ref: '#/components/schemas/TouchedAtTimestamp'
-    SpearphishFillable:
+    TouchedAtTimestamp:
       properties:
-        subject:
-          description: Spearphish Email Subject
+        touched_at:
+          description: Update Date for Object Context (Attributes, Comments, Sources, Relationships)
           type: string
-          example: 'Fwd:  for you ????'
-        sender:
-          description: Spearphish Email Sender
-          type: string
-          example: bad-email@do-not-trust.com
-        value:
-          description: Spearphish Email Body
-          type: string
-          example: 'Content-Type: text/plain; charset=''utf-8''...'
+          example: '2021-11-13 15:28:17'
       type: object
-  parameters:
-    Limit:
-      name: limit
-      in: query
-      description: <br>The number of objects included in the response.
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: integer
-        example: 10
-    SpearphishWith:
-      name: with
-      in: query
-      description: <br>Event Relationship that can be included in the response.
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: string
-        example: event
-    SpearphishId:
-      name: spearphish_id
-      in: path
-      description: Spearphish ID
-      required: true
-      schema:
-        type: integer
-    EventId:
-      name: event_id
-      in: path
-      description: Event ID
-      required: true
-      schema:
-        type: integer
-    Offset:
-      name: offset
-      in: query
-      description: <br>The number of result set records that should be ignored.
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: integer
-        example: 50
-    Sort:
-      name: sort
-      in: query
-      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: string
-        example: id,created_at
+  responses:
+    NotFound:
+      description: Object Not Found
+    FailedValidation:
+      description: Validation Failed
+    Unauthorized:
+      description: Unauthorized
   securitySchemes:
     BearerAuth:
       type: http

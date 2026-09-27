@@ -233,16 +233,87 @@ paths:
       operationId: deleteByObjectTypeByObjectTypeIdTagsByObjectTypeTagId
       x-operation-id-source: derived
 components:
+  parameters:
+    Limit:
+      name: limit
+      in: query
+      description: <br>The number of objects included in the response.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 10
+    ObjectTagWith:
+      name: with
+      in: query
+      description: "<br>Object Relationships that can be included in the response.<br><br>Options include: `<object_collection>`\n  <br><br>The `<object_collection>` placeholder in the options takes the value of the `collection` field for an object definition.<br><br>"
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+          example: indicators
+    ObjectTypeId:
+      name: object_type_id
+      in: path
+      description: The ID for the record of the specified Object Type whose context you would like to retrieve
+      required: true
+      schema:
+        type: integer
+        example: 6
+    Sort:
+      name: sort
+      in: query
+      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+        example: id,created_at
+    ObjectTypeTagId:
+      name: object_type_tag_id
+      in: path
+      description: The ID of the Tag record for the specified Object Type
+      required: true
+      schema:
+        type: integer
+        example: 1
+    ObjectType:
+      name: object_type
+      in: path
+      description: 'The collection identifier for the Object Type whose context you would like to retrieve. Options include:
+
+        adversaries, attachments, attack_pattern, campaign, course_of_action, event, exploit_target, identity, incident,
+
+        indicators, intrustion_set, malware, report, signature, tool, ttp, and vulnerability. If you have any additional custom
+
+        objects installed on your system, use the value for the `collection` field associated with the object definition.'
+      required: true
+      schema:
+        type: string
+        example: indicators
+    Offset:
+      name: offset
+      in: query
+      description: <br>The number of result set records that should be ignored.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 50
+  responses:
+    NoContent:
+      description: Object(s) were successfully deleted.
+    NotFound:
+      description: Object Not Found
+    Unauthorized:
+      description: Unauthorized
   schemas:
-    Tag:
-      allOf:
-      - properties:
-          id:
-            description: Tag ID
-            type: integer
-            example: 81
-        type: object
-      - $ref: '#/components/schemas/TagFillable'
     TotalResponse:
       properties:
         total:
@@ -260,6 +331,35 @@ components:
           description: Update Date
           type: string
           example: '2022-04-12 08:32:16'
+      type: object
+    ObjectTagPivot:
+      allOf:
+      - properties:
+          tag_id:
+            description: Tag ID
+            type: integer
+            example: 81
+          object_id:
+            description: Object ID
+            type: integer
+            example: 3
+        type: object
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+    Tag:
+      allOf:
+      - properties:
+          id:
+            description: Tag ID
+            type: integer
+            example: 81
+        type: object
+      - $ref: '#/components/schemas/TagFillable'
+    TagFillable:
+      properties:
+        name:
+          description: Tag Name
+          type: string
+          example: Ominous
       type: object
     IndicatorFillable:
       properties:
@@ -283,6 +383,13 @@ components:
           description: Indicator Description
           type: string
           example: Website encountered during incident investigation.
+      type: object
+    TouchedAtTimestamp:
+      properties:
+        touched_at:
+          description: Update Date for Object Context (Attributes, Comments, Sources, Relationships)
+          type: string
+          example: '2021-11-13 15:28:17'
       type: object
     Indicator:
       allOf:
@@ -321,113 +428,6 @@ components:
       - $ref: '#/components/schemas/IndicatorFillable'
       - $ref: '#/components/schemas/ThreatQTimestamps'
       - $ref: '#/components/schemas/TouchedAtTimestamp'
-    TouchedAtTimestamp:
-      properties:
-        touched_at:
-          description: Update Date for Object Context (Attributes, Comments, Sources, Relationships)
-          type: string
-          example: '2021-11-13 15:28:17'
-      type: object
-    TagFillable:
-      properties:
-        name:
-          description: Tag Name
-          type: string
-          example: Ominous
-      type: object
-    ObjectTagPivot:
-      allOf:
-      - properties:
-          tag_id:
-            description: Tag ID
-            type: integer
-            example: 81
-          object_id:
-            description: Object ID
-            type: integer
-            example: 3
-        type: object
-      - $ref: '#/components/schemas/ThreatQTimestamps'
-  responses:
-    Unauthorized:
-      description: Unauthorized
-    NotFound:
-      description: Object Not Found
-    NoContent:
-      description: Object(s) were successfully deleted.
-  parameters:
-    Limit:
-      name: limit
-      in: query
-      description: <br>The number of objects included in the response.
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: integer
-        example: 10
-    ObjectTagWith:
-      name: with
-      in: query
-      description: "<br>Object Relationships that can be included in the response.<br><br>Options include: `<object_collection>`\n  <br><br>The `<object_collection>` placeholder in the options takes the value of the `collection` field for an object definition.<br><br>"
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-          example: indicators
-    ObjectTypeId:
-      name: object_type_id
-      in: path
-      description: The ID for the record of the specified Object Type whose context you would like to retrieve
-      required: true
-      schema:
-        type: integer
-        example: 6
-    ObjectType:
-      name: object_type
-      in: path
-      description: 'The collection identifier for the Object Type whose context you would like to retrieve. Options include:
-
-        adversaries, attachments, attack_pattern, campaign, course_of_action, event, exploit_target, identity, incident,
-
-        indicators, intrustion_set, malware, report, signature, tool, ttp, and vulnerability. If you have any additional custom
-
-        objects installed on your system, use the value for the `collection` field associated with the object definition.'
-      required: true
-      schema:
-        type: string
-        example: indicators
-    Offset:
-      name: offset
-      in: query
-      description: <br>The number of result set records that should be ignored.
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: integer
-        example: 50
-    Sort:
-      name: sort
-      in: query
-      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: string
-        example: id,created_at
-    ObjectTypeTagId:
-      name: object_type_tag_id
-      in: path
-      description: The ID of the Tag record for the specified Object Type
-      required: true
-      schema:
-        type: integer
-        example: 1
   securitySchemes:
     BearerAuth:
       type: http
