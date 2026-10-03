@@ -105,65 +105,7 @@ paths:
       operationId: deleteByObjectTypeByObjectTypeIdAttributesByObjectTypeAttributeIdSourcesByObjectTypeAttributeSourceId
       x-operation-id-source: derived
 components:
-  responses:
-    NoContent:
-      description: Object(s) were successfully deleted.
-    NotFound:
-      description: Object Not Found
-    Unauthorized:
-      description: Unauthorized
   schemas:
-    ThreatQTimestamps:
-      properties:
-        created_at:
-          description: Creation Date
-          type: string
-          example: '2021-07-29 13:58:03'
-        updated_at:
-          description: Update Date
-          type: string
-          example: '2022-04-12 08:32:16'
-      type: object
-    CreatorSource:
-      properties:
-        creator_source_id:
-          description: Creator Source ID - Source ID of User, Feed, or other means that brought the object into the system
-          type: integer
-          example: 2
-      type: object
-    TLPName:
-      properties:
-        name:
-          description: TLP Name
-          type: string
-          example: WHITE
-      type: object
-    ObjectTypeAttributeId:
-      properties:
-        <object_type>_attribute_id:
-          description: "Object Type Attribute ID - `<object_type>` should be replaced with the Object Type `code` field. This field will match the\n Object Type collection specified in the URL path.<br><br>Example: indicator_attribute_id"
-          type: integer
-          example: 7
-      type: object
-    ObjectSourceId:
-      properties:
-        source_id:
-          description: Source ID
-          type: integer
-          example: 42
-      type: object
-    TLPRequestOptions:
-      oneOf:
-      - properties:
-          tlp_id:
-            description: Source TLP ID
-            type: integer
-            example: 3
-        type: object
-      - properties:
-          tlp:
-            $ref: '#/components/schemas/TLPName'
-        type: object
     ObjectAttributeSource:
       allOf:
       - properties:
@@ -181,6 +123,57 @@ components:
       - $ref: '#/components/schemas/CreatorSource'
       - $ref: '#/components/schemas/ThreatQTimestamps'
       - $ref: '#/components/schemas/PublishedAtTimestamp'
+    ObjectSourceId:
+      properties:
+        source_id:
+          description: Source ID
+          type: integer
+          example: 42
+      type: object
+    CreatorSource:
+      properties:
+        creator_source_id:
+          description: Creator Source ID - Source ID of User, Feed, or other means that brought the object into the system
+          type: integer
+          example: 2
+      type: object
+    TLPRequestOptions:
+      oneOf:
+      - properties:
+          tlp_id:
+            description: Source TLP ID
+            type: integer
+            example: 3
+        type: object
+      - properties:
+          tlp:
+            $ref: '#/components/schemas/TLPName'
+        type: object
+    TLPName:
+      properties:
+        name:
+          description: TLP Name
+          type: string
+          example: WHITE
+      type: object
+    ObjectTypeAttributeId:
+      properties:
+        <object_type>_attribute_id:
+          description: "Object Type Attribute ID - `<object_type>` should be replaced with the Object Type `code` field. This field will match the\n Object Type collection specified in the URL path.<br><br>Example: indicator_attribute_id"
+          type: integer
+          example: 7
+      type: object
+    ThreatQTimestamps:
+      properties:
+        created_at:
+          description: Creation Date
+          type: string
+          example: '2021-07-29 13:58:03'
+        updated_at:
+          description: Update Date
+          type: string
+          example: '2022-04-12 08:32:16'
+      type: object
     PublishedAtTimestamp:
       properties:
         published_at:
@@ -197,14 +190,14 @@ components:
       schema:
         type: integer
         example: 6
-    ObjectTypeAttributeId:
-      name: object_type_attribute_id
+    ObjectTypeAttributeSourceId:
+      name: object_type_attribute_source_id
       in: path
-      description: The ID of the Attribute record for the specified Object Type
+      description: The ID of the Attribute Source record for the specified Object Type
       required: true
       schema:
         type: integer
-        example: 3
+        example: 5
     ObjectType:
       name: object_type
       in: path
@@ -219,14 +212,21 @@ components:
       schema:
         type: string
         example: indicators
-    ObjectTypeAttributeSourceId:
-      name: object_type_attribute_source_id
+    ObjectTypeAttributeId:
+      name: object_type_attribute_id
       in: path
-      description: The ID of the Attribute Source record for the specified Object Type
+      description: The ID of the Attribute record for the specified Object Type
       required: true
       schema:
         type: integer
-        example: 5
+        example: 3
+  responses:
+    NoContent:
+      description: Object(s) were successfully deleted.
+    NotFound:
+      description: Object Not Found
+    Unauthorized:
+      description: Unauthorized
   securitySchemes:
     BearerAuth:
       type: http

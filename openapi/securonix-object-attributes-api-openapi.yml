@@ -263,19 +263,19 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    SourceType:
+    AttributeId:
       properties:
-        type:
-          description: 'Source Type - Options include: clients, connectors (Feeds), other_sources, plugins, or users'
-          type: string
-          example: other_sources
-      type: object
-    TotalResponse:
-      properties:
-        total:
-          description: Total Number of Objects Processed
+        id:
+          description: Attribute ID
           type: integer
           example: 1
+      type: object
+    ObjectSourceId:
+      properties:
+        source_id:
+          description: Source ID
+          type: integer
+          example: 42
       type: object
     CreatorSource:
       properties:
@@ -284,19 +284,43 @@ components:
           type: integer
           example: 2
       type: object
-    AttributeId:
-      properties:
-        id:
-          description: Attribute ID
-          type: integer
-          example: 1
-      type: object
     ObjectAttributeId:
       properties:
         attribute_id:
           description: Attribute ID - the ID for the Attribute Key
           type: integer
           example: 7
+      type: object
+    ObjectAttribute:
+      allOf:
+      - properties:
+          id:
+            description: Object Attribute ID
+            type: integer
+            example: 8
+        type: object
+      - $ref: '#/components/schemas/ObjectAttributeFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+    SourceReferenceId:
+      properties:
+        reference_id:
+          description: Source Reference ID - points to related Client, Connector (Feed), Other Source, Plugin, or User
+          type: integer
+          example: 2
+      type: object
+    TotalResponse:
+      properties:
+        total:
+          description: Total Number of Objects Processed
+          type: integer
+          example: 1
+      type: object
+    ObjectAttributeValue:
+      properties:
+        value:
+          description: Attribute Value
+          type: string
+          example: High
       type: object
     ThreatQTimestamps:
       properties:
@@ -309,59 +333,6 @@ components:
           type: string
           example: '2022-04-12 08:32:16'
       type: object
-    SourceReferenceId:
-      properties:
-        reference_id:
-          description: Source Reference ID - points to related Client, Connector (Feed), Other Source, Plugin, or User
-          type: integer
-          example: 2
-      type: object
-    SourceBasics:
-      oneOf:
-      - allOf:
-        - properties:
-            tlp_id:
-              description: Source TLP ID
-              type: integer
-              example: 3
-          type: object
-        - $ref: '#/components/schemas/SourceName'
-      - allOf:
-        - properties:
-            tlp:
-              $ref: '#/components/schemas/TLPName'
-          type: object
-        - $ref: '#/components/schemas/SourceName'
-    Attribute:
-      allOf:
-      - $ref: '#/components/schemas/AttributeId'
-      - $ref: '#/components/schemas/AttributeFillable'
-      - $ref: '#/components/schemas/ThreatQTimestamps'
-    ObjectAttributeSourcePivot:
-      properties:
-        pivot:
-          type: object
-          allOf:
-          - properties:
-              id:
-                description: Object Attribute Source ID
-                type: integer
-                example: 11
-              <object_code>_attribute_id:
-                description: 'Object Type Attribute ID - `<object_code>` should be replaced with the Object Type `code` field. Example: indicator_attribute_id'
-                type: integer
-                example: 8
-            type: object
-          - $ref: '#/components/schemas/ObjectSourceId'
-          - $ref: '#/components/schemas/CreatorSource'
-      type: object
-    ObjectSourceId:
-      properties:
-        source_id:
-          description: Source ID
-          type: integer
-          example: 42
-      type: object
     ObjectSourceFillable:
       properties:
         name:
@@ -369,36 +340,6 @@ components:
           type: string
           example: ThreatQ
       type: object
-    ObjectAttributeFillable:
-      allOf:
-      - $ref: '#/components/schemas/ObjectAttributeId'
-      - $ref: '#/components/schemas/ObjectTypeId'
-      - $ref: '#/components/schemas/AttributeFillable'
-      - $ref: '#/components/schemas/ObjectAttributeValue'
-    AttributeFillable:
-      properties:
-        name:
-          description: Attribute Name
-          type: string
-          example: Confidence
-      type: object
-    ObjectAttributeSourceAsRelation:
-      allOf:
-      - properties:
-          id:
-            description: Object Type Source ID
-            type: integer
-            example: 42
-          tlp_id:
-            description: TLP ID
-            type: integer
-            example: 1
-        type: object
-      - $ref: '#/components/schemas/SourceType'
-      - $ref: '#/components/schemas/SourceReferenceId'
-      - $ref: '#/components/schemas/ObjectSourceFillable'
-      - $ref: '#/components/schemas/ThreatQTimestamps'
-      - $ref: '#/components/schemas/PublishedAtTimestamp'
     PublishedAtTimestamp:
       properties:
         published_at:
@@ -406,6 +347,12 @@ components:
           type: string
           example: '2017-01-13 15:28:17'
       type: object
+    ObjectAttributeFillable:
+      allOf:
+      - $ref: '#/components/schemas/ObjectAttributeId'
+      - $ref: '#/components/schemas/ObjectTypeId'
+      - $ref: '#/components/schemas/AttributeFillable'
+      - $ref: '#/components/schemas/ObjectAttributeValue'
     ObjectAttributeCollection:
       allOf:
       - properties:
@@ -426,6 +373,20 @@ components:
               type: object
         type: object
       - $ref: '#/components/schemas/ObjectAttributeFillable'
+    SourceType:
+      properties:
+        type:
+          description: 'Source Type - Options include: clients, connectors (Feeds), other_sources, plugins, or users'
+          type: string
+          example: other_sources
+      type: object
+    AttributeFillable:
+      properties:
+        name:
+          description: Attribute Name
+          type: string
+          example: Confidence
+      type: object
     SourceName:
       properties:
         name:
@@ -433,29 +394,52 @@ components:
           type: string
           example: ThreatQ
       type: object
+    ObjectAttributeSourcePivot:
+      properties:
+        pivot:
+          type: object
+          allOf:
+          - properties:
+              id:
+                description: Object Attribute Source ID
+                type: integer
+                example: 11
+              <object_code>_attribute_id:
+                description: 'Object Type Attribute ID - `<object_code>` should be replaced with the Object Type `code` field. Example: indicator_attribute_id'
+                type: integer
+                example: 8
+            type: object
+          - $ref: '#/components/schemas/ObjectSourceId'
+          - $ref: '#/components/schemas/CreatorSource'
+      type: object
+    Attribute:
+      allOf:
+      - $ref: '#/components/schemas/AttributeId'
+      - $ref: '#/components/schemas/AttributeFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+    ObjectAttributeSourceAsRelation:
+      allOf:
+      - properties:
+          id:
+            description: Object Type Source ID
+            type: integer
+            example: 42
+          tlp_id:
+            description: TLP ID
+            type: integer
+            example: 1
+        type: object
+      - $ref: '#/components/schemas/SourceType'
+      - $ref: '#/components/schemas/SourceReferenceId'
+      - $ref: '#/components/schemas/ObjectSourceFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+      - $ref: '#/components/schemas/PublishedAtTimestamp'
     TLPName:
       properties:
         name:
           description: TLP Name
           type: string
           example: WHITE
-      type: object
-    ObjectAttribute:
-      allOf:
-      - properties:
-          id:
-            description: Object Attribute ID
-            type: integer
-            example: 8
-        type: object
-      - $ref: '#/components/schemas/ObjectAttributeFillable'
-      - $ref: '#/components/schemas/ThreatQTimestamps'
-    ObjectAttributeValue:
-      properties:
-        value:
-          description: Attribute Value
-          type: string
-          example: High
       type: object
     ObjectTypeId:
       properties:
@@ -476,13 +460,22 @@ components:
           tlp:
             $ref: '#/components/schemas/TLPName'
         type: object
-  responses:
-    NoContent:
-      description: Object(s) were successfully deleted.
-    NotFound:
-      description: Object Not Found
-    Unauthorized:
-      description: Unauthorized
+    SourceBasics:
+      oneOf:
+      - allOf:
+        - properties:
+            tlp_id:
+              description: Source TLP ID
+              type: integer
+              example: 3
+          type: object
+        - $ref: '#/components/schemas/SourceName'
+      - allOf:
+        - properties:
+            tlp:
+              $ref: '#/components/schemas/TLPName'
+          type: object
+        - $ref: '#/components/schemas/SourceName'
   parameters:
     ObjectTypeId:
       name: object_type_id
@@ -500,6 +493,54 @@ components:
       schema:
         type: integer
         example: 14,22
+    Limit:
+      name: limit
+      in: query
+      description: <br>The number of objects included in the response.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 10
+    AttributeWith:
+      name: with
+      in: query
+      description: '<br>Object Relationships that can be included in the response.<br><br>Options include: sources'
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+          example: sources
+    ObjectTypeAttributeId:
+      name: object_type_attribute_id
+      in: path
+      description: The ID of the Attribute record for the specified Object Type
+      required: true
+      schema:
+        type: integer
+        example: 3
+    ObjectAttributeCollectionId:
+      name: attribute_id
+      in: path
+      description: Attribute ID - if not provided, the `id` query parameter must be used
+      required: false
+      schema:
+        type: integer
+        example: 5
+    Sort:
+      name: sort
+      in: query
+      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+        example: id,created_at
     ObjectType:
       name: object_type
       in: path
@@ -514,34 +555,6 @@ components:
       schema:
         type: string
         example: indicators
-    Limit:
-      name: limit
-      in: query
-      description: <br>The number of objects included in the response.
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: integer
-        example: 10
-    Sort:
-      name: sort
-      in: query
-      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: string
-        example: id,created_at
-    ObjectAttributeCollectionId:
-      name: attribute_id
-      in: path
-      description: Attribute ID - if not provided, the `id` query parameter must be used
-      required: false
-      schema:
-        type: integer
-        example: 5
     Offset:
       name: offset
       in: query
@@ -552,26 +565,13 @@ components:
       schema:
         type: integer
         example: 50
-    ObjectTypeAttributeId:
-      name: object_type_attribute_id
-      in: path
-      description: The ID of the Attribute record for the specified Object Type
-      required: true
-      schema:
-        type: integer
-        example: 3
-    AttributeWith:
-      name: with
-      in: query
-      description: '<br>Object Relationships that can be included in the response.<br><br>Options include: sources'
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-          example: sources
+  responses:
+    Unauthorized:
+      description: Unauthorized
+    NoContent:
+      description: Object(s) were successfully deleted.
+    NotFound:
+      description: Object Not Found
   securitySchemes:
     BearerAuth:
       type: http

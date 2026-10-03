@@ -95,21 +95,6 @@ paths:
           $ref: '#/components/responses/Success'
       x-visibility: public
 components:
-  responses:
-    Success:
-      description: OK
-    MaintenanceMode:
-      description: System is in Maintenance Mode.
-      content:
-        application/json:
-          schema:
-            properties:
-              errors:
-                type: array
-                items:
-                  type: string
-                  example: ThreatQ is down for maintenance.
-            type: object
   schemas:
     Token:
       properties:
@@ -128,6 +113,21 @@ components:
         token_type: bearer
         expires_in: 3599
         refresh_token: NoPqRsTuVwXyZ
+  responses:
+    MaintenanceMode:
+      description: System is in Maintenance Mode.
+      content:
+        application/json:
+          schema:
+            properties:
+              errors:
+                type: array
+                items:
+                  type: string
+                  example: ThreatQ is down for maintenance.
+            type: object
+    Success:
+      description: OK
   securitySchemes:
     BearerAuth:
       type: http

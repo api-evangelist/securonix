@@ -58,11 +58,6 @@ paths:
       operationId: getByObjectTypeByObjectTypeIdSummary
       x-operation-id-source: derived
 components:
-  responses:
-    NotFound:
-      description: Object Not Found
-    Unauthorized:
-      description: Unauthorized
   parameters:
     ObjectTypeId:
       name: object_type_id
@@ -96,6 +91,11 @@ components:
       schema:
         type: integer
         example: 10
+  responses:
+    NotFound:
+      description: Object Not Found
+    Unauthorized:
+      description: Unauthorized
   securitySchemes:
     BearerAuth:
       type: http

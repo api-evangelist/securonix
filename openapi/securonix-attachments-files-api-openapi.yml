@@ -203,13 +203,62 @@ paths:
       operationId: deleteAttachmentsByAttachmentId
       x-operation-id-source: derived
 components:
-  responses:
-    NoContent:
-      description: Object(s) were successfully deleted.
-    NotFound:
-      description: Object Not Found
-    Unauthorized:
-      description: Unauthorized
+  parameters:
+    AttachmentWith:
+      name: with
+      in: query
+      description: '<br>Object Relationships that can be included in the response.<br><br>Options include: adversaries,
+
+        attachments, attack_pattern, attributes, campaign, comments, contentType, course_of_action, events, exploit_target,
+
+        identity, incident, indicators, intrusion_set, malware, recipient, report, plugins, pluginActions, signatures, sources,
+
+        status, tags, tool, ttp, type, and watchlist.'
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+          example: adversaries,comments,description
+    Limit:
+      name: limit
+      in: query
+      description: <br>The number of objects included in the response.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 10
+    AttachmentId:
+      name: attachment_id
+      in: path
+      description: Attachment (File) ID
+      required: true
+      schema:
+        type: integer
+    Sort:
+      name: sort
+      in: query
+      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+        example: id,created_at
+    Offset:
+      name: offset
+      in: query
+      description: <br>The number of result set records that should be ignored.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 50
   schemas:
     TotalResponse:
       properties:
@@ -218,21 +267,13 @@ components:
           type: integer
           example: 1
       type: object
-    ObjectLinkAttributeFillable:
-      allOf:
-      - $ref: '#/components/schemas/AttributeFillable'
-      - $ref: '#/components/schemas/ObjectAttributeValue'
-    Attachment:
-      allOf:
-      - properties:
-          id:
-            description: Attachment (File) ID
-            type: integer
-            example: 72
-        type: object
-      - $ref: '#/components/schemas/AttachmentFillable'
-      - $ref: '#/components/schemas/ThreatQTimestamps'
-      - $ref: '#/components/schemas/TouchedAtTimestamp'
+    ObjectAttributeValue:
+      properties:
+        value:
+          description: Attribute Value
+          type: string
+          example: High
+      type: object
     ThreatQTimestamps:
       properties:
         created_at:
@@ -287,6 +328,58 @@ components:
           type: integer
           example: 1
       type: object
+    AttributeBasics:
+      allOf:
+      - properties:
+          sources:
+            type: array
+            items:
+              $ref: '#/components/schemas/SourceBasics'
+        type: object
+      - $ref: '#/components/schemas/ObjectLinkAttributeFillable'
+    AttributeFillable:
+      properties:
+        name:
+          description: Attribute Name
+          type: string
+          example: Confidence
+      type: object
+    Attachment:
+      allOf:
+      - properties:
+          id:
+            description: Attachment (File) ID
+            type: integer
+            example: 72
+        type: object
+      - $ref: '#/components/schemas/AttachmentFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+      - $ref: '#/components/schemas/TouchedAtTimestamp'
+    SourceName:
+      properties:
+        name:
+          description: Source Name
+          type: string
+          example: ThreatQ
+      type: object
+    TouchedAtTimestamp:
+      properties:
+        touched_at:
+          description: Update Date for Object Context (Attributes, Comments, Sources, Relationships)
+          type: string
+          example: '2021-11-13 15:28:17'
+      type: object
+    ObjectLinkAttributeFillable:
+      allOf:
+      - $ref: '#/components/schemas/AttributeFillable'
+      - $ref: '#/components/schemas/ObjectAttributeValue'
+    TLPName:
+      properties:
+        name:
+          description: TLP Name
+          type: string
+          example: WHITE
+      type: object
     SourceBasics:
       oneOf:
       - allOf:
@@ -303,106 +396,13 @@ components:
               $ref: '#/components/schemas/TLPName'
           type: object
         - $ref: '#/components/schemas/SourceName'
-    AttributeFillable:
-      properties:
-        name:
-          description: Attribute Name
-          type: string
-          example: Confidence
-      type: object
-    SourceName:
-      properties:
-        name:
-          description: Source Name
-          type: string
-          example: ThreatQ
-      type: object
-    TLPName:
-      properties:
-        name:
-          description: TLP Name
-          type: string
-          example: WHITE
-      type: object
-    ObjectAttributeValue:
-      properties:
-        value:
-          description: Attribute Value
-          type: string
-          example: High
-      type: object
-    AttributeBasics:
-      allOf:
-      - properties:
-          sources:
-            type: array
-            items:
-              $ref: '#/components/schemas/SourceBasics'
-        type: object
-      - $ref: '#/components/schemas/ObjectLinkAttributeFillable'
-    TouchedAtTimestamp:
-      properties:
-        touched_at:
-          description: Update Date for Object Context (Attributes, Comments, Sources, Relationships)
-          type: string
-          example: '2021-11-13 15:28:17'
-      type: object
-  parameters:
-    Limit:
-      name: limit
-      in: query
-      description: <br>The number of objects included in the response.
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: integer
-        example: 10
-    Sort:
-      name: sort
-      in: query
-      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: string
-        example: id,created_at
-    AttachmentId:
-      name: attachment_id
-      in: path
-      description: Attachment (File) ID
-      required: true
-      schema:
-        type: integer
-    Offset:
-      name: offset
-      in: query
-      description: <br>The number of result set records that should be ignored.
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: integer
-        example: 50
-    AttachmentWith:
-      name: with
-      in: query
-      description: '<br>Object Relationships that can be included in the response.<br><br>Options include: adversaries,
-
-        attachments, attack_pattern, attributes, campaign, comments, contentType, course_of_action, events, exploit_target,
-
-        identity, incident, indicators, intrusion_set, malware, recipient, report, plugins, pluginActions, signatures, sources,
-
-        status, tags, tool, ttp, type, and watchlist.'
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-          example: adversaries,comments,description
+  responses:
+    Unauthorized:
+      description: Unauthorized
+    NoContent:
+      description: Object(s) were successfully deleted.
+    NotFound:
+      description: Object Not Found
   securitySchemes:
     BearerAuth:
       type: http

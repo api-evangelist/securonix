@@ -372,34 +372,56 @@ paths:
       - bearerAuth: []
 components:
   schemas:
-    CoverageSummary:
+    ThreatCoverageMetricsResponse:
       type: object
-      description: Coverage summary statistics
+      description: Threat coverage metrics response containing MITRE ATT&CK coverage analysis
       properties:
-        totalTactics:
+        mitreVersion:
+          type: string
+          description: MITRE ATT&CK version used for the analysis
+          example: '18'
+        coverageSummary:
+          $ref: '#/components/schemas/CoverageSummary'
+        policyDistributionByTacticSummary:
+          type: array
+          description: Policy distribution across tactics
+          items:
+            $ref: '#/components/schemas/PolicyDistributionByTacticSummary'
+        coverageAnalysisSummary:
+          type: array
+          description: List of tactics with technique coverage details
+          items:
+            $ref: '#/components/schemas/TacticCoverage'
+      required:
+      - mitreVersion
+      - coverageSummary
+      - policyDistributionByTacticSummary
+      - coverageAnalysisSummary
+    PolicyDistributionByTacticSummary:
+      type: object
+      description: Policy distribution for a specific tactic across environments
+      properties:
+        tacticId:
+          type: string
+          description: MITRE tactic ID (e.g., TA0001)
+          example: TA0001
+        tacticName:
+          type: string
+          description: Tactic name (e.g., Initial Access)
+          example: Initial Access
+        productionPolicyCount:
           type: integer
-          description: Total number of MITRE tactics
-          example: 14
-        totalTechniques:
+          description: Number of production policies for this tactic
+          example: 53
+        sandboxPolicyCount:
           type: integer
-          description: Total number of MITRE techniques
-          example: 193
-        tacticsCoveredForApplicableEnabledPolicies:
-          type: integer
-          description: Number of tactics covered by enabled policies
-          example: 12
-        techniquesCoveredForApplicableEnabledPolicies:
-          type: integer
-          description: Number of techniques covered by enabled policies
-          example: 145
-        tacticsCoveredForOotbPolicies:
-          type: integer
-          description: Number of tactics covered by OOTB policies
-          example: 10
-        techniquesCoveredForOotbPolicies:
-          type: integer
-          description: Number of techniques covered by OOTB policies
-          example: 98
+          description: Number of sandbox policies for this tactic
+          example: 25
+      required:
+      - tacticId
+      - tacticName
+      - productionPolicyCount
+      - sandboxPolicyCount
     Subtechnique:
       type: object
       description: MITRE ATT&CK sub-technique information
@@ -461,31 +483,6 @@ components:
       - coverageStatus
       - hasActiveDatasources
       - hasIdentityBasedPolicies
-    ThreatCoverageMetricsResponse:
-      type: object
-      description: Threat coverage metrics response containing MITRE ATT&CK coverage analysis
-      properties:
-        mitreVersion:
-          type: string
-          description: MITRE ATT&CK version used for the analysis
-          example: '18'
-        coverageSummary:
-          $ref: '#/components/schemas/CoverageSummary'
-        policyDistributionByTacticSummary:
-          type: array
-          description: Policy distribution across tactics
-          items:
-            $ref: '#/components/schemas/PolicyDistributionByTacticSummary'
-        coverageAnalysisSummary:
-          type: array
-          description: List of tactics with technique coverage details
-          items:
-            $ref: '#/components/schemas/TacticCoverage'
-      required:
-      - mitreVersion
-      - coverageSummary
-      - policyDistributionByTacticSummary
-      - coverageAnalysisSummary
     TechniqueDetailsResponse:
       type: object
       description: Detailed information for a specific MITRE ATT&CK technique
@@ -566,9 +563,9 @@ components:
       - mappedPolicies
       - activeDatasources
       - isContentAdmin
-    TacticCoverage:
+    AssociatedTactic:
       type: object
-      description: MITRE ATT&CK tactic coverage details
+      description: MITRE tactic associated with a technique
       properties:
         tacticId:
           type: string
@@ -578,15 +575,9 @@ components:
           type: string
           description: Tactic name (e.g., Initial Access)
           example: Initial Access
-        techniques:
-          type: array
-          description: List of techniques (null for distribution)
-          items:
-            $ref: '#/components/schemas/TechniqueCoverage'
-        policyCount:
-          type: integer
-          description: Policy count (null for coverage analysis)
-          example: 15
+      required:
+      - tacticId
+      - tacticName
     MappedPolicy:
       type: object
       description: Policy mapped to a technique with deployment status
@@ -649,86 +640,6 @@ components:
       - deployed
       - hasActiveDatasources
       - isIdentityBasedPolicy
-    AssociatedTactic:
-      type: object
-      description: MITRE tactic associated with a technique
-      properties:
-        tacticId:
-          type: string
-          description: MITRE tactic ID (e.g., TA0001)
-          example: TA0001
-        tacticName:
-          type: string
-          description: Tactic name (e.g., Initial Access)
-          example: Initial Access
-      required:
-      - tacticId
-      - tacticName
-    ErrorResponse:
-      type: object
-      description: Data model to indicate the status code and error message.
-      properties:
-        statusCode:
-          type: string
-        message:
-          type: string
-      required:
-      - statusCode
-      - message
-      examples:
-      - statusCode: 400 BAD_REQUEST
-        message: 'Client error: 404 NOT_FOUND'
-      - statusCode: 403 FORBIDDEN
-        message: User is Not entitled for getting the requested data
-      - statusCode: 422 Unprocessable Entity
-        message: Parent id not found in Auth token
-      - statusCode: GATEWAY-10-1
-        message: Access token expired
-      x-examples:
-        Example 1:
-          statusCode: 400 BAD_REQUEST
-          message: 'Client error: 404 NOT_FOUND'
-    PolicyDistributionByTacticSummary:
-      type: object
-      description: Policy distribution for a specific tactic across environments
-      properties:
-        tacticId:
-          type: string
-          description: MITRE tactic ID (e.g., TA0001)
-          example: TA0001
-        tacticName:
-          type: string
-          description: Tactic name (e.g., Initial Access)
-          example: Initial Access
-        productionPolicyCount:
-          type: integer
-          description: Number of production policies for this tactic
-          example: 53
-        sandboxPolicyCount:
-          type: integer
-          description: Number of sandbox policies for this tactic
-          example: 25
-      required:
-      - tacticId
-      - tacticName
-      - productionPolicyCount
-      - sandboxPolicyCount
-    400BadRequest:
-      type: object
-      properties:
-        time:
-          type: string
-          description: '*Optional* Timestamp for response'
-        message:
-          type: string
-          description: Error message
-        httpStatus:
-          type: string
-          description: http Status code
-      examples:
-      - time: '2025-07-17T15:10:33.263774233Z'
-        message: 'com.securonix.respexception.exception.InvalidInputException: Invalid value provided for additional criteria selection value. Must be one of [NonBusinessDomains]'
-        httpStatus: INTERNAL_SERVER_ERROR
     TechniqueCoverage:
       type: object
       description: MITRE ATT&CK technique coverage details
@@ -773,6 +684,95 @@ components:
       - coverageStatus
       - mappedPolicyCount
       - datasourceCount
+    ErrorResponse:
+      type: object
+      description: Data model to indicate the status code and error message.
+      properties:
+        statusCode:
+          type: string
+        message:
+          type: string
+      required:
+      - statusCode
+      - message
+      examples:
+      - statusCode: 400 BAD_REQUEST
+        message: 'Client error: 404 NOT_FOUND'
+      - statusCode: 403 FORBIDDEN
+        message: User is Not entitled for getting the requested data
+      - statusCode: 422 Unprocessable Entity
+        message: Parent id not found in Auth token
+      - statusCode: GATEWAY-10-1
+        message: Access token expired
+      x-examples:
+        Example 1:
+          statusCode: 400 BAD_REQUEST
+          message: 'Client error: 404 NOT_FOUND'
+    TacticCoverage:
+      type: object
+      description: MITRE ATT&CK tactic coverage details
+      properties:
+        tacticId:
+          type: string
+          description: MITRE tactic ID (e.g., TA0001)
+          example: TA0001
+        tacticName:
+          type: string
+          description: Tactic name (e.g., Initial Access)
+          example: Initial Access
+        techniques:
+          type: array
+          description: List of techniques (null for distribution)
+          items:
+            $ref: '#/components/schemas/TechniqueCoverage'
+        policyCount:
+          type: integer
+          description: Policy count (null for coverage analysis)
+          example: 15
+    CoverageSummary:
+      type: object
+      description: Coverage summary statistics
+      properties:
+        totalTactics:
+          type: integer
+          description: Total number of MITRE tactics
+          example: 14
+        totalTechniques:
+          type: integer
+          description: Total number of MITRE techniques
+          example: 193
+        tacticsCoveredForApplicableEnabledPolicies:
+          type: integer
+          description: Number of tactics covered by enabled policies
+          example: 12
+        techniquesCoveredForApplicableEnabledPolicies:
+          type: integer
+          description: Number of techniques covered by enabled policies
+          example: 145
+        tacticsCoveredForOotbPolicies:
+          type: integer
+          description: Number of tactics covered by OOTB policies
+          example: 10
+        techniquesCoveredForOotbPolicies:
+          type: integer
+          description: Number of techniques covered by OOTB policies
+          example: 98
+    400BadRequest:
+      type: object
+      properties:
+        time:
+          type: string
+          description: '*Optional* Timestamp for response'
+        message:
+          type: string
+          description: Error message
+        httpStatus:
+          type: string
+          description: http Status code
+      examples:
+      - time: '2025-07-17T15:10:33.263774233Z'
+        message: 'com.securonix.respexception.exception.InvalidInputException: Invalid value provided for additional criteria selection value. Must be one of [NonBusinessDomains]'
+        httpStatus: INTERNAL_SERVER_ERROR
   parameters:
     ClientIdHeader:
       name: client-id

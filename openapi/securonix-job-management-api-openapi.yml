@@ -198,36 +198,27 @@ paths:
           description: Not Found
 components:
   schemas:
-    JobReschedulerPayload:
-      title: JobReschedulerPayload
+    AllImportTriggerDetails:
+      title: AllImportTriggerDetails
       type: object
       properties:
-        crpId:
+        duration:
+          type: string
+        eventsPulledDuringTrigger:
+          type: string
+        jobid:
           type: integer
           format: int64
-        importScheduleJob:
+        resourcegroupID:
           type: string
-        ingesterIdList:
-          type: array
-          items:
-            type: integer
-            format: int64
-        interval:
-          type: integer
-          format: int32
-        jobRepeatCount:
+        resourcegroupname:
           type: string
-        resourceGroupId:
-          type: integer
-          format: int64
-    AllImportTriggersResponse:
-      title: AllImportTriggersResponse
-      type: object
-      properties:
-        importTriggers:
-          type: array
-          items:
-            $ref: '#/components/schemas/AllImportTriggerDetails'
+        status:
+          type: string
+        triggerEndTime:
+          type: string
+        triggerStartTime:
+          type: string
     InProgressJobsResponse:
       title: InProgressJobsResponse
       type: object
@@ -259,6 +250,59 @@ components:
           format: int64
         triggerName:
           type: string
+    HoursJobResponse:
+      title: HoursJobResponse
+      type: object
+      properties:
+        connectionType:
+          type: string
+        createdBy:
+          type: integer
+          format: int64
+        endTime:
+          type: string
+          format: date-time
+        lastStartTime:
+          type: string
+          format: date-time
+        nextFireTime:
+          type: string
+          format: date-time
+        resourceGroupId:
+          type: integer
+          format: int64
+        startTime:
+          type: string
+          format: date-time
+        status:
+          type: string
+        tenantId:
+          type: integer
+          format: int64
+        triggerName:
+          type: string
+    JobReschedulerPayload:
+      title: JobReschedulerPayload
+      type: object
+      properties:
+        crpId:
+          type: integer
+          format: int64
+        importScheduleJob:
+          type: string
+        ingesterIdList:
+          type: array
+          items:
+            type: integer
+            format: int64
+        interval:
+          type: integer
+          format: int32
+        jobRepeatCount:
+          type: string
+        resourceGroupId:
+          type: integer
+          format: int64
     ResponseEntity:
       title: ResponseEntity
       type: object
@@ -339,58 +383,14 @@ components:
         statusCodeValue:
           type: integer
           format: int32
-    HoursJobResponse:
-      title: HoursJobResponse
+    AllImportTriggersResponse:
+      title: AllImportTriggersResponse
       type: object
       properties:
-        connectionType:
-          type: string
-        createdBy:
-          type: integer
-          format: int64
-        endTime:
-          type: string
-          format: date-time
-        lastStartTime:
-          type: string
-          format: date-time
-        nextFireTime:
-          type: string
-          format: date-time
-        resourceGroupId:
-          type: integer
-          format: int64
-        startTime:
-          type: string
-          format: date-time
-        status:
-          type: string
-        tenantId:
-          type: integer
-          format: int64
-        triggerName:
-          type: string
-    AllImportTriggerDetails:
-      title: AllImportTriggerDetails
-      type: object
-      properties:
-        duration:
-          type: string
-        eventsPulledDuringTrigger:
-          type: string
-        jobid:
-          type: integer
-          format: int64
-        resourcegroupID:
-          type: string
-        resourcegroupname:
-          type: string
-        status:
-          type: string
-        triggerEndTime:
-          type: string
-        triggerStartTime:
-          type: string
+        importTriggers:
+          type: array
+          items:
+            $ref: '#/components/schemas/AllImportTriggerDetails'
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

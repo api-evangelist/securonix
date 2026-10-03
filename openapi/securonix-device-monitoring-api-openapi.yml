@@ -129,14 +129,14 @@ paths:
           $ref: '#/components/responses/InternalServerError'
 components:
   responses:
-    Forbidden:
-      description: Forbidden - insufficient permissions
+    TooManyRequests:
+      description: Rate limit exceeded
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
-    TooManyRequests:
-      description: Rate limit exceeded
+    Forbidden:
+      description: Forbidden - insufficient permissions
       content:
         application/json:
           schema:
@@ -160,6 +160,65 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
   schemas:
+    DevicesRequest:
+      type: object
+      properties:
+        max:
+          type: integer
+          description: Maximum number of results to return
+          example: 10
+        offset:
+          type: integer
+          description: Number to offset the pagination by
+          example: 0
+        status:
+          type: string
+          description: Fetch devices based on current status
+          enum:
+          - Trusted
+          - Muted
+          example: Trusted
+        sort:
+          type: string
+          description: The attribute to filter results by
+          enum:
+          - device
+          - rgname
+          - functionality
+          - device_state
+          - tenantname
+          example: device
+        order:
+          type: string
+          description: The order items should be sorted and listed by
+          enum:
+          - asc
+          - desc
+          example: desc
+        searchUserText:
+          type: string
+          description: The search query
+          example: c2040l0232n
+        searchAttrs:
+          type: string
+          description: The device's searched attribute
+          enum:
+          - device
+          - rgname
+          - functionality
+          - device_state
+          - tenantname
+          example: device
+        operator:
+          type: string
+          description: The operator used in the search
+          enum:
+          - equals
+          - contains
+          example: contains
+      required:
+      - status
+      additionalProperties: false
     Device:
       type: object
       properties:
@@ -236,65 +295,6 @@ components:
       required:
       - error
       - code
-      additionalProperties: false
-    DevicesRequest:
-      type: object
-      properties:
-        max:
-          type: integer
-          description: Maximum number of results to return
-          example: 10
-        offset:
-          type: integer
-          description: Number to offset the pagination by
-          example: 0
-        status:
-          type: string
-          description: Fetch devices based on current status
-          enum:
-          - Trusted
-          - Muted
-          example: Trusted
-        sort:
-          type: string
-          description: The attribute to filter results by
-          enum:
-          - device
-          - rgname
-          - functionality
-          - device_state
-          - tenantname
-          example: device
-        order:
-          type: string
-          description: The order items should be sorted and listed by
-          enum:
-          - asc
-          - desc
-          example: desc
-        searchUserText:
-          type: string
-          description: The search query
-          example: c2040l0232n
-        searchAttrs:
-          type: string
-          description: The device's searched attribute
-          enum:
-          - device
-          - rgname
-          - functionality
-          - device_state
-          - tenantname
-          example: device
-        operator:
-          type: string
-          description: The operator used in the search
-          enum:
-          - equals
-          - contains
-          example: contains
-      required:
-      - status
       additionalProperties: false
     ListDevicesResponse:
       type: array

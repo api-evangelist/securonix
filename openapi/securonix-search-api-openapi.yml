@@ -128,44 +128,57 @@ paths:
           $ref: '#/components/responses/NotFound'
       x-visibility: public
 components:
-  responses:
-    NoContent:
-      description: Object(s) were successfully deleted.
-    NotFound:
-      description: Object Not Found
-    Unauthorized:
-      description: Unauthorized
-    SearchList:
-      description: Request Successful
-      content:
-        application/json:
-          schema:
-            properties:
-              data:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Search'
-              total:
-                description: Total number of objects processed
-                type: integer
-                example: 1
-            type: object
-    Search:
-      description: Request Successful
-      content:
-        application/json:
-          schema:
-            properties:
-              data:
-                $ref: '#/components/schemas/Search'
-            type: object
-    FailedValidation:
-      description: Validation Failed
   schemas:
-    LastModifiedAPIFilter:
+    APIFilter:
+      description: Listing of filters to be applied to the advanced search query
       properties:
-        touched_at:
-          $ref: '#/components/schemas/DateAPIFilter'
+        +and:
+          description: 'The and/or criteria to be applied to the query<br /><br /><b>Note:</b><ul><li>Accepted Key Values: <code>+and</code>, <code>-and</code>, <code>+or</code>, <code>-or</code></li><li>To apply a not condition to a grouping use the <code>-</code> sign in place of the <code>+</code></li></ul>'
+          type: array
+          items:
+            anyOf:
+            - $ref: '#/components/schemas/APIFilterConditionalGrouping'
+            - $ref: '#/components/schemas/DateCreatedAPIFilter'
+            - $ref: '#/components/schemas/LastModifiedAPIFilter'
+      type: object
+    APIQuery:
+      description: API query information
+      properties:
+        criteria:
+          $ref: '#/components/schemas/APICriteria'
+        filters:
+          $ref: '#/components/schemas/APIFilter'
+      type: object
+    SearchJson:
+      description: JSON representation of the advanced search query
+      properties:
+        ui_query:
+          $ref: '#/components/schemas/UIQuery'
+        api_query:
+          $ref: '#/components/schemas/APIQuery'
+      type: object
+    APIDateIsWithinTheLast:
+      description: Is within the last date filter
+      properties:
+        +gt:
+          description: Lower bounding date filter<br /><br /><b>Note:</b>This should be set to <code>NOW-[INTERVAL]DAY</code>, where <code>INTERVAL</code> is the number of days
+          type: string
+          example: '2022-08-01 00:00:00'
+        +lt:
+          description: Upper bounding date filter<br /><br /><b>Note:</b>This should be set to <code>NOW</code>
+          type: string
+          example: '2022-08-31 23:59:99'
+      type: object
+    SearchIdentifier:
+      properties:
+        id:
+          description: Id of the data collection
+          type: integer
+          example: 1
+        hash:
+          description: Unique hash of the data collection
+          type: string
+          example: 9548a377155bd3fa13b2a16649c6eb88
       type: object
     UICriteria:
       description: Listing of criteria to be applied to the advanced search query display on the Threat Library
@@ -202,37 +215,13 @@ components:
                 type: object
             type: object
       type: object
-    APIFilter:
-      description: Listing of filters to be applied to the advanced search query
+    DateCreatedUIFilter:
       properties:
-        +and:
-          description: 'The and/or criteria to be applied to the query<br /><br /><b>Note:</b><ul><li>Accepted Key Values: <code>+and</code>, <code>-and</code>, <code>+or</code>, <code>-or</code></li><li>To apply a not condition to a grouping use the <code>-</code> sign in place of the <code>+</code></li></ul>'
+        created_at:
+          description: Listing of date created ui filter object
           type: array
           items:
-            anyOf:
-            - $ref: '#/components/schemas/APIFilterConditionalGrouping'
-            - $ref: '#/components/schemas/DateCreatedAPIFilter'
-            - $ref: '#/components/schemas/LastModifiedAPIFilter'
-      type: object
-    APIDateIsBefore:
-      description: Is before date filter
-      properties:
-        +lt:
-          description: Upper bounding date filter
-          type: string
-          example: '2022-08-31 23:59:99'
-      type: object
-    APIDateIsBetween:
-      description: Is between date filter
-      properties:
-        +gt:
-          description: Lower bounding date filter
-          type: string
-          example: '2022-08-01 00:00:00'
-        +lt:
-          description: Upper bounding date filter
-          type: string
-          example: '2022-08-31 23:59:99'
+            $ref: '#/components/schemas/DateUIFilter'
       type: object
     LastModifiedUIFilter:
       properties:
@@ -241,47 +230,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/DateUIFilter'
-      type: object
-    KeywordAPIFilter:
-      properties:
-        mentions:
-          description: Keyword api filter value
-          type: string
-          example: www.threatquotient.com
-      type: object
-    ThreatQTimestamps:
-      properties:
-        created_at:
-          description: Creation Date
-          type: string
-          example: '2021-07-29 13:58:03'
-        updated_at:
-          description: Update Date
-          type: string
-          example: '2022-04-12 08:32:16'
-      type: object
-    SearchIdentifier:
-      properties:
-        id:
-          description: Id of the data collection
-          type: integer
-          example: 1
-        hash:
-          description: Unique hash of the data collection
-          type: string
-          example: 9548a377155bd3fa13b2a16649c6eb88
-      type: object
-    APIDateIsWithinTheLast:
-      description: Is within the last date filter
-      properties:
-        +gt:
-          description: Lower bounding date filter<br /><br /><b>Note:</b>This should be set to <code>NOW-[INTERVAL]DAY</code>, where <code>INTERVAL</code> is the number of days
-          type: string
-          example: '2022-08-01 00:00:00'
-        +lt:
-          description: Upper bounding date filter<br /><br /><b>Note:</b>This should be set to <code>NOW</code>
-          type: string
-          example: '2022-08-31 23:59:99'
       type: object
     UIIndicatorColumn:
       properties:
@@ -307,19 +255,77 @@ components:
             - attribute.[NAME]
             example: author
       type: object
+    KeywordAPIFilter:
+      properties:
+        mentions:
+          description: Keyword api filter value
+          type: string
+          example: www.threatquotient.com
+      type: object
     Search:
       allOf:
       - $ref: '#/components/schemas/SearchIdentifier'
       - $ref: '#/components/schemas/SearchFillable'
       - $ref: '#/components/schemas/ThreatQTimestamps'
-    APIDateIsAfter:
-      description: Is after date filter
+    ThreatQTimestamps:
+      properties:
+        created_at:
+          description: Creation Date
+          type: string
+          example: '2021-07-29 13:58:03'
+        updated_at:
+          description: Update Date
+          type: string
+          example: '2022-04-12 08:32:16'
+      type: object
+    UIQuery:
+      description: UI query information
+      properties:
+        columns:
+          $ref: '#/components/schemas/UIColumns'
+        criteria:
+          $ref: '#/components/schemas/UICriteria'
+        filters:
+          $ref: '#/components/schemas/UIFilter'
+        objects:
+          $ref: '#/components/schemas/UIObject'
+        filter_sets:
+          description: Listing of filter set information
+          type: array
+          items:
+            $ref: '#/components/schemas/UIFilterSet'
+      type: object
+    APICriteriaConditionalGrouping:
+      properties:
+        +or:
+          description: 'And/or criteria to be applied to the advanced search query<br /><br /><b>Note:</b><ul><li>Accepted Key Values: <code>+and</code>, <code>-and</code>, <code>+or</code>, <code>-or</code></li><li>To apply a not condition to a grouping use the <code>-</code> sign in place of the <code>+</code></li><li>There is no limit to how many nested and/or conditions that can be applied</li></ul>'
+          type: array
+          items:
+            anyOf:
+            - $ref: '#/components/schemas/KeywordAPIFilter'
+      type: object
+    DateCreatedAPIFilter:
+      properties:
+        created_at:
+          $ref: '#/components/schemas/DateAPIFilter'
+      type: object
+    APIDateIsBetween:
+      description: Is between date filter
       properties:
         +gt:
           description: Lower bounding date filter
           type: string
           example: '2022-08-01 00:00:00'
+        +lt:
+          description: Upper bounding date filter
+          type: string
+          example: '2022-08-31 23:59:99'
       type: object
+    UIFilter:
+      description: Listing of filters to be applied to the advanced search query display on the Threat Library
+      anyOf:
+      - $ref: '#/components/schemas/DateCreatedUIFilter'
+      - $ref: '#/components/schemas/LastModifiedUIFilter'
     DateUIFilter:
       properties:
         startDate:
@@ -343,73 +349,6 @@ components:
           type: integer
           example: 0
       type: object
-    UIColumns:
-      description: Listing of columns per object type to be displayed on the Threat Library
-      anyOf:
-      - $ref: '#/components/schemas/UIIndicatorColumn'
-    UIFilter:
-      description: Listing of filters to be applied to the advanced search query display on the Threat Library
-      anyOf:
-      - $ref: '#/components/schemas/DateCreatedUIFilter'
-      - $ref: '#/components/schemas/LastModifiedUIFilter'
-    UIFilterSet:
-      description: Filter set information
-      properties:
-        id:
-          description: Filter Set ID
-          type: integer
-          example: 0
-        operator:
-          description: Filter Set Operator
-          type: string
-          enum:
-          - and
-          - or
-          example: or
-        isNegated:
-          description: Filter Set Is Negated
-          type: boolean
-          example: false
-        expanded:
-          description: Filter Set Expanded
-          type: boolean
-          example: true
-      type: object
-    UIQuery:
-      description: UI query information
-      properties:
-        columns:
-          $ref: '#/components/schemas/UIColumns'
-        criteria:
-          $ref: '#/components/schemas/UICriteria'
-        filters:
-          $ref: '#/components/schemas/UIFilter'
-        objects:
-          $ref: '#/components/schemas/UIObject'
-        filter_sets:
-          description: Listing of filter set information
-          type: array
-          items:
-            $ref: '#/components/schemas/UIFilterSet'
-      type: object
-    APIFilterConditionalGrouping:
-      properties:
-        +or:
-          description: 'And/or criteria to be applied to the advanced search query<br /><br /><b>Note:</b><ul><li>Accepted Key Values: <code>+and</code>, <code>-and</code>, <code>+or</code>, <code>-or</code></li><li>To apply a not condition to a grouping use the <code>-</code> sign in place of the <code>+</code></li><li>There is no limit to how many nested and/or conditions that can be applied</li></ul>'
-          type: array
-          items:
-            anyOf:
-            - $ref: '#/components/schemas/DateCreatedAPIFilter'
-            - $ref: '#/components/schemas/LastModifiedAPIFilter'
-      type: object
-    SearchJson:
-      description: JSON representation of the advanced search query
-      properties:
-        ui_query:
-          $ref: '#/components/schemas/UIQuery'
-        api_query:
-          $ref: '#/components/schemas/APIQuery'
-      type: object
     SearchFillable:
       properties:
         name:
@@ -419,40 +358,15 @@ components:
         json:
           $ref: '#/components/schemas/SearchJson'
       type: object
-    DateCreatedUIFilter:
+    LastModifiedAPIFilter:
       properties:
-        created_at:
-          description: Listing of date created ui filter object
-          type: array
-          items:
-            $ref: '#/components/schemas/DateUIFilter'
+        touched_at:
+          $ref: '#/components/schemas/DateAPIFilter'
       type: object
-    APICriteria:
-      description: Listing of criteria to be applied to the advanced search query
-      properties:
-        +and:
-          description: 'And/or criteria to be applied to the query<br /><br /><b>Note:</b><ul><li>Accepted Key Values: <code>+and</code>, <code>-and</code>, <code>+or</code>, <code>-or</code></li><li>To apply a not condition to a grouping use the <code>-</code> sign in place of the <code>+</code></li></ul>'
-          type: array
-          items:
-            anyOf:
-            - $ref: '#/components/schemas/APICriteriaConditionalGrouping'
-            - $ref: '#/components/schemas/KeywordAPIFilter'
-      type: object
-    DateAPIFilter:
-      description: Date API filter object
+    UIColumns:
+      description: Listing of columns per object type to be displayed on the Threat Library
       anyOf:
-      - $ref: '#/components/schemas/APIDateIsAfter'
-      - $ref: '#/components/schemas/APIDateIsBefore'
-      - $ref: '#/components/schemas/APIDateIsBetween'
-      - $ref: '#/components/schemas/APIDateIsWithinTheLast'
-    APIQuery:
-      description: API query information
-      properties:
-        criteria:
-          $ref: '#/components/schemas/APICriteria'
-        filters:
-          $ref: '#/components/schemas/APIFilter'
-      type: object
+      - $ref: '#/components/schemas/UIIndicatorColumn'
     UIObject:
       description: Object information
       properties:
@@ -510,29 +424,82 @@ components:
                 example: indicators
             type: object
       type: object
-    APICriteriaConditionalGrouping:
+    DateAPIFilter:
+      description: Date API filter object
+      anyOf:
+      - $ref: '#/components/schemas/APIDateIsAfter'
+      - $ref: '#/components/schemas/APIDateIsBefore'
+      - $ref: '#/components/schemas/APIDateIsBetween'
+      - $ref: '#/components/schemas/APIDateIsWithinTheLast'
+    UIFilterSet:
+      description: Filter set information
+      properties:
+        id:
+          description: Filter Set ID
+          type: integer
+          example: 0
+        operator:
+          description: Filter Set Operator
+          type: string
+          enum:
+          - and
+          - or
+          example: or
+        isNegated:
+          description: Filter Set Is Negated
+          type: boolean
+          example: false
+        expanded:
+          description: Filter Set Expanded
+          type: boolean
+          example: true
+      type: object
+    APIDateIsBefore:
+      description: Is before date filter
+      properties:
+        +lt:
+          description: Upper bounding date filter
+          type: string
+          example: '2022-08-31 23:59:99'
+      type: object
+    APICriteria:
+      description: Listing of criteria to be applied to the advanced search query
+      properties:
+        +and:
+          description: 'And/or criteria to be applied to the query<br /><br /><b>Note:</b><ul><li>Accepted Key Values: <code>+and</code>, <code>-and</code>, <code>+or</code>, <code>-or</code></li><li>To apply a not condition to a grouping use the <code>-</code> sign in place of the <code>+</code></li></ul>'
+          type: array
+          items:
+            anyOf:
+            - $ref: '#/components/schemas/APICriteriaConditionalGrouping'
+            - $ref: '#/components/schemas/KeywordAPIFilter'
+      type: object
+    APIFilterConditionalGrouping:
       properties:
         +or:
           description: 'And/or criteria to be applied to the advanced search query<br /><br /><b>Note:</b><ul><li>Accepted Key Values: <code>+and</code>, <code>-and</code>, <code>+or</code>, <code>-or</code></li><li>To apply a not condition to a grouping use the <code>-</code> sign in place of the <code>+</code></li><li>There is no limit to how many nested and/or conditions that can be applied</li></ul>'
           type: array
           items:
             anyOf:
-            - $ref: '#/components/schemas/KeywordAPIFilter'
+            - $ref: '#/components/schemas/DateCreatedAPIFilter'
+            - $ref: '#/components/schemas/LastModifiedAPIFilter'
       type: object
-    DateCreatedAPIFilter:
+    APIDateIsAfter:
+      description: Is after date filter
       properties:
-        created_at:
-          $ref: '#/components/schemas/DateAPIFilter'
+        +gt:
+          description: Lower bounding date filter
+          type: string
+          example: '2022-08-01 00:00:00'
       type: object
   parameters:
-    CreatedAtSearch:
-      name: created_at
+    SearchHashQuery:
+      name: hash
       in: query
-      description: <br>Objects created at date to search on
+      description: <br/>Data collection hash to search on
       required: false
       schema:
         type: string
-        example: '2022-08-01 00:00:00'
+        example: 9548a377155bd3fa13b2a16649c6eb88
     SearchWith:
       name: with
       in: query
@@ -541,14 +508,6 @@ components:
       schema:
         type: string
         example: dashboards,tqxFeeds,workflowDefinitions
-    SearchHashPath:
-      name: hash
-      in: path
-      description: <br />Unique identifier of the data collection
-      required: true
-      schema:
-        type: string
-        example: 9548a377155bd3fa13b2a16649c6eb88
     Limit:
       name: limit
       in: query
@@ -559,14 +518,45 @@ components:
       schema:
         type: integer
         example: 10
-    SearchName:
-      name: name
+    RelationshipSearch:
+      name: '[RELATIONSHIP].[FIELD]'
       in: query
-      description: <br/>Data collection name to search on
+      description: '<br>Object''s related objects field to search on<br /><br /><b>Note:</b><ul><li><code>RELATIONSHIP</code>: Any valid relationship for the object</li><li><code>FIELD</code>: Any valid field in the related object</li></ul>'
+      required: false
+      schema:
+        anyOf:
+        - property: UNKNOWN_1
+          description: Text value to search on
+          type: string
+          example: Relationship Field Value
+        - property: UNKNOWN_2
+          description: Integer value to search on
+          type: integer
+          example: 1
+    SearchHashPath:
+      name: hash
+      in: path
+      description: <br />Unique identifier of the data collection
+      required: true
+      schema:
+        type: string
+        example: 9548a377155bd3fa13b2a16649c6eb88
+    UpdatedAtSearch:
+      name: updated_at
+      in: query
+      description: <br>Objects updated at date to search on
       required: false
       schema:
         type: string
-        example: My Data Collection
+        example: '2022-08-01 00:00:00'
+    SearchID:
+      name: id
+      in: query
+      description: <br/>Data collection id to search on
+      required: false
+      schema:
+        type: integer
+        example: 1
     Fields:
       name: fields
       in: query
@@ -589,14 +579,14 @@ components:
       schema:
         type: string
         example: id,created_at
-    SearchID:
-      name: id
+    CreatedAtSearch:
+      name: created_at
       in: query
-      description: <br/>Data collection id to search on
+      description: <br>Objects created at date to search on
       required: false
       schema:
-        type: integer
-        example: 1
+        type: string
+        example: '2022-08-01 00:00:00'
     Offset:
       name: offset
       in: query
@@ -607,37 +597,47 @@ components:
       schema:
         type: integer
         example: 50
-    SearchHashQuery:
-      name: hash
+    SearchName:
+      name: name
       in: query
-      description: <br/>Data collection hash to search on
+      description: <br/>Data collection name to search on
       required: false
       schema:
         type: string
-        example: 9548a377155bd3fa13b2a16649c6eb88
-    RelationshipSearch:
-      name: '[RELATIONSHIP].[FIELD]'
-      in: query
-      description: '<br>Object''s related objects field to search on<br /><br /><b>Note:</b><ul><li><code>RELATIONSHIP</code>: Any valid relationship for the object</li><li><code>FIELD</code>: Any valid field in the related object</li></ul>'
-      required: false
-      schema:
-        anyOf:
-        - property: UNKNOWN_1
-          description: Text value to search on
-          type: string
-          example: Relationship Field Value
-        - property: UNKNOWN_2
-          description: Integer value to search on
-          type: integer
-          example: 1
-    UpdatedAtSearch:
-      name: updated_at
-      in: query
-      description: <br>Objects updated at date to search on
-      required: false
-      schema:
-        type: string
-        example: '2022-08-01 00:00:00'
+        example: My Data Collection
+  responses:
+    FailedValidation:
+      description: Validation Failed
+    Search:
+      description: Request Successful
+      content:
+        application/json:
+          schema:
+            properties:
+              data:
+                $ref: '#/components/schemas/Search'
+            type: object
+    Unauthorized:
+      description: Unauthorized
+    SearchList:
+      description: Request Successful
+      content:
+        application/json:
+          schema:
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Search'
+              total:
+                description: Total number of objects processed
+                type: integer
+                example: 1
+            type: object
+    NoContent:
+      description: Object(s) were successfully deleted.
+    NotFound:
+      description: Object Not Found
   securitySchemes:
     BearerAuth:
       type: http

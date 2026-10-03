@@ -78,7 +78,87 @@ paths:
       operationId: getTagsByTagId}{?with
       x-operation-id-source: derived
 components:
+  parameters:
+    TagId:
+      name: tag_id
+      in: path
+      description: Tag ID
+      required: true
+      schema:
+        type: integer
+    TagWithObjects:
+      name: with_DUPLICATES_PREVIOUS_NAME
+      in: query
+      description: <br>Related Object IDs (as opposed to full Object models) that can be included in the response.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+        example: objects
+    Limit:
+      name: limit
+      in: query
+      description: <br>The number of objects included in the response.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 10
+    TagWith:
+      name: with
+      in: query
+      description: "<br>Related Object models that can be included in the response.<br><br>Options include: adversaries, \nattachments, attack_pattern, campaign, course_of_action, events, exploit_target, identity, incident, indicators,\nintrusion_set, malware, recipient, report, signatures, tool, and ttp."
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+        example: adversaries,indicators,course_of_action
+    Sort:
+      name: sort
+      in: query
+      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+        example: id,created_at
+    Offset:
+      name: offset
+      in: query
+      description: <br>The number of result set records that should be ignored.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 50
   schemas:
+    CourseOfAction:
+      allOf:
+      - properties:
+          id:
+            description: Course of Action ID
+            type: integer
+            example: 6274
+        type: object
+      - $ref: '#/components/schemas/CourseOfActionFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+      - $ref: '#/components/schemas/TouchedAtTimestamp'
+    CourseOfActionFillable:
+      properties:
+        value:
+          description: Course of Action Value
+          type: string
+          example: TXXXX - Account Discovery Mitigation
+        description:
+          description: Description for the Course of Action
+          type: string
+          example: Prevent administrator accounts from...
+      type: object
     TotalResponse:
       properties:
         total:
@@ -86,6 +166,61 @@ components:
           type: integer
           example: 1
       type: object
+    TagPivot:
+      allOf:
+      - properties:
+          tag_id:
+            description: Tag ID
+            type: integer
+            example: 1
+          object_id:
+            description: Object ID
+            type: integer
+            example: 54
+        type: object
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+    TagWithRelationships:
+      allOf:
+      - properties:
+          adversaries:
+            type: array
+            items:
+              $ref: '#/components/schemas/AdversaryTag'
+          indicators:
+            type: array
+            items:
+              $ref: '#/components/schemas/IndicatorTag'
+          course_of_action:
+            type: array
+            items:
+              $ref: '#/components/schemas/CourseOfActionTag'
+        type: object
+      - $ref: '#/components/schemas/Tag'
+    ThreatQTimestamps:
+      properties:
+        created_at:
+          description: Creation Date
+          type: string
+          example: '2021-07-29 13:58:03'
+        updated_at:
+          description: Update Date
+          type: string
+          example: '2022-04-12 08:32:16'
+      type: object
+    IndicatorTag:
+      allOf:
+      - properties:
+          pivot:
+            $ref: '#/components/schemas/TagPivot'
+        type: object
+      - $ref: '#/components/schemas/Indicator'
+    AdversaryTag:
+      allOf:
+      - properties:
+          pivot:
+            $ref: '#/components/schemas/TagPivot'
+        type: object
+      - $ref: '#/components/schemas/Adversary'
     Adversary:
       allOf:
       - properties:
@@ -97,6 +232,13 @@ components:
       - $ref: '#/components/schemas/AdversaryFillable'
       - $ref: '#/components/schemas/ThreatQTimestamps'
       - $ref: '#/components/schemas/TouchedAtTimestamp'
+    AdversaryFillable:
+      properties:
+        name:
+          description: Adversary Name
+          type: string
+          example: Sad Panda
+      type: object
     IndicatorFillable:
       properties:
         type_id:
@@ -120,70 +262,6 @@ components:
           type: string
           example: Website encountered during incident investigation.
       type: object
-    CourseOfAction:
-      allOf:
-      - properties:
-          id:
-            description: Course of Action ID
-            type: integer
-            example: 6274
-        type: object
-      - $ref: '#/components/schemas/CourseOfActionFillable'
-      - $ref: '#/components/schemas/ThreatQTimestamps'
-      - $ref: '#/components/schemas/TouchedAtTimestamp'
-    ThreatQTimestamps:
-      properties:
-        created_at:
-          description: Creation Date
-          type: string
-          example: '2021-07-29 13:58:03'
-        updated_at:
-          description: Update Date
-          type: string
-          example: '2022-04-12 08:32:16'
-      type: object
-    TagWithRelationships:
-      allOf:
-      - properties:
-          adversaries:
-            type: array
-            items:
-              $ref: '#/components/schemas/AdversaryTag'
-          indicators:
-            type: array
-            items:
-              $ref: '#/components/schemas/IndicatorTag'
-          course_of_action:
-            type: array
-            items:
-              $ref: '#/components/schemas/CourseOfActionTag'
-        type: object
-      - $ref: '#/components/schemas/Tag'
-    AdversaryFillable:
-      properties:
-        name:
-          description: Adversary Name
-          type: string
-          example: Sad Panda
-      type: object
-    TagFillable:
-      properties:
-        name:
-          description: Tag Name
-          type: string
-          example: Ominous
-      type: object
-    CourseOfActionFillable:
-      properties:
-        value:
-          description: Course of Action Value
-          type: string
-          example: TXXXX - Account Discovery Mitigation
-        description:
-          description: Description for the Course of Action
-          type: string
-          example: Prevent administrator accounts from...
-      type: object
     CourseOfActionTag:
       allOf:
       - properties:
@@ -191,13 +269,13 @@ components:
             $ref: '#/components/schemas/TagPivot'
         type: object
       - $ref: '#/components/schemas/CourseOfAction'
-    IndicatorTag:
-      allOf:
-      - properties:
-          pivot:
-            $ref: '#/components/schemas/TagPivot'
-        type: object
-      - $ref: '#/components/schemas/Indicator'
+    TouchedAtTimestamp:
+      properties:
+        touched_at:
+          description: Update Date for Object Context (Attributes, Comments, Sources, Relationships)
+          type: string
+          example: '2021-11-13 15:28:17'
+      type: object
     Tag:
       allOf:
       - properties:
@@ -207,32 +285,12 @@ components:
             example: 81
         type: object
       - $ref: '#/components/schemas/TagFillable'
-    AdversaryTag:
-      allOf:
-      - properties:
-          pivot:
-            $ref: '#/components/schemas/TagPivot'
-        type: object
-      - $ref: '#/components/schemas/Adversary'
-    TagPivot:
-      allOf:
-      - properties:
-          tag_id:
-            description: Tag ID
-            type: integer
-            example: 1
-          object_id:
-            description: Object ID
-            type: integer
-            example: 54
-        type: object
-      - $ref: '#/components/schemas/ThreatQTimestamps'
-    TouchedAtTimestamp:
+    TagFillable:
       properties:
-        touched_at:
-          description: Update Date for Object Context (Attributes, Comments, Sources, Relationships)
+        name:
+          description: Tag Name
           type: string
-          example: '2021-11-13 15:28:17'
+          example: Ominous
       type: object
     Indicator:
       allOf:
@@ -271,69 +329,11 @@ components:
       - $ref: '#/components/schemas/IndicatorFillable'
       - $ref: '#/components/schemas/ThreatQTimestamps'
       - $ref: '#/components/schemas/TouchedAtTimestamp'
-  parameters:
-    TagWith:
-      name: with
-      in: query
-      description: "<br>Related Object models that can be included in the response.<br><br>Options include: adversaries, \nattachments, attack_pattern, campaign, course_of_action, events, exploit_target, identity, incident, indicators,\nintrusion_set, malware, recipient, report, signatures, tool, and ttp."
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: string
-        example: adversaries,indicators,course_of_action
-    Limit:
-      name: limit
-      in: query
-      description: <br>The number of objects included in the response.
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: integer
-        example: 10
-    Sort:
-      name: sort
-      in: query
-      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: string
-        example: id,created_at
-    Offset:
-      name: offset
-      in: query
-      description: <br>The number of result set records that should be ignored.
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: integer
-        example: 50
-    TagWithObjects:
-      name: with_DUPLICATES_PREVIOUS_NAME
-      in: query
-      description: <br>Related Object IDs (as opposed to full Object models) that can be included in the response.
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: string
-        example: objects
-    TagId:
-      name: tag_id
-      in: path
-      description: Tag ID
-      required: true
-      schema:
-        type: integer
   responses:
-    NotFound:
-      description: Object Not Found
     Unauthorized:
       description: Unauthorized
+    NotFound:
+      description: Object Not Found
   securitySchemes:
     BearerAuth:
       type: http

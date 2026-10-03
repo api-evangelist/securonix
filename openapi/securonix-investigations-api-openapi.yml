@@ -203,13 +203,6 @@ paths:
       operationId: deleteInvestigationsByInvestigationId
       x-operation-id-source: derived
 components:
-  responses:
-    NoContent:
-      description: Object(s) were successfully deleted.
-    NotFound:
-      description: Object Not Found
-    Unauthorized:
-      description: Unauthorized
   schemas:
     TotalResponse:
       properties:
@@ -218,10 +211,13 @@ components:
           type: integer
           example: 1
       type: object
-    ObjectLinkAttributeFillable:
-      allOf:
-      - $ref: '#/components/schemas/AttributeFillable'
-      - $ref: '#/components/schemas/ObjectAttributeValue'
+    ObjectAttributeValue:
+      properties:
+        value:
+          description: Attribute Value
+          type: string
+          example: High
+      type: object
     ThreatQTimestamps:
       properties:
         created_at:
@@ -233,6 +229,51 @@ components:
           type: string
           example: '2022-04-12 08:32:16'
       type: object
+    AttributeBasics:
+      allOf:
+      - properties:
+          sources:
+            type: array
+            items:
+              $ref: '#/components/schemas/SourceBasics'
+        type: object
+      - $ref: '#/components/schemas/ObjectLinkAttributeFillable'
+    AttributeFillable:
+      properties:
+        name:
+          description: Attribute Name
+          type: string
+          example: Confidence
+      type: object
+    SourceName:
+      properties:
+        name:
+          description: Source Name
+          type: string
+          example: ThreatQ
+      type: object
+    ObjectLinkAttributeFillable:
+      allOf:
+      - $ref: '#/components/schemas/AttributeFillable'
+      - $ref: '#/components/schemas/ObjectAttributeValue'
+    TouchedAtTimestamp:
+      properties:
+        touched_at:
+          description: Update Date for Object Context (Attributes, Comments, Sources, Relationships)
+          type: string
+          example: '2021-11-13 15:28:17'
+      type: object
+    Investigation:
+      allOf:
+      - properties:
+          id:
+            description: Investigation ID
+            type: integer
+            example: 939
+        type: object
+      - $ref: '#/components/schemas/InvestigationFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+      - $ref: '#/components/schemas/TouchedAtTimestamp'
     InvestigationFillable:
       properties:
         name:
@@ -256,6 +297,13 @@ components:
           type: string
           example: NOT SURE THIS IS USED BY THE UI ANYMORE (IF EVER)
       type: object
+    TLPName:
+      properties:
+        name:
+          description: TLP Name
+          type: string
+          example: WHITE
+      type: object
     SourceBasics:
       oneOf:
       - allOf:
@@ -272,62 +320,24 @@ components:
               $ref: '#/components/schemas/TLPName'
           type: object
         - $ref: '#/components/schemas/SourceName'
-    Investigation:
-      allOf:
-      - properties:
-          id:
-            description: Investigation ID
-            type: integer
-            example: 939
-        type: object
-      - $ref: '#/components/schemas/InvestigationFillable'
-      - $ref: '#/components/schemas/ThreatQTimestamps'
-      - $ref: '#/components/schemas/TouchedAtTimestamp'
-    AttributeFillable:
-      properties:
-        name:
-          description: Attribute Name
-          type: string
-          example: Confidence
-      type: object
-    SourceName:
-      properties:
-        name:
-          description: Source Name
-          type: string
-          example: ThreatQ
-      type: object
-    TLPName:
-      properties:
-        name:
-          description: TLP Name
-          type: string
-          example: WHITE
-      type: object
-    ObjectAttributeValue:
-      properties:
-        value:
-          description: Attribute Value
-          type: string
-          example: High
-      type: object
-    AttributeBasics:
-      allOf:
-      - properties:
-          sources:
-            type: array
-            items:
-              $ref: '#/components/schemas/SourceBasics'
-        type: object
-      - $ref: '#/components/schemas/ObjectLinkAttributeFillable'
-    TouchedAtTimestamp:
-      properties:
-        touched_at:
-          description: Update Date for Object Context (Attributes, Comments, Sources, Relationships)
-          type: string
-          example: '2021-11-13 15:28:17'
-      type: object
   parameters:
+    Limit:
+      name: limit
+      in: query
+      description: <br>The number of objects included in the response.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 10
+    InvestigationId:
+      name: investigation_id
+      in: path
+      description: Investigation ID
+      required: true
+      schema:
+        type: integer
     InvestigationWith:
       name: with
       in: query
@@ -346,23 +356,6 @@ components:
         items:
           type: string
           example: adversaries,comments,description
-    Limit:
-      name: limit
-      in: query
-      description: <br>The number of objects included in the response.
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: integer
-        example: 10
-    InvestigationId:
-      name: investigation_id
-      in: path
-      description: Investigation ID
-      required: true
-      schema:
-        type: integer
     Sort:
       name: sort
       in: query
@@ -383,6 +376,13 @@ components:
       schema:
         type: integer
         example: 50
+  responses:
+    Unauthorized:
+      description: Unauthorized
+    NoContent:
+      description: Object(s) were successfully deleted.
+    NotFound:
+      description: Object Not Found
   securitySchemes:
     BearerAuth:
       type: http

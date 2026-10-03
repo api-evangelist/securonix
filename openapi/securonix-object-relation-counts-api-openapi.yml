@@ -133,14 +133,6 @@ paths:
       x-operation-id-source: derived
 components:
   parameters:
-    ObjectTypeId:
-      name: object_type_id
-      in: path
-      description: The ID for the record of the specified Object Type whose context you would like to retrieve
-      required: true
-      schema:
-        type: integer
-        example: 6
     ObjectType:
       name: object_type
       in: path
@@ -155,11 +147,19 @@ components:
       schema:
         type: string
         example: indicators
+    ObjectTypeId:
+      name: object_type_id
+      in: path
+      description: The ID for the record of the specified Object Type whose context you would like to retrieve
+      required: true
+      schema:
+        type: integer
+        example: 6
   responses:
-    NotFound:
-      description: Object Not Found
     Unauthorized:
       description: Unauthorized
+    NotFound:
+      description: Object Not Found
   securitySchemes:
     BearerAuth:
       type: http

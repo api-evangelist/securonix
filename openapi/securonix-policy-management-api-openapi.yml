@@ -1711,305 +1711,6 @@ paths:
       - bearerAuth: []
 components:
   schemas:
-    AddToWatchlist:
-      type: object
-      properties:
-        watchlist_name:
-          type: string
-          description: Watchlist name
-        removal_period:
-          $ref: '#/components/schemas/RemovalPeriod'
-          description: Time period after which the violator is removed from the watchlist.
-      required:
-      - watchlist_name
-      - removal_period
-      examples:
-      - watchlist_name: Domain_Admin
-        removal_period:
-          days: 1
-          time: '12:00:00'
-          expiry_date_from_current_time: true
-    RemovalPeriod:
-      type: object
-      properties:
-        days:
-          type: integer
-          description: Number of days
-          minimum: 0
-          maximum: 365
-        time:
-          type: string
-          description: Time in HH:mm:ss format
-          pattern: ^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$
-        expiry_date_from_current_time:
-          type: boolean
-          description: Calculate expiry from current time
-          default: false
-      required:
-      - days
-    ActivelistConfig:
-      type: object
-      title: ActivelistConfig
-      properties:
-        rule:
-          type: string
-          description: "Specifies which mapped attributes should be concatenated to form the key that will be matched against entries in the Lookup Table.\n\n**Usage:**\n- A single mapped attribute can be used directly.\n- Multiple mapped attributes can be concatenated with the `+` operator.\n- Literal strings or symbols can also be inserted into the concatenation by wrapping them in parentheses.\n\n**Concatenation rules:**\n- `attribute1 + attribute2` — joins values of both attributes.\n- `attribute(length)` — takes only the first *length* characters of the attribute.\n- `attribute(start,end)` — takes a substring from position *start* to *end* (1-based indexing).\n- `(literal)` — inserts a literal string or character between attributes.\n\n**Examples:**\n1. **Concatenate two attributes**\n    ```yaml\n    accountname+ipaddress\n    ```\n    Produces a key formed by joining `accountname` and `ipaddress`.\n\n2. **Attribute with substring limit**\n    ```yaml\n    transactionstring1(50)+accountname(1,3)\n    ```\n    Produces a key using:\n    - First 50 characters of `transactionstring1`\n    - First 3 characters of `accountname`\n\n3. **Insert literal between attributes**\n    ```yaml\n    emailsender+(.)+filename\n    ```\n    Produces a key formed by:\n    - Value of `emailsender`\n    - The literal `.`\n    - Value of `filename`"
-        rule_match_present:
-          type: boolean
-          description: Check if the values matching rule provided is present.
-          default: true
-        activelist_name:
-          type: string
-          description: Name of the activelist.
-      required:
-      - rule
-      - activelist_name
-      examples:
-      - rule: ipaddress
-        rule_match_present: true
-        activelist_name: Password_spraying_attempts_From_single_IP
-    PaginatedResponse:
-      type: object
-      title: PaginatedResponse
-      properties:
-        pageNumber:
-          type: integer
-          description: Current page number.
-          format: int32
-        pageSize:
-          type: integer
-          description: Number of items in current page.
-          format: int32
-        totalPages:
-          type: integer
-          description: Total number of pages matching the request.
-          format: int32
-        totalElements:
-          type: integer
-          description: Total number of items matching the request.
-          format: int32
-        data:
-          type: array
-          description: "List of items matching the request.  \n\n- If the `columns` parameter is provided, the response will include **only the specified fields** for each record.  \n- If `columns` is not provided, the response will include **all fields** for the policy that matches the request.  \n\n> The schema shown here is all-inclusive. The actual response may contain only a subset of fields, depending on the `columns` parameter."
-          items:
-            $ref: '#/components/schemas/CreatePolicyResponse'
-      examples:
-      - pageNumber: 0
-        pageSize: 3
-        totalPages: 1
-        totalElements: 3
-        data:
-        - id: 12345
-          name: Suspicious Login Policy
-          enabled: true
-        - id: 12346
-          name: Suspicious Login Policy1
-          enabled: true
-        - id: 12347
-          name: Suspicious Login Policy2
-          enabled: false
-      - pageNumber: 0
-        pageSize: 1
-        totalPages: 1
-        totalElements: 1
-        data:
-        - id: 12345
-          name: Suspicious Login Policy
-          description: Detects suspicious login patterns
-          enabled: true
-          createdOn: '2023-01-15T10:30:00Z'
-          lastUpdated: '2023-06-20T14:45:00Z'
-          createdBy: admin
-          updatedBy: security_analyst
-          owner: security_team
-          riskTypeId: 101
-          criticality: HIGH
-          riskThreatId: 201
-          threatName: Account Compromise
-          category: Authentication
-          categoryId: 301
-          policyType: REALTIME
-          functionality: LOGIN_MONITORING
-          functionalityId: 401
-          hql: SELECT * FROM events WHERE...
-          query: user.login_attempts > 5
-          groupBy: user_id
-          havingClause: COUNT(*) > 3
-          joinGroup: user_events
-          initiateWorkFlow: true
-          directHql: false
-          directiveEnabled: true
-          functionEnabled: true
-          directiveConfig: <directiveConfig>...</directiveConfig>
-          functionConfig: <functionConfig>...</functionConfig>
-          configWorkflowName: incident_response_workflow
-          violator: user_id
-          violation: Multiple failed login attempts
-          violatorCriticalityLevel: HIGH
-          violationDisplayConfig: <display>...</display>
-          verboseInfoTemplate: User {user} attempted {count} logins
-          maxResults: 1000
-          dailyViolationThreshold: 100
-          aggregateScore: 85
-          cappedRiskScore: 9.5
-          constantScore: '7.5'
-          customScore: 8.2
-          secVersion: 2.1
-          uniqueCode: POL_LOGIN_001
-          signatureId: SIG_12345
-          isWatchlist: false
-          sandboxCategory: false
-          notification: true
-          realTimeCheck: true
-          outputDatabase: true
-          savePveAndScore: true
-          saveAsThreat: false
-          actionPrediction: true
-          commitPolicy: true
-          additionalInfo: false
-          valid: true
-          riskBoosterEnabled: false
-          riskBoosterConfig: <riskbooster>...</riskbooster>
-          functionSuspectConfigEnabled: false
-          functionSuspectConfig: <suspect>...</suspect>
-          suspectConfig: <config>...</config>
-          suspectChecksListId: 501
-          resourceGroupId: 601
-          emailTemplateId: 701
-          spConfigSummarizationId: 801
-          resourceType: DATABASE
-          resourceTypeId: DB_001
-          analyticsType: BEHAVIORAL
-          operatorConfig: <operator>...</operator>
-          analyzerConfig: <analyzer>...</analyzer>
-          ownership: security_team
-          pipelineName: security_pipeline
-          feedback: Working as expected
-          releaseNotes: Updated threshold values
-          whatsNew: Added new detection logic
-          origin: PA
-          modifiedOrigin: UI
-          remediator: auto_remediation
-          threatRemediationSteps: 1. Block user 2. Notify admin
-          policyFunctionalityRelations:
-          - id: 1
-            functionalityName: LOGIN_MONITORING
-            tenantid: 4
-            idx: 0
-          policylabels:
-          - label_name: scx.attack.privilege_escalation
-            labelId: 245
-            idx: 1
-          policyWatchlists:
-          - id: 10
-            watchlistId: 9995
-            index: 0
-            watchlistName: Recent_Transfers
-            expiryDaysCount: 30
-            decayFactor: 0
-            decayFlag: false
-            initialConfidenceLevel: 1
-            confidenceIncrementFactor: 0
-            dynamicWatchlist: true
-            fieldList: ''
-            calculateExpiryFromNow: false
-          policyActivelists:
-          - activelistId: 9
-            policyId: 12345
-            index: 0
-            metadata: "<activeListParamsBean>\n    <keyRule>u_employeeid</keyRule>\n    <violationAttributes>deviceaction,ipaddress,destinationaddress,destinationport</violationAttributes>\n</activeListParamsBean>"
-          policyDeprecateInfo:
-          - id: 769
-            deprecated: false
-            index: 0
-            starttime: '2023-04-12'
-            endtime: '2023-04-19'
-            validityindays: '7'
-            deprecatedwithviolation: false
-            signatureid: SIG_12345
-            policyname: Suspicious Login Policy
-          policyPredictionAttributes:
-          - riskTypeId: 2393
-            forestId: 2393
-            riskThreatId: 50149
-            signatureId: '1000024'
-            index: 0
-            attributes: "<policyAttributeBean>\n    <attributePriorityMap>\n        <entry>\n            <key>ipaddress</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>u_employeeid</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>u_department</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>u_firstname</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>accountname</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>transactionstring1</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>u_lastname</key>\n            <value>1</value>\n        </entry>\n    </attributePriorityMap>\n</policyAttributeBean>"
-          policyOutputConfigs: []
-          policyResources:
-          - id: 1
-            resourceId: 1
-            resourceGroupId: 1
-            resourceTypeId: 1
-          policyRules:
-          - id: 1050
-            object: Users
-            field: transferreddate
-            condition: CONDITION_GREATER_THAN_OR_EQUALS
-            value: $CURRENT_DATE
-            logicalCondition: AND
-            group: group_1
-            index: 0
-            deviationFlag: 'No'
-            ruleType: USER
-            functionRightString: fn_date_sub(${field}, ${p1}, ${p2})
-            functionRightParameters: 30|DAY
-    PolicyDeletionResult:
-      type: object
-      properties:
-        policyName:
-          type: string
-          description: Name of the policy
-          examples:
-          - Recent Transfers
-        success:
-          type: boolean
-          description: Whether the deletion was successful
-          examples:
-          - true
-        errorMessage:
-          type:
-          - string
-          - 'null'
-          description: Error message if deletion failed
-          examples:
-          - null
-        deletionTrackerId:
-          type:
-          - integer
-          - 'null'
-          description: ID for tracking the deletion request
-          format: int64
-          examples:
-          - 123
-        disabled:
-          type: boolean
-          description: Whether the policy was disabled
-          examples:
-          - true
-        policyId:
-          type:
-          - integer
-          - 'null'
-          description: ID of the policy
-          format: int64
-          examples:
-          - 456
-    PolicyStatusDetailsResponse:
-      type: object
-      title: PolicyStatusDetailsResponse
-      properties:
-        policyName:
-          type: string
-        policyId:
-          type: integer
-          format: int64
-        status:
-          type: string
-      examples:
-      - policyName: PolicyA
-        policyId: 1
-        status: Success
     EmailSentToSelfAdditionalEventAnalyticsDelta:
       type: object
       description: Email sent to self analytics configuration. Contains a dictionary of ***event attribute***:***threshold***
@@ -2023,111 +1724,21 @@ components:
       examples:
       - emailrecipient: 0.8
       x-internal: true
-    PolicyRuleEntity:
+    MSConfig:
       type: object
-      description: Policy rule entity
+      title: MSConfig
+      description: Match string check analytics configuration
       properties:
-        id:
-          type: integer
-          description: Unique rule ID
-          format: int64
-          examples:
-          - 1050
-        object:
-          type: string
-          description: Object on which the rule applies (e.g., Users, Transactions)
-          examples:
-          - Users
-        field:
-          type: string
-          description: Field of the object to which the condition applies
-          examples:
-          - transferreddate
-        condition:
-          type: string
-          description: Condition operator applied to the field
-          examples:
-          - CONDITION_GREATER_THAN_OR_EQUALS
-        value:
-          type: string
-          description: Comparison value or expression for the condition
-          examples:
-          - $CURRENT_DATE
-        logicalCondition:
-          type: string
-          description: Logical operator used to combine with other rules
-          examples:
-          - AND
-        group:
-          type: string
-          description: Grouping identifier for organizing rules
-          examples:
-          - group_1
-        index:
-          type: integer
-          description: Ordering index of the rule within a group
-          examples:
-          - 0
-        deviationFlag:
-          type: string
-          description: Flag indicating whether the rule is a deviation check
-          examples:
-          - 'No'
-        ruleType:
-          type: string
-          description: Type of rule (e.g., USER, TRANSACTION)
-          examples:
-          - USER
-        functionRightString:
-          type: string
-          description: Function expression applied on the right side of the condition
-          examples:
-          - fn_date_sub(${field}, ${p1}, ${p2})
-        functionRightParameters:
-          type: string
-          description: Parameters used in the function expression, separated by delimiters
-          examples:
-          - 30|DAY
+        ms:
+          $ref: '#/components/schemas/MatchStringConfig'
       required:
-      - id
-      - object
-      - field
-      - condition
-      - value
-      - ruleType
-    PolicyResourceEntity:
-      type: object
-      description: Policy resource entity
-      properties:
-        id:
-          type: integer
-          description: Unique entity ID
-          format: int64
-          examples:
-          - 1
-        resourceId:
-          type: integer
-          description: Associated resource ID
-          format: int64
-          examples:
-          - 1
-        resourceGroupId:
-          type: integer
-          description: Group ID to which the resource belongs
-          format: int64
-          examples:
-          - 1
-        resourceTypeId:
-          type: integer
-          description: Type identifier of the resource
-          format: int64
-          examples:
-          - 1
-      required:
-      - id
-      - resourceId
-      - resourceGroupId
-      - resourceTypeId
+      - ms
+      examples:
+      - ms:
+          first_field: AccountName
+          second_field: UserNameSpace
+          threshold: 0.8
+      x-internal: true
     PolicyWatchlistEntity:
       type: object
       description: Policy watchlist entity
@@ -2201,136 +1812,6 @@ components:
       - id
       - watchlistId
       - watchlistName
-    PolicyActionRequest:
-      type: object
-      properties:
-        policyNames:
-          type: array
-          description: List of policy names
-          uniqueItems: true
-          items:
-            type: string
-        enable:
-          type: string
-          description: Action to enable/disable the policies provided
-          pattern: ^(true|false)$
-      required:
-      - policyNames
-      - enable
-      examples:
-      - policyNames:
-        - PolicyA
-        - PolicyB
-        enable: true
-    BulkPolicyDeletionResponse:
-      type: object
-      properties:
-        totalRequested:
-          type: integer
-          description: Total number of policies requested for deletion
-          examples:
-          - 2
-        totalSuccessful:
-          type: integer
-          description: Number of policies successfully queued for deletion
-          examples:
-          - 1
-        totalFailed:
-          type: integer
-          description: Number of policies that failed to be deleted
-          examples:
-          - 1
-        results:
-          type: array
-          description: Detailed results for each policy deletion attempt
-          items:
-            $ref: '#/components/schemas/PolicyDeletionResult'
-      examples:
-      - totalRequested: 2
-        totalSuccessful: 1
-        totalFailed: 1
-        results:
-        - policyName: Recent Transfers
-          success: true
-          errorMessage: null
-          deletionTrackerId: 123
-          disabled: true
-          policyId: 456
-        - policyName: policy for Whitelist
-          success: false
-          errorMessage: Policy not found
-          deletionTrackerId: null
-          disabled: false
-          policyId: null
-    PolicyOutputConfigEntity:
-      type: object
-      description: Policy output configuration entity
-    PolicyFunctionalityRelationEntity:
-      type: object
-      description: Policy functionality relation entity
-      properties:
-        id:
-          type: integer
-          description: Relation ID
-          format: int64
-        functionalityName:
-          type: string
-          description: Functionality name
-        tenantid:
-          description: Tenant ID
-          format: int64
-        idx:
-          description: relation index
-          format: int32
-      required:
-      - id
-    AnalyticalType:
-      type: object
-      description: "Defines an AEE (Aggregated Event Analytics) policy. \n\nRules:\n1. First element must be a Parent directive.\n2. Second element (optional) must be a Parent-Child directive.\n3. Maximum 2 elements."
-      properties:
-        aggregated_event_analytics:
-          type: array
-          minItems: 1
-          maxItems: 2
-          items:
-            $ref: '#/components/schemas/AggregatedEventAnalyticsDelta'
-      examples:
-      - aggregated_event_analytics:
-        - name: Authentication Failed
-          aee_filter:
-            selection1:
-              baseeventid: 4625
-            condition: selection1
-          number_of_occurrences:
-            duration: 01:30:00
-            atleast: 1
-            count_matching_criteria:
-              baseeventid: 15
-          similar_value:
-          - accountname
-          consecutive_events: true
-          distinct_value:
-          - ipaddress
-          - eventcountry
-        - name: Authentication Success
-          aee_filter:
-            selection1:
-              baseeventid|equals: 4625
-            condition: selection1
-          number_of_occurrences:
-            duration: 01:30:00
-            atleast: 1
-            count_matching_criteria:
-              baseeventid: 15
-          consecutive_events: false
-          distinct_value:
-          - ipaddress
-          - eventcountry
-          parent_child_relationship:
-            duration: 01:00:00
-            common_values:
-            - accountname
-      x-internal: true
     WatchListAdditionalEventAnalyticsDelta:
       type: object
       description: Defines additional event analytics to check individual events against watchlists.
@@ -2351,22 +1832,305 @@ components:
       - accountname: Terminated_Contractors
         flag_violation_not_found_in_watchlist: true
       x-internal: true
-    PolicyDeletionItem:
+    AmountBasedThreshold:
       type: object
+      description: Defines a amount based AEE policy. Amount of data found in event or repeated over a particular period of time.
       properties:
-        policyName:
+        duration:
           type: string
-          description: Name of the policy to be deleted
-          examples:
-          - Recent Transfers
-        deleteViolations:
+          description: Time duration in hh:mm:ss format.
+        attribute:
+          type: string
+          description: Name of the attribute.
+        unit:
+          type: string
+          enum:
+          - B
+          - KB
+          - MB
+          - GB
+          description: Unit of measurement.
+        exactly:
+          type: integer
+          description: Exact count of events to match (mutually exclusive with `atleast`).
+          format: int32
+          minimum: 1
+        atleast:
+          type: integer
+          description: Minimum count to match (mutually exclusive with `exactly`).
+          format: int32
+          minimum: 1
+      required:
+      - duration
+      - attribute
+      - unit
+      examples:
+      - duration: 01:00:00
+        attribute: bytesout
+        unit: KB
+        atleast: 50
+      - duration: 05:00:00
+        attribute: bytesin
+        unit: B
+        exactly: 1
+      x-internal: true
+    detection:
+      type: object
+      title: detection
+      properties:
+        filter:
+          type: object
+          additionalProperties:
+            type: object
+        condition:
+          type: string
+          description: Logical condition referencing one or more selections and an optional filter.
+      patternProperties:
+        ^selection_[0-9]*$:
+          oneOf:
+          - type: array
+            items: {}
+          - type: object
+          description: Criteria for a selection, where `n` is a positive integer.
+      required:
+      - condition
+      examples:
+      - selection_1:
+          baseeventid: 4688
+        selection_2:
+          destinationprocessname: lsaas.exe
+        selection_3:
+          commandline|contains: lsass.exe
+        condition: selection_1 AND ( selection_2 or selection_3 )
+      - selection_1:
+          emailsender|contains|attr: emailrecipientdomain
+        condition: selection_1
+      - selection_1:
+          requesturl|contains|oex: whitelist_domain(attr.destinationhostname)
+        condition: selection_1
+      - selection_1:
+          requesturl|contains|oex: whitelist_ip(attr.destinationipaddress)
+        condition: selection_1
+      - selection_1:
+          requesturl|containsinlist: Password_spraying_attempts_From_single_IP
+        condition: selection_1
+    AggregatedEventAnalyticsDelta:
+      type: object
+      description: 'Defines an Aggregated Event Analytics (AEE) directive.
+
+
+        - **Parent directive**: Base aggregation detection logic.
+
+        - **Parent-Child directive**: Additional logic to group violations to a Parent directive.
+
+
+        Most fields apply to both Parent and Child. Fields marked as *Parent-only* or *Child-only* apply only in those contexts.'
+      properties:
+        name:
+          type: string
+          description: name of the directive.
+        aee_filter:
+          type: object
+          description: "AEE filter configuration.\n\nUsed to filter results based on one or more selection blocks and a condition.\n\n**Structure:**\n- Must contain **at least one** selection key (`selection_n`, where n ≥ 1)  \n- Must contain a `condition` key  \n- Selection keys may contain **either**:\n  * A **list** of entries → conditions are joined with **OR**.\n    Example:\n    ```yaml\n    selection_1:\n      - deviceeventcategory: malicious\n      - destinationhostname|contains: pwned\n    ```\n    Evaluates as:\n    ```scss\n    deviceeventcategory(equals)malicious OR destinationhostname(contains)pwned\n    ```\n  * A **map** of entries → conditions are joined with **AND**\n    Example:\n    ```yaml\n    selection_1:\n      deviceeventcategory: malicious\n      destinationhostname|contains: pwned\n    ```\n    Evaluates as:\n    ```scss\n    deviceeventcategory(equals)malicious AND destinationhostname(contains)pwned\n    ```\n**Entry format:**\nfield[|modifier]: value\n\n- **field** — the name of the field to filter on.  \n- **modifier** *(optional)* — comparison/matching operation. Defaults to `equals` if omitted.\n\n**Supported modifiers:**\n1. `equals` *(default if omitted)*\n2. `contains`\n3. `gt` — greater than\n4. `gte` — greater than or equal\n5. `lt` — less than\n6. `lte` — less than or equal\n7. `startswith`\n8. `endswith`\n9. `isnull`\n\n**Negation modifiers:**\n1. `not equals`\n2. `not contains`\n3. `is not null`\n\n**Negation usage:**  \nTo apply negation to an entire selection block, prefix the selection key with `NOT` in `condition`.  \nExample:\n```yaml\nselection_1:\n  deviceeventcategory|contains: malicious\ncondition: NOT selection_1\n```\nEvaluates as:\n```scss\ndeviceeventcategory(not_contains)malicious\n```\n\nAccepted examples:\n\n- Selection with default `modifier`\n  ```yaml\n  selection_1:\n    deviceeventcategory: \"allowed\"\n  ```\n  Evaluates as:\n  ```scss\n  deviceeventcategory(EQUALS)\"allowed\"\n  ```\n- Selection with `modifier`\n  ```yaml\n  selection_1:\n    deviceeventcategory|contains: \"allowed\"\n  ```\n  Evaluates as:\n  ```scss\n  deviceeventcategory(CONTAINS)\"allowed\"\n  ```\n- Selection with negation `modifier` \n  ```yaml\n  selection_1:\n    deviceeventcategory|contains: \"allowed\"\n  condition: NOT selection_1\n  ```   \n  Evaluates as:\n  ```scss\n  deviceeventcategory(NOT_CONTAINS)\"allowed\"\n  ```\n\n"
+          properties:
+            condition:
+              type: string
+              description: Logical condition referencing one or more selections.
+          patternProperties:
+            ^selection_[1-9][0-9]*$:
+              oneOf:
+              - type: array
+                items: {}
+              - type: object
+              description: Criteria for a selection, where `n` is a positive integer.
+          required:
+          - condition
+        number_of_occurrences:
+          $ref: '#/components/schemas/FrequencyBasedThreshold'
+        amount_of_data:
+          $ref: '#/components/schemas/AmountBasedThreshold'
+        similar_value:
+          type: array
+          description: '*Parent-only*: Events will have same attribute value.'
+          uniqueItems: true
+          items:
+            type: string
+        consecutive_events:
           type: boolean
-          description: If true, deletes violations associated with policy and policy is disabled. If false, deletes both violations and policy.
+          description: Should events happen consecutively
+        distinct_value:
+          type: array
+          description: Distinct attribute selected value
+          uniqueItems: true
+          items:
+            type: string
+        parent_child_relationship:
+          $ref: '#/components/schemas/ParentChildRelation'
+      required:
+      - name
+      x-internal: true
+    ParentChildRelation:
+      type: object
+      description: '*Child-only*: Describes the relation between the `parent` directive and `child` directive in an AEE policy'
+      properties:
+        duration:
+          type: string
+          description: Time duration in hh:mm:ss format.
+        common_values:
+          type: array
+          description: Common attribute between the parent and child directive.
+          uniqueItems: true
+          items:
+            type: string
+      examples:
+      - duration: 01:00:00
+        common_values:
+        - accountname
+      x-internal: true
+    UpdatePolicy:
+      type: object
+      title: UpdatePolicy
+      properties:
+        tenantnames:
+          type: array
+          description: "List of tenants the policy will be configured for.\n\n> Use the keyword `All` if the policy should apply to **all tenants**.\n\nExample:\n```yaml\ntenantname:\n - All\n ```\n"
+          items:
+            type: string
+        description:
+          type: string
+          description: Policy description.
+        labels:
+          type: array
+          description: Policy labels/tags.
+          items:
+            type: string
+        detection:
+          $ref: '#/components/schemas/detection'
+        saveasthreat:
+          type: boolean
+          description: Whether to save as threat.
+        incident_workflow:
+          type: string
+          description: Incident workflow identifier.
+          examples:
+          - SOCTeamReview
+        autoIncidentEnabled:
+          type: boolean
+          description: Enables or disables automatic incident creation for policy violations. Omit this field on update to leave the existing setting unchanged.
           examples:
           - true
-      required:
-      - policyName
-      - deleteViolations
+        violatorAttribute:
+          type:
+          - string
+          - 'null'
+          description: Selected attribute used to create violation entities for the policy's violator. Omit this field on update to leave the existing setting unchanged. Maps to policy_master.violator_attribute and must be one of the attributes allowed for the policy violator when the violator attribute feature is enabled.
+          examples:
+          - sourceusername
+        additional_event_analytics:
+          $ref: '#/components/schemas/AdditionalEventAnalytics'
+        analytic_type:
+          $ref: '#/components/schemas/AnalyticalType'
+        verbose_info:
+          type: string
+          description: Verbose information template. Provides summary of the violation.
+        apisource:
+          type: string
+          description: Identifies the system calling the API to create or update a policy. Must not be 'PA'.
+          maxLength: 2
+          default: PA
+      examples:
+      - tenantnames:
+        - tenantB
+        description: Updating policy description
+        labels:
+        - updated.label.name
+        detection:
+          selection_1:
+            baseeventid: 4688
+          selection_2:
+            destinationprocessname: lsaas.exe
+          selection_3:
+            commandline|contains: lsass.exe
+          condition: selection_1 AND ( selection_2 or selection_3 )
+        saveasthreat: true
+        incident_workflow: SOCTeamReview
+        autoIncidentEnabled: true
+        violatorAttribute: sourceusername
+        additional_event_analytics:
+          match_all_checks: true
+          check_against_watchlist:
+          - accountname: Terminated_Contractors
+            flag_violation_not_found_in_watchlist: true
+          check_against_lookup:
+          - lookup:
+              accountname: MultipleFailedEntries
+            condition: lookup
+            additional_criteria:
+              selection_1:
+                VendorId|contains: Vendor
+              condition: NOT selection_1
+          email_to_self:
+          - emailrecipient: 0.8
+          match_string:
+          - ms:
+              first_field: AccountName
+              second_field: UserNameSpace
+              threshold: 0.8
+          check_against_tpi:
+          - tpi: null
+            destinationaddress:
+            - SNXTIS_BASIC_IPV4
+            - SNXTIS_BASIC_IPV6
+            additional_criteria:
+              selection_1:
+              - tpi_src_confidence|gt: 5
+              - tpi_country|contains|attr: country
+              selection_2:
+              - tpi_src: abc
+              condition: selection_1 AND NOT selection_2
+          check_against_activelist:
+          - activelist:
+              rule: ipaddress
+              rule_match_present: true
+              activelist_name: Password_spraying_attempts_From_single_IP
+        analytic_type:
+          aggregated_event_analytics:
+          - name: Authentication Failed
+            aee_filter:
+              selection1:
+                baseeventid: 4625
+              condition: selection1
+            number_of_occurrences:
+              duration: 01:30:00
+              atleast: 1
+              count_matching_criteria:
+                baseeventid: 15
+            similar_value:
+            - accountname
+            consecutive_events: true
+            distinct_value:
+            - ipaddress
+            - eventcountry
+          - name: Authentication Success
+            aee_filter:
+              selection1:
+                baseeventid|equals: 4625
+              condition: selection1
+            number_of_occurrences:
+              duration: 01:30:00
+              atleast: 1
+              count_matching_criteria:
+                baseeventid: 15
+            consecutive_events: false
+            distinct_value:
+            - ipaddress
+            - eventcountry
+            parent_child_relationship:
+              duration: 01:00:00
+              common_values:
+              - accountname
+        verbose_info: '''Account ${accountname!"UNKNOWN"} getting updates from possible suspicious IP Address.'''
+        apisource: AI
     PolicyStatusResponse:
       type: object
       title: PolicyStatusResponse
@@ -2383,6 +2147,221 @@ components:
         - policyName: PolicyB
           policyId: 2
           status: Invalid
+    CheckAgainstTpiAdditionalEventAnalyticsDelta:
+      type: object
+      description: TPI check analytics configuration
+      properties:
+        tpi:
+          type: 'null'
+          description: Indicates the beginning of a TPI configuration block. Can be null.
+        additional_criteria:
+          $ref: '#/components/schemas/AdditionalCriteria'
+          description: "Used to filter results based on one or more selection blocks and a condition.\n\n**Structure:**\n- Must contain **at least one** selection key (`selection_n`, where n ≥ 1)  \n- Must contain a `condition` key  \n- Selection keys may contain **either**:\n  * A **list** of entries → conditions are joined with **OR**.\n    Example:\n    ```yaml\n    selection_1:\n      - tpi_country: USA\n      - tpi_src_confidence|gt: 5\n    ```\n    Evaluates as:\n    ```scss\n    tpi_country(equals)USA OR tpi_src_confidence(greater_than)5\n    ```\n  * A **map** of entries → conditions are joined with **AND**\n    Example:\n    ```yaml\n    selection_1:\n      tpi_country|equals|attr: country\n      tpi_src_confidence|gt: 5\n    ```\n    Evaluates as:\n    ```scss\n    tpi_country(equals)country AND tpi_src_confidence(greater_than)5\n    ```\n**Entry format:**\nTPI_field[|modifier][|attr]: value\n\n- **TPI_field** — the name of the TPI field to filter on  \n- **modifier** *(optional)* — comparison/matching operation. Defaults to `equals` if omitted.\n- **attr** *(optional)* — indicates the value is taken from another attribute rather than a literal.  \n\n**Supported modifiers:**\n1. `equals` *(default if omitted)*\n2. `contains`\n3. `gt` — greater than\n4. `gte` — greater than or equal\n5. `lt` — less than\n6. `lte` — less than or equal\n7. `startswith`\n8. `endswith`\n9. `isnull`\n\n**Negation modifiers:**\n1. `not equals`\n2. `not contains`\n3. `is not null`\n\n**Negation usage:**  \nTo apply negation to an entire selection block, prefix the selection key with `NOT` in `condition`.  \nExample:\n```yaml\nselection_1:\n  tpi_country|equals|attr: USA\ncondition: NOT selection_1\n```\n\nAccepted examples:\n\n- Selection with only `attr`\n  ```yaml\n  selection_1:\n    tpi_country|attr: country\n  ```\n  Evaluates as:\n  ```scss\n  tpi_country(EQUALS)attr.country\n  ```\n- Selection with `modifier` and `attr`\n  ```yaml\n  selection_1:\n    tpi_country|contains|attr: country\n  ```\n  Evaluates as:\n  ```scss\n  tpi_country(CONTAINS)attr.country\n  ```\n- Selection with only `modifier`\n  ```yaml\n  selection_1:\n    tpi_src_confidence|gt: 5\n  ```\n  Evaluates as:\n  ```scss\n  tpi_src_confidence(GREATER_THAN)5\n  ```\n- Selection with negation `modifier` \n  ```yaml\n  selection_1:\n    tpi_country|contains: USA\n  condition: NOT selection_1\n  ```   \n  Evaluates as:\n  ```scss\n  tpi_country(NOT_CONTAINS)USA\n  ```\n\n\n\n\n\n"
+      patternProperties:
+        (?!tpi|additional_criteria$)^[a-zA-Z_][a-zA-Z0-9_]*$:
+          type: array
+          description: Dynamic attribute name mapped to a list of TPI names to check against
+          items:
+            type: string
+      required:
+      - tpi
+      examples:
+      - tpi: null
+        destinationaddress:
+        - SNXTIS_BASIC_IPV4
+        - SNXTIS_BASIC_IPV6
+        additional_criteria:
+          selection_1:
+          - tpi_src_confidence|gt: 5
+          - tpi_country|contains|attr: country
+          selection_2:
+          - tpi_src: abc
+          condition: selection_1 AND NOT selection_2
+      x-internal: true
+    PolicyOutputConfigEntity:
+      type: object
+      description: Policy output configuration entity
+    ViolationSummary:
+      type: object
+      description: Provides a structured view of violations triggered by the policy.
+      properties:
+        grouping_attribute:
+          type: string
+          description: Primary grouping attribute for the violation.
+        level2_attribute:
+          type: string
+          description: Secondary grouping attribute for further categorization.
+        level2_metadata_attributes:
+          type: array
+          description: Metadata attributes associated with the secondary grouping attribute.
+          uniqueItems: true
+          items:
+            type: string
+        metadata_attributes:
+          type: array
+          description: Metadata attributes associated with the primary grouping attribute.
+          uniqueItems: true
+          items:
+            type: string
+      examples:
+      - grouping_attribute: DeviceAction
+        level2_attribute: DeviceEventCategory
+        level2_metadata_attributes:
+        - DestinationUserName
+        - ModifiedProperties1
+        metadata_attributes:
+        - SourceUserId
+        - Category
+      x-internal: true
+      xml:
+        name: violationDisplayConfigBean
+    PolicyDeprecationEntity:
+      type: object
+      description: Policy deprecation information entity
+      properties:
+        id:
+          type: integer
+          description: Unique deprecation entity ID
+          format: int64
+          examples:
+          - 769
+        deprecated:
+          type: boolean
+          description: Indicates whether the policy is deprecated
+          examples:
+          - false
+        index:
+          type: integer
+          description: Ordering index of deprecation record
+          examples:
+          - 0
+        starttime:
+          type: string
+          description: Start date for deprecation
+          format: date
+          examples:
+          - '2023-04-12'
+        endtime:
+          type: string
+          description: End date for deprecation
+          format: date
+          examples:
+          - '2023-04-19'
+        validityindays:
+          type: string
+          description: Validity duration in days
+          examples:
+          - '7'
+        deprecatedwithviolation:
+          type: boolean
+          description: Indicates if policy was deprecated due to violation
+          examples:
+          - false
+        signatureid:
+          type: string
+          description: Associated signature ID of the policy
+          examples:
+          - SIG_12345
+        policyname:
+          type: string
+          description: Name of the deprecated policy
+          examples:
+          - Suspicious Login Policy
+      required:
+      - id
+      - deprecated
+      - starttime
+      - endtime
+      - policyname
+    PolicyPredictionAttributesEntity:
+      type: object
+      description: Policy prediction attributes entity
+      properties:
+        riskTypeId:
+          type: integer
+          description: Unique identifier for the risk type
+          format: int64
+          examples:
+          - 2393
+        forestId:
+          type: integer
+          description: Associated forest ID for prediction attributes
+          format: int64
+          examples:
+          - 2393
+        riskThreatId:
+          type: integer
+          description: Associated risk threat ID
+          format: int64
+          examples:
+          - 50149
+        signatureId:
+          type: string
+          description: Unique signature identifier for the prediction
+          examples:
+          - '1000024'
+        index:
+          type: integer
+          description: Ordering index for the prediction attributes entry
+          examples:
+          - 0
+        attributes:
+          type: string
+          description: Serialized attribute configuration (XML format) including attribute-priority mappings
+          examples:
+          - "<policyAttributeBean>\n    <attributePriorityMap>\n        <entry>\n            <key>ipaddress</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>u_employeeid</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>u_department</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>u_firstname</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>accountname</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>transactionstring1</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>u_lastname</key>\n            <value>1</value>\n        </entry>\n    </attributePriorityMap>\n</policyAttributeBean>"
+      required:
+      - riskTypeId
+      - forestId
+      - riskThreatId
+      - signatureId
+      - attributes
+    AdditionalCriteria:
+      type: object
+      description: "Additional criteria configuration.\n\n**Requirements:**\n- Must contain **at least one** selection key (`selection_n`, where n ≥ 1)\n- Must contain **one** `condition` key.\n\n**Accepted keys:**\n- `selection_n`: Numbered selection blocks (e.g., `selection_1`, `selection_2`, …)\n- `condition`: Defines the condition to apply\n\n**Selection value types:**\n1. **List of entries** → conditions are joined with **OR**  \n2. **Map of entries** → conditions are joined with **AND**  \n\n---\nThe `|attr`, `|gt`, etc. are operator suffixes.  \nThe left-hand side is the field name, the right-hand side is the comparison value."
+      properties:
+        condition:
+          type: string
+          description: Logical condition referencing one or more selections.
+      patternProperties:
+        ^selection_[0-9]*$:
+          oneOf:
+          - type: array
+            items: {}
+          - type: object
+          description: Criteria for a selection, where `n` is a positive integer.
+      required:
+      - condition
+      minProperties: 2
+      examples:
+      - selection_1:
+          VendorId|contains: Vendor
+        condition: NOT selection_1
+    PolicyDeletionItem:
+      type: object
+      properties:
+        policyName:
+          type: string
+          description: Name of the policy to be deleted
+          examples:
+          - Recent Transfers
+        deleteViolations:
+          type: boolean
+          description: If true, deletes violations associated with policy and policy is disabled. If false, deletes both violations and policy.
+          examples:
+          - true
+      required:
+      - policyName
+      - deleteViolations
+    LimitResponse:
+      type: object
+      title: LimitResponse
+      properties:
+        message:
+          type: string
+          description: Provides the current API request limit.
+      examples:
+      - message: 'Your current limit is: 1000'
     Policy:
       type: object
       title: Policy
@@ -2631,145 +2610,61 @@ components:
         apisource: AI
       x-examples: {}
       x-internal: true
-    MatchStringConfig:
+    PolicyResourceEntity:
       type: object
-      title: MatchStringConfig
+      description: Policy resource entity
       properties:
-        first_field:
-          type: string
-          description: First field to compare
-        second_field:
-          type: string
-          description: Second field to compare
-        threshold:
-          type: number
-          description: Match threshold
-          format: double
-          minimum: 0
-          maximum: 1
-      required:
-      - first_field
-      - second_field
-      - threshold
-      examples:
-      - first_field: AccountName
-        second_field: UserNameSpace
-        threshold: 0.8
-      x-internal: true
-    LimitResponse:
-      type: object
-      title: LimitResponse
-      properties:
-        message:
-          type: string
-          description: Provides the current API request limit.
-      examples:
-      - message: 'Your current limit is: 1000'
-    PolicyactivelistEntity:
-      type: object
-      description: Policy active list entity
-      properties:
-        activelistId:
+        id:
           type: integer
-          description: Unique active list ID
+          description: Unique entity ID
           format: int64
           examples:
-          - 9
-        policyId:
+          - 1
+        resourceId:
           type: integer
-          description: Associated policy ID
+          description: Associated resource ID
           format: int64
           examples:
-          - 12345
-        index:
+          - 1
+        resourceGroupId:
           type: integer
-          description: Ordering index of the active list entry
+          description: Group ID to which the resource belongs
+          format: int64
           examples:
-          - 0
-        metadata:
-          type: string
-          description: Serialized metadata configuration of the active list (XML format)
+          - 1
+        resourceTypeId:
+          type: integer
+          description: Type identifier of the resource
+          format: int64
           examples:
-          - "<activeListParamsBean>\n    <keyRule>u_employeeid</keyRule>\n    <violationAttributes>deviceaction,ipaddress,destinationaddress,destinationport</violationAttributes>\n</activeListParamsBean>"
+          - 1
       required:
-      - activelistId
-      - policyId
-      - metadata
-    AdditionalEventAnalytics:
+      - id
+      - resourceId
+      - resourceGroupId
+      - resourceTypeId
+    ViolationAction:
       type: object
-      description: Defines additional processing after violations have been detected using a set of filter conditions. Additional Event Analytics check individual events against data such as Active Lists, Lookup Tables, Watchlists, Geolocation, Domain Age, and Third-Party Intelligence.
+      description: Action for the violations.
       properties:
-        match_all_checks:
-          type: boolean
-          description: Whether all checks must match
-        check_against_watchlist:
-          type: array
-          maxItems: 15
-          items:
-            $ref: '#/components/schemas/WatchListAdditionalEventAnalyticsDelta'
-        check_against_lookup:
-          type: array
-          maxItems: 15
-          items:
-            $ref: '#/components/schemas/LookupAdditionalEventAnalyticsDelta'
-        email_to_self:
-          type: array
-          maxItems: 15
-          items:
-            $ref: '#/components/schemas/EmailSentToSelfAdditionalEventAnalyticsDelta'
-        match_string:
-          type: array
-          maxItems: 15
-          items:
-            $ref: '#/components/schemas/MSConfig'
-        check_against_tpi:
-          type: array
-          maxItems: 15
-          items:
-            $ref: '#/components/schemas/CheckAgainstTpiAdditionalEventAnalyticsDelta'
-        check_against_activelist:
-          type: array
-          maxItems: 15
-          items:
-            $ref: '#/components/schemas/ActiveListAdditionalEventAnalyticsDelta'
+        dailyviolationthreshold:
+          type: integer
+          description: Daily violation threshold to stop flagging new violation events for the policy.
+          format: int64
+          minimum: 1
+          maximum: 100000
+          default: 100000
+        add_to_watchlist:
+          $ref: '#/components/schemas/AddToWatchlist'
+          description: Violators of the policy will be added to the watchlist mentioned.
       examples:
-      - match_all_checks: true
-        check_against_watchlist:
-        - accountname: Terminated_Contractors
-          flag_violation_not_found_in_watchlist: true
-        check_against_lookup:
-        - lookup:
-            accountname: MultipleFailedEntries
-          condition: lookup
-          additional_criteria:
-            selection_1:
-              VendorId|contains: Vendor
-            condition: NOT selection_1
-        email_to_self:
-        - emailrecipient: 0.8
-        match_string:
-        - ms:
-            first_field: AccountName
-            second_field: UserNameSpace
-            threshold: 0.8
-        check_against_tpi:
-        - tpi: null
-          destinationaddress:
-          - SNXTIS_BASIC_IPV4
-          - SNXTIS_BASIC_IPV6
-          additional_criteria:
-            selection_1:
-            - tpi_src_confidence|gt: 5
-            - tpi_country|contains|attr: country
-            selection_2:
-            - tpi_src: abc
-            condition: selection_1 AND NOT selection_2
-        check_against_activelist:
-        - activelist:
-            rule: ipaddress
-            rule_match_present: true
-            activelist_name: Password_spraying_attempts_From_single_IP
-      x-internal: true
+      - dailyviolationthreshold: 100000
+        add_to_watchlist:
+          watchlist_name: Domain_Admin
+          removal_period:
+            days: 1
+            time: '12:00:00'
+            expiry_date_from_current_time: true
     LookupAdditionalEventAnalyticsDelta:
       type: object
       description: Defines additional event analytics to check individual events against lookup.
@@ -2801,143 +2696,368 @@ components:
             VendorId|contains: Vendor
           condition: NOT selection_1
       x-internal: true
-    detection:
+    PolicyRuleEntity:
       type: object
-      title: detection
+      description: Policy rule entity
       properties:
-        filter:
-          type: object
-          additionalProperties:
-            type: object
+        id:
+          type: integer
+          description: Unique rule ID
+          format: int64
+          examples:
+          - 1050
+        object:
+          type: string
+          description: Object on which the rule applies (e.g., Users, Transactions)
+          examples:
+          - Users
+        field:
+          type: string
+          description: Field of the object to which the condition applies
+          examples:
+          - transferreddate
         condition:
           type: string
-          description: Logical condition referencing one or more selections and an optional filter.
-      patternProperties:
-        ^selection_[0-9]*$:
-          oneOf:
-          - type: array
-            items: {}
-          - type: object
-          description: Criteria for a selection, where `n` is a positive integer.
+          description: Condition operator applied to the field
+          examples:
+          - CONDITION_GREATER_THAN_OR_EQUALS
+        value:
+          type: string
+          description: Comparison value or expression for the condition
+          examples:
+          - $CURRENT_DATE
+        logicalCondition:
+          type: string
+          description: Logical operator used to combine with other rules
+          examples:
+          - AND
+        group:
+          type: string
+          description: Grouping identifier for organizing rules
+          examples:
+          - group_1
+        index:
+          type: integer
+          description: Ordering index of the rule within a group
+          examples:
+          - 0
+        deviationFlag:
+          type: string
+          description: Flag indicating whether the rule is a deviation check
+          examples:
+          - 'No'
+        ruleType:
+          type: string
+          description: Type of rule (e.g., USER, TRANSACTION)
+          examples:
+          - USER
+        functionRightString:
+          type: string
+          description: Function expression applied on the right side of the condition
+          examples:
+          - fn_date_sub(${field}, ${p1}, ${p2})
+        functionRightParameters:
+          type: string
+          description: Parameters used in the function expression, separated by delimiters
+          examples:
+          - 30|DAY
       required:
+      - id
+      - object
+      - field
       - condition
-      examples:
-      - selection_1:
-          baseeventid: 4688
-        selection_2:
-          destinationprocessname: lsaas.exe
-        selection_3:
-          commandline|contains: lsass.exe
-        condition: selection_1 AND ( selection_2 or selection_3 )
-      - selection_1:
-          emailsender|contains|attr: emailrecipientdomain
-        condition: selection_1
-      - selection_1:
-          requesturl|contains|oex: whitelist_domain(attr.destinationhostname)
-        condition: selection_1
-      - selection_1:
-          requesturl|contains|oex: whitelist_ip(attr.destinationipaddress)
-        condition: selection_1
-      - selection_1:
-          requesturl|containsinlist: Password_spraying_attempts_From_single_IP
-        condition: selection_1
-    PolicyLabelEntity:
+      - value
+      - ruleType
+    PolicyFunctionalityRelationEntity:
       type: object
-      description: Policy label entity
+      description: Policy functionality relation entity
       properties:
-        idx:
+        id:
           type: integer
-          description: Label index ID
-          format: int32
-        label_name:
-          type: string
-          description: Label name
-        labelId:
-          type: integer
-          description: Label Id
+          description: Relation ID
           format: int64
-    ParentChildRelation:
-      type: object
-      description: '*Child-only*: Describes the relation between the `parent` directive and `child` directive in an AEE policy'
-      properties:
-        duration:
+        functionalityName:
           type: string
-          description: Time duration in hh:mm:ss format.
-        common_values:
+          description: Functionality name
+        tenantid:
+          description: Tenant ID
+          format: int64
+        idx:
+          description: relation index
+          format: int32
+      required:
+      - id
+    AddToWatchlist:
+      type: object
+      properties:
+        watchlist_name:
+          type: string
+          description: Watchlist name
+        removal_period:
+          $ref: '#/components/schemas/RemovalPeriod'
+          description: Time period after which the violator is removed from the watchlist.
+      required:
+      - watchlist_name
+      - removal_period
+      examples:
+      - watchlist_name: Domain_Admin
+        removal_period:
+          days: 1
+          time: '12:00:00'
+          expiry_date_from_current_time: true
+    MatchStringConfig:
+      type: object
+      title: MatchStringConfig
+      properties:
+        first_field:
+          type: string
+          description: First field to compare
+        second_field:
+          type: string
+          description: Second field to compare
+        threshold:
+          type: number
+          description: Match threshold
+          format: double
+          minimum: 0
+          maximum: 1
+      required:
+      - first_field
+      - second_field
+      - threshold
+      examples:
+      - first_field: AccountName
+        second_field: UserNameSpace
+        threshold: 0.8
+      x-internal: true
+    PolicyActionRequest:
+      type: object
+      properties:
+        policyNames:
           type: array
-          description: Common attribute between the parent and child directive.
+          description: List of policy names
           uniqueItems: true
           items:
             type: string
-      examples:
-      - duration: 01:00:00
-        common_values:
-        - accountname
-      x-internal: true
-    ActiveListAdditionalEventAnalyticsDelta:
-      type: object
-      description: Active list analytics configuration
-      properties:
-        activelist:
-          $ref: '#/components/schemas/ActivelistConfig'
-      x-internal: true
-    MSConfig:
-      type: object
-      title: MSConfig
-      description: Match string check analytics configuration
-      properties:
-        ms:
-          $ref: '#/components/schemas/MatchStringConfig'
+        enable:
+          type: string
+          description: Action to enable/disable the policies provided
+          pattern: ^(true|false)$
       required:
-      - ms
+      - policyNames
+      - enable
       examples:
-      - ms:
-          first_field: AccountName
-          second_field: UserNameSpace
-          threshold: 0.8
-      x-internal: true
-    AmountBasedThreshold:
+      - policyNames:
+        - PolicyA
+        - PolicyB
+        enable: true
+    PaginatedResponse:
       type: object
-      description: Defines a amount based AEE policy. Amount of data found in event or repeated over a particular period of time.
+      title: PaginatedResponse
       properties:
-        duration:
-          type: string
-          description: Time duration in hh:mm:ss format.
-        attribute:
-          type: string
-          description: Name of the attribute.
-        unit:
-          type: string
-          enum:
-          - B
-          - KB
-          - MB
-          - GB
-          description: Unit of measurement.
-        exactly:
+        pageNumber:
           type: integer
-          description: Exact count of events to match (mutually exclusive with `atleast`).
+          description: Current page number.
           format: int32
-          minimum: 1
-        atleast:
+        pageSize:
           type: integer
-          description: Minimum count to match (mutually exclusive with `exactly`).
+          description: Number of items in current page.
           format: int32
-          minimum: 1
-      required:
-      - duration
-      - attribute
-      - unit
+        totalPages:
+          type: integer
+          description: Total number of pages matching the request.
+          format: int32
+        totalElements:
+          type: integer
+          description: Total number of items matching the request.
+          format: int32
+        data:
+          type: array
+          description: "List of items matching the request.  \n\n- If the `columns` parameter is provided, the response will include **only the specified fields** for each record.  \n- If `columns` is not provided, the response will include **all fields** for the policy that matches the request.  \n\n> The schema shown here is all-inclusive. The actual response may contain only a subset of fields, depending on the `columns` parameter."
+          items:
+            $ref: '#/components/schemas/CreatePolicyResponse'
       examples:
-      - duration: 01:00:00
-        attribute: bytesout
-        unit: KB
-        atleast: 50
-      - duration: 05:00:00
-        attribute: bytesin
-        unit: B
-        exactly: 1
-      x-internal: true
+      - pageNumber: 0
+        pageSize: 3
+        totalPages: 1
+        totalElements: 3
+        data:
+        - id: 12345
+          name: Suspicious Login Policy
+          enabled: true
+        - id: 12346
+          name: Suspicious Login Policy1
+          enabled: true
+        - id: 12347
+          name: Suspicious Login Policy2
+          enabled: false
+      - pageNumber: 0
+        pageSize: 1
+        totalPages: 1
+        totalElements: 1
+        data:
+        - id: 12345
+          name: Suspicious Login Policy
+          description: Detects suspicious login patterns
+          enabled: true
+          createdOn: '2023-01-15T10:30:00Z'
+          lastUpdated: '2023-06-20T14:45:00Z'
+          createdBy: admin
+          updatedBy: security_analyst
+          owner: security_team
+          riskTypeId: 101
+          criticality: HIGH
+          riskThreatId: 201
+          threatName: Account Compromise
+          category: Authentication
+          categoryId: 301
+          policyType: REALTIME
+          functionality: LOGIN_MONITORING
+          functionalityId: 401
+          hql: SELECT * FROM events WHERE...
+          query: user.login_attempts > 5
+          groupBy: user_id
+          havingClause: COUNT(*) > 3
+          joinGroup: user_events
+          initiateWorkFlow: true
+          directHql: false
+          directiveEnabled: true
+          functionEnabled: true
+          directiveConfig: <directiveConfig>...</directiveConfig>
+          functionConfig: <functionConfig>...</functionConfig>
+          configWorkflowName: incident_response_workflow
+          violator: user_id
+          violation: Multiple failed login attempts
+          violatorCriticalityLevel: HIGH
+          violationDisplayConfig: <display>...</display>
+          verboseInfoTemplate: User {user} attempted {count} logins
+          maxResults: 1000
+          dailyViolationThreshold: 100
+          aggregateScore: 85
+          cappedRiskScore: 9.5
+          constantScore: '7.5'
+          customScore: 8.2
+          secVersion: 2.1
+          uniqueCode: POL_LOGIN_001
+          signatureId: SIG_12345
+          isWatchlist: false
+          sandboxCategory: false
+          notification: true
+          realTimeCheck: true
+          outputDatabase: true
+          savePveAndScore: true
+          saveAsThreat: false
+          actionPrediction: true
+          commitPolicy: true
+          additionalInfo: false
+          valid: true
+          riskBoosterEnabled: false
+          riskBoosterConfig: <riskbooster>...</riskbooster>
+          functionSuspectConfigEnabled: false
+          functionSuspectConfig: <suspect>...</suspect>
+          suspectConfig: <config>...</config>
+          suspectChecksListId: 501
+          resourceGroupId: 601
+          emailTemplateId: 701
+          spConfigSummarizationId: 801
+          resourceType: DATABASE
+          resourceTypeId: DB_001
+          analyticsType: BEHAVIORAL
+          operatorConfig: <operator>...</operator>
+          analyzerConfig: <analyzer>...</analyzer>
+          ownership: security_team
+          pipelineName: security_pipeline
+          feedback: Working as expected
+          releaseNotes: Updated threshold values
+          whatsNew: Added new detection logic
+          origin: PA
+          modifiedOrigin: UI
+          remediator: auto_remediation
+          threatRemediationSteps: 1. Block user 2. Notify admin
+          policyFunctionalityRelations:
+          - id: 1
+            functionalityName: LOGIN_MONITORING
+            tenantid: 4
+            idx: 0
+          policylabels:
+          - label_name: scx.attack.privilege_escalation
+            labelId: 245
+            idx: 1
+          policyWatchlists:
+          - id: 10
+            watchlistId: 9995
+            index: 0
+            watchlistName: Recent_Transfers
+            expiryDaysCount: 30
+            decayFactor: 0
+            decayFlag: false
+            initialConfidenceLevel: 1
+            confidenceIncrementFactor: 0
+            dynamicWatchlist: true
+            fieldList: ''
+            calculateExpiryFromNow: false
+          policyActivelists:
+          - activelistId: 9
+            policyId: 12345
+            index: 0
+            metadata: "<activeListParamsBean>\n    <keyRule>u_employeeid</keyRule>\n    <violationAttributes>deviceaction,ipaddress,destinationaddress,destinationport</violationAttributes>\n</activeListParamsBean>"
+          policyDeprecateInfo:
+          - id: 769
+            deprecated: false
+            index: 0
+            starttime: '2023-04-12'
+            endtime: '2023-04-19'
+            validityindays: '7'
+            deprecatedwithviolation: false
+            signatureid: SIG_12345
+            policyname: Suspicious Login Policy
+          policyPredictionAttributes:
+          - riskTypeId: 2393
+            forestId: 2393
+            riskThreatId: 50149
+            signatureId: '1000024'
+            index: 0
+            attributes: "<policyAttributeBean>\n    <attributePriorityMap>\n        <entry>\n            <key>ipaddress</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>u_employeeid</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>u_department</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>u_firstname</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>accountname</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>transactionstring1</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>u_lastname</key>\n            <value>1</value>\n        </entry>\n    </attributePriorityMap>\n</policyAttributeBean>"
+          policyOutputConfigs: []
+          policyResources:
+          - id: 1
+            resourceId: 1
+            resourceGroupId: 1
+            resourceTypeId: 1
+          policyRules:
+          - id: 1050
+            object: Users
+            field: transferreddate
+            condition: CONDITION_GREATER_THAN_OR_EQUALS
+            value: $CURRENT_DATE
+            logicalCondition: AND
+            group: group_1
+            index: 0
+            deviationFlag: 'No'
+            ruleType: USER
+            functionRightString: fn_date_sub(${field}, ${p1}, ${p2})
+            functionRightParameters: 30|DAY
+    ActivelistConfig:
+      type: object
+      title: ActivelistConfig
+      properties:
+        rule:
+          type: string
+          description: "Specifies which mapped attributes should be concatenated to form the key that will be matched against entries in the Lookup Table.\n\n**Usage:**\n- A single mapped attribute can be used directly.\n- Multiple mapped attributes can be concatenated with the `+` operator.\n- Literal strings or symbols can also be inserted into the concatenation by wrapping them in parentheses.\n\n**Concatenation rules:**\n- `attribute1 + attribute2` — joins values of both attributes.\n- `attribute(length)` — takes only the first *length* characters of the attribute.\n- `attribute(start,end)` — takes a substring from position *start* to *end* (1-based indexing).\n- `(literal)` — inserts a literal string or character between attributes.\n\n**Examples:**\n1. **Concatenate two attributes**\n    ```yaml\n    accountname+ipaddress\n    ```\n    Produces a key formed by joining `accountname` and `ipaddress`.\n\n2. **Attribute with substring limit**\n    ```yaml\n    transactionstring1(50)+accountname(1,3)\n    ```\n    Produces a key using:\n    - First 50 characters of `transactionstring1`\n    - First 3 characters of `accountname`\n\n3. **Insert literal between attributes**\n    ```yaml\n    emailsender+(.)+filename\n    ```\n    Produces a key formed by:\n    - Value of `emailsender`\n    - The literal `.`\n    - Value of `filename`"
+        rule_match_present:
+          type: boolean
+          description: Check if the values matching rule provided is present.
+          default: true
+        activelist_name:
+          type: string
+          description: Name of the activelist.
+      required:
+      - rule
+      - activelist_name
+      examples:
+      - rule: ipaddress
+        rule_match_present: true
+        activelist_name: Password_spraying_attempts_From_single_IP
     FrequencyBasedThreshold:
       type: object
       description: Defines a frequency based AEE policy. The rate at which event occurs or is repeated over a particular period of time.
@@ -2976,227 +3096,6 @@ components:
         count_matching_criteria:
           baseeventid: 35
       x-internal: true
-    AggregatedEventAnalyticsDelta:
-      type: object
-      description: 'Defines an Aggregated Event Analytics (AEE) directive.
-
-
-        - **Parent directive**: Base aggregation detection logic.
-
-        - **Parent-Child directive**: Additional logic to group violations to a Parent directive.
-
-
-        Most fields apply to both Parent and Child. Fields marked as *Parent-only* or *Child-only* apply only in those contexts.'
-      properties:
-        name:
-          type: string
-          description: name of the directive.
-        aee_filter:
-          type: object
-          description: "AEE filter configuration.\n\nUsed to filter results based on one or more selection blocks and a condition.\n\n**Structure:**\n- Must contain **at least one** selection key (`selection_n`, where n ≥ 1)  \n- Must contain a `condition` key  \n- Selection keys may contain **either**:\n  * A **list** of entries → conditions are joined with **OR**.\n    Example:\n    ```yaml\n    selection_1:\n      - deviceeventcategory: malicious\n      - destinationhostname|contains: pwned\n    ```\n    Evaluates as:\n    ```scss\n    deviceeventcategory(equals)malicious OR destinationhostname(contains)pwned\n    ```\n  * A **map** of entries → conditions are joined with **AND**\n    Example:\n    ```yaml\n    selection_1:\n      deviceeventcategory: malicious\n      destinationhostname|contains: pwned\n    ```\n    Evaluates as:\n    ```scss\n    deviceeventcategory(equals)malicious AND destinationhostname(contains)pwned\n    ```\n**Entry format:**\nfield[|modifier]: value\n\n- **field** — the name of the field to filter on.  \n- **modifier** *(optional)* — comparison/matching operation. Defaults to `equals` if omitted.\n\n**Supported modifiers:**\n1. `equals` *(default if omitted)*\n2. `contains`\n3. `gt` — greater than\n4. `gte` — greater than or equal\n5. `lt` — less than\n6. `lte` — less than or equal\n7. `startswith`\n8. `endswith`\n9. `isnull`\n\n**Negation modifiers:**\n1. `not equals`\n2. `not contains`\n3. `is not null`\n\n**Negation usage:**  \nTo apply negation to an entire selection block, prefix the selection key with `NOT` in `condition`.  \nExample:\n```yaml\nselection_1:\n  deviceeventcategory|contains: malicious\ncondition: NOT selection_1\n```\nEvaluates as:\n```scss\ndeviceeventcategory(not_contains)malicious\n```\n\nAccepted examples:\n\n- Selection with default `modifier`\n  ```yaml\n  selection_1:\n    deviceeventcategory: \"allowed\"\n  ```\n  Evaluates as:\n  ```scss\n  deviceeventcategory(EQUALS)\"allowed\"\n  ```\n- Selection with `modifier`\n  ```yaml\n  selection_1:\n    deviceeventcategory|contains: \"allowed\"\n  ```\n  Evaluates as:\n  ```scss\n  deviceeventcategory(CONTAINS)\"allowed\"\n  ```\n- Selection with negation `modifier` \n  ```yaml\n  selection_1:\n    deviceeventcategory|contains: \"allowed\"\n  condition: NOT selection_1\n  ```   \n  Evaluates as:\n  ```scss\n  deviceeventcategory(NOT_CONTAINS)\"allowed\"\n  ```\n\n"
-          properties:
-            condition:
-              type: string
-              description: Logical condition referencing one or more selections.
-          patternProperties:
-            ^selection_[1-9][0-9]*$:
-              oneOf:
-              - type: array
-                items: {}
-              - type: object
-              description: Criteria for a selection, where `n` is a positive integer.
-          required:
-          - condition
-        number_of_occurrences:
-          $ref: '#/components/schemas/FrequencyBasedThreshold'
-        amount_of_data:
-          $ref: '#/components/schemas/AmountBasedThreshold'
-        similar_value:
-          type: array
-          description: '*Parent-only*: Events will have same attribute value.'
-          uniqueItems: true
-          items:
-            type: string
-        consecutive_events:
-          type: boolean
-          description: Should events happen consecutively
-        distinct_value:
-          type: array
-          description: Distinct attribute selected value
-          uniqueItems: true
-          items:
-            type: string
-        parent_child_relationship:
-          $ref: '#/components/schemas/ParentChildRelation'
-      required:
-      - name
-      x-internal: true
-    LogSource:
-      type: object
-      description: Product information
-      properties:
-        product:
-          type: string
-          description: Product Name.
-        service:
-          type: string
-          description: Service name.
-      examples:
-      - product: Google Login
-        service: Google
-      x-examples:
-        Example 1:
-          product: azure
-          service: auditlogs
-      x-internal: true
-    BulkPolicyDeletionRequest:
-      type: object
-      properties:
-        tenantName:
-          type: string
-          description: Name of the tenant for which policies should be deleted
-          examples:
-          - SOAR
-        policies:
-          type: array
-          description: List of policies to be deleted with their deletion preferences
-          minItems: 1
-          maxItems: 100
-          items:
-            $ref: '#/components/schemas/PolicyDeletionItem'
-      required:
-      - tenantName
-      - policies
-      examples:
-      - tenantName: SOAR
-        policies:
-        - policyName: Recent Transfers
-          deleteViolations: true
-        - policyName: policy for Whitelist
-          deleteViolations: false
-    ViolationSummary:
-      type: object
-      description: Provides a structured view of violations triggered by the policy.
-      properties:
-        grouping_attribute:
-          type: string
-          description: Primary grouping attribute for the violation.
-        level2_attribute:
-          type: string
-          description: Secondary grouping attribute for further categorization.
-        level2_metadata_attributes:
-          type: array
-          description: Metadata attributes associated with the secondary grouping attribute.
-          uniqueItems: true
-          items:
-            type: string
-        metadata_attributes:
-          type: array
-          description: Metadata attributes associated with the primary grouping attribute.
-          uniqueItems: true
-          items:
-            type: string
-      examples:
-      - grouping_attribute: DeviceAction
-        level2_attribute: DeviceEventCategory
-        level2_metadata_attributes:
-        - DestinationUserName
-        - ModifiedProperties1
-        metadata_attributes:
-        - SourceUserId
-        - Category
-      x-internal: true
-      xml:
-        name: violationDisplayConfigBean
-    PolicyDeprecationEntity:
-      type: object
-      description: Policy deprecation information entity
-      properties:
-        id:
-          type: integer
-          description: Unique deprecation entity ID
-          format: int64
-          examples:
-          - 769
-        deprecated:
-          type: boolean
-          description: Indicates whether the policy is deprecated
-          examples:
-          - false
-        index:
-          type: integer
-          description: Ordering index of deprecation record
-          examples:
-          - 0
-        starttime:
-          type: string
-          description: Start date for deprecation
-          format: date
-          examples:
-          - '2023-04-12'
-        endtime:
-          type: string
-          description: End date for deprecation
-          format: date
-          examples:
-          - '2023-04-19'
-        validityindays:
-          type: string
-          description: Validity duration in days
-          examples:
-          - '7'
-        deprecatedwithviolation:
-          type: boolean
-          description: Indicates if policy was deprecated due to violation
-          examples:
-          - false
-        signatureid:
-          type: string
-          description: Associated signature ID of the policy
-          examples:
-          - SIG_12345
-        policyname:
-          type: string
-          description: Name of the deprecated policy
-          examples:
-          - Suspicious Login Policy
-      required:
-      - id
-      - deprecated
-      - starttime
-      - endtime
-      - policyname
-    CheckAgainstTpiAdditionalEventAnalyticsDelta:
-      type: object
-      description: TPI check analytics configuration
-      properties:
-        tpi:
-          type: 'null'
-          description: Indicates the beginning of a TPI configuration block. Can be null.
-        additional_criteria:
-          $ref: '#/components/schemas/AdditionalCriteria'
-          description: "Used to filter results based on one or more selection blocks and a condition.\n\n**Structure:**\n- Must contain **at least one** selection key (`selection_n`, where n ≥ 1)  \n- Must contain a `condition` key  \n- Selection keys may contain **either**:\n  * A **list** of entries → conditions are joined with **OR**.\n    Example:\n    ```yaml\n    selection_1:\n      - tpi_country: USA\n      - tpi_src_confidence|gt: 5\n    ```\n    Evaluates as:\n    ```scss\n    tpi_country(equals)USA OR tpi_src_confidence(greater_than)5\n    ```\n  * A **map** of entries → conditions are joined with **AND**\n    Example:\n    ```yaml\n    selection_1:\n      tpi_country|equals|attr: country\n      tpi_src_confidence|gt: 5\n    ```\n    Evaluates as:\n    ```scss\n    tpi_country(equals)country AND tpi_src_confidence(greater_than)5\n    ```\n**Entry format:**\nTPI_field[|modifier][|attr]: value\n\n- **TPI_field** — the name of the TPI field to filter on  \n- **modifier** *(optional)* — comparison/matching operation. Defaults to `equals` if omitted.\n- **attr** *(optional)* — indicates the value is taken from another attribute rather than a literal.  \n\n**Supported modifiers:**\n1. `equals` *(default if omitted)*\n2. `contains`\n3. `gt` — greater than\n4. `gte` — greater than or equal\n5. `lt` — less than\n6. `lte` — less than or equal\n7. `startswith`\n8. `endswith`\n9. `isnull`\n\n**Negation modifiers:**\n1. `not equals`\n2. `not contains`\n3. `is not null`\n\n**Negation usage:**  \nTo apply negation to an entire selection block, prefix the selection key with `NOT` in `condition`.  \nExample:\n```yaml\nselection_1:\n  tpi_country|equals|attr: USA\ncondition: NOT selection_1\n```\n\nAccepted examples:\n\n- Selection with only `attr`\n  ```yaml\n  selection_1:\n    tpi_country|attr: country\n  ```\n  Evaluates as:\n  ```scss\n  tpi_country(EQUALS)attr.country\n  ```\n- Selection with `modifier` and `attr`\n  ```yaml\n  selection_1:\n    tpi_country|contains|attr: country\n  ```\n  Evaluates as:\n  ```scss\n  tpi_country(CONTAINS)attr.country\n  ```\n- Selection with only `modifier`\n  ```yaml\n  selection_1:\n    tpi_src_confidence|gt: 5\n  ```\n  Evaluates as:\n  ```scss\n  tpi_src_confidence(GREATER_THAN)5\n  ```\n- Selection with negation `modifier` \n  ```yaml\n  selection_1:\n    tpi_country|contains: USA\n  condition: NOT selection_1\n  ```   \n  Evaluates as:\n  ```scss\n  tpi_country(NOT_CONTAINS)USA\n  ```\n\n\n\n\n\n"
-      patternProperties:
-        (?!tpi|additional_criteria$)^[a-zA-Z_][a-zA-Z0-9_]*$:
-          type: array
-          description: Dynamic attribute name mapped to a list of TPI names to check against
-          items:
-            type: string
-      required:
-      - tpi
-      examples:
-      - tpi: null
-        destinationaddress:
-        - SNXTIS_BASIC_IPV4
-        - SNXTIS_BASIC_IPV6
-        additional_criteria:
-          selection_1:
-          - tpi_src_confidence|gt: 5
-          - tpi_country|contains|attr: country
-          selection_2:
-          - tpi_src: abc
-          condition: selection_1 AND NOT selection_2
-      x-internal: true
     ErrorResponse:
       type: object
       description: Data model to indicate the status code and error message.
@@ -3221,44 +3120,110 @@ components:
         Example 1:
           statusCode: 400 BAD_REQUEST
           message: 'Client error: 404 NOT_FOUND'
-    ViolationAction:
+    PolicyactivelistEntity:
       type: object
-      description: Action for the violations.
+      description: Policy active list entity
       properties:
-        dailyviolationthreshold:
+        activelistId:
           type: integer
-          description: Daily violation threshold to stop flagging new violation events for the policy.
+          description: Unique active list ID
           format: int64
-          minimum: 1
-          maximum: 100000
-          default: 100000
-        add_to_watchlist:
-          $ref: '#/components/schemas/AddToWatchlist'
-          description: Violators of the policy will be added to the watchlist mentioned.
-      examples:
-      - dailyviolationthreshold: 100000
-        add_to_watchlist:
-          watchlist_name: Domain_Admin
-          removal_period:
-            days: 1
-            time: '12:00:00'
-            expiry_date_from_current_time: true
-    400BadRequest:
+          examples:
+          - 9
+        policyId:
+          type: integer
+          description: Associated policy ID
+          format: int64
+          examples:
+          - 12345
+        index:
+          type: integer
+          description: Ordering index of the active list entry
+          examples:
+          - 0
+        metadata:
+          type: string
+          description: Serialized metadata configuration of the active list (XML format)
+          examples:
+          - "<activeListParamsBean>\n    <keyRule>u_employeeid</keyRule>\n    <violationAttributes>deviceaction,ipaddress,destinationaddress,destinationport</violationAttributes>\n</activeListParamsBean>"
+      required:
+      - activelistId
+      - policyId
+      - metadata
+    PolicyDeletionResult:
       type: object
       properties:
+        policyName:
+          type: string
+          description: Name of the policy
+          examples:
+          - Recent Transfers
+        success:
+          type: boolean
+          description: Whether the deletion was successful
+          examples:
+          - true
+        errorMessage:
+          type:
+          - string
+          - 'null'
+          description: Error message if deletion failed
+          examples:
+          - null
+        deletionTrackerId:
+          type:
+          - integer
+          - 'null'
+          description: ID for tracking the deletion request
+          format: int64
+          examples:
+          - 123
+        disabled:
+          type: boolean
+          description: Whether the policy was disabled
+          examples:
+          - true
+        policyId:
+          type:
+          - integer
+          - 'null'
+          description: ID of the policy
+          format: int64
+          examples:
+          - 456
+    PolicyLabelEntity:
+      type: object
+      description: Policy label entity
+      properties:
+        idx:
+          type: integer
+          description: Label index ID
+          format: int32
+        label_name:
+          type: string
+          description: Label name
+        labelId:
+          type: integer
+          description: Label Id
+          format: int64
+    RemovalPeriod:
+      type: object
+      properties:
+        days:
+          type: integer
+          description: Number of days
+          minimum: 0
+          maximum: 365
         time:
           type: string
-          description: '*Optional* Timestamp for response'
-        message:
-          type: string
-          description: Error message
-        httpStatus:
-          type: string
-          description: http Status code
-      examples:
-      - time: '2025-07-17T15:10:33.263774233Z'
-        message: 'com.securonix.respexception.exception.InvalidInputException: Invalid value provided for additional criteria selection value. Must be one of [NonBusinessDomains]'
-        httpStatus: INTERNAL_SERVER_ERROR
+          description: Time in HH:mm:ss format
+          pattern: ^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$
+        expiry_date_from_current_time:
+          type: boolean
+          description: Calculate expiry from current time
+          default: false
+      required:
+      - days
     CreatePolicyResponse:
       type: object
       description: Policy management response containing complete policy information
@@ -3728,217 +3693,249 @@ components:
           description: Policy rules
           items:
             $ref: '#/components/schemas/PolicyRuleEntity'
-    PolicyPredictionAttributesEntity:
+    LogSource:
       type: object
-      description: Policy prediction attributes entity
+      description: Product information
       properties:
-        riskTypeId:
-          type: integer
-          description: Unique identifier for the risk type
-          format: int64
-          examples:
-          - 2393
-        forestId:
-          type: integer
-          description: Associated forest ID for prediction attributes
-          format: int64
-          examples:
-          - 2393
-        riskThreatId:
-          type: integer
-          description: Associated risk threat ID
-          format: int64
-          examples:
-          - 50149
-        signatureId:
+        product:
           type: string
-          description: Unique signature identifier for the prediction
-          examples:
-          - '1000024'
-        index:
-          type: integer
-          description: Ordering index for the prediction attributes entry
-          examples:
-          - 0
-        attributes:
+          description: Product Name.
+        service:
           type: string
-          description: Serialized attribute configuration (XML format) including attribute-priority mappings
-          examples:
-          - "<policyAttributeBean>\n    <attributePriorityMap>\n        <entry>\n            <key>ipaddress</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>u_employeeid</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>u_department</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>u_firstname</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>accountname</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>transactionstring1</key>\n            <value>1</value>\n        </entry>\n        <entry>\n            <key>u_lastname</key>\n            <value>1</value>\n        </entry>\n    </attributePriorityMap>\n</policyAttributeBean>"
-      required:
-      - riskTypeId
-      - forestId
-      - riskThreatId
-      - signatureId
-      - attributes
-    AdditionalCriteria:
-      type: object
-      description: "Additional criteria configuration.\n\n**Requirements:**\n- Must contain **at least one** selection key (`selection_n`, where n ≥ 1)\n- Must contain **one** `condition` key.\n\n**Accepted keys:**\n- `selection_n`: Numbered selection blocks (e.g., `selection_1`, `selection_2`, …)\n- `condition`: Defines the condition to apply\n\n**Selection value types:**\n1. **List of entries** → conditions are joined with **OR**  \n2. **Map of entries** → conditions are joined with **AND**  \n\n---\nThe `|attr`, `|gt`, etc. are operator suffixes.  \nThe left-hand side is the field name, the right-hand side is the comparison value."
-      properties:
-        condition:
-          type: string
-          description: Logical condition referencing one or more selections.
-      patternProperties:
-        ^selection_[0-9]*$:
-          oneOf:
-          - type: array
-            items: {}
-          - type: object
-          description: Criteria for a selection, where `n` is a positive integer.
-      required:
-      - condition
-      minProperties: 2
+          description: Service name.
       examples:
-      - selection_1:
-          VendorId|contains: Vendor
-        condition: NOT selection_1
-    UpdatePolicy:
+      - product: Google Login
+        service: Google
+      x-examples:
+        Example 1:
+          product: azure
+          service: auditlogs
+      x-internal: true
+    BulkPolicyDeletionResponse:
       type: object
-      title: UpdatePolicy
       properties:
-        tenantnames:
+        totalRequested:
+          type: integer
+          description: Total number of policies requested for deletion
+          examples:
+          - 2
+        totalSuccessful:
+          type: integer
+          description: Number of policies successfully queued for deletion
+          examples:
+          - 1
+        totalFailed:
+          type: integer
+          description: Number of policies that failed to be deleted
+          examples:
+          - 1
+        results:
           type: array
-          description: "List of tenants the policy will be configured for.\n\n> Use the keyword `All` if the policy should apply to **all tenants**.\n\nExample:\n```yaml\ntenantname:\n - All\n ```\n"
+          description: Detailed results for each policy deletion attempt
           items:
-            type: string
-        description:
-          type: string
-          description: Policy description.
-        labels:
-          type: array
-          description: Policy labels/tags.
-          items:
-            type: string
-        detection:
-          $ref: '#/components/schemas/detection'
-        saveasthreat:
-          type: boolean
-          description: Whether to save as threat.
-        incident_workflow:
-          type: string
-          description: Incident workflow identifier.
-          examples:
-          - SOCTeamReview
-        autoIncidentEnabled:
-          type: boolean
-          description: Enables or disables automatic incident creation for policy violations. Omit this field on update to leave the existing setting unchanged.
-          examples:
-          - true
-        violatorAttribute:
-          type:
-          - string
-          - 'null'
-          description: Selected attribute used to create violation entities for the policy's violator. Omit this field on update to leave the existing setting unchanged. Maps to policy_master.violator_attribute and must be one of the attributes allowed for the policy violator when the violator attribute feature is enabled.
-          examples:
-          - sourceusername
-        additional_event_analytics:
-          $ref: '#/components/schemas/AdditionalEventAnalytics'
-        analytic_type:
-          $ref: '#/components/schemas/AnalyticalType'
-        verbose_info:
-          type: string
-          description: Verbose information template. Provides summary of the violation.
-        apisource:
-          type: string
-          description: Identifies the system calling the API to create or update a policy. Must not be 'PA'.
-          maxLength: 2
-          default: PA
+            $ref: '#/components/schemas/PolicyDeletionResult'
       examples:
-      - tenantnames:
-        - tenantB
-        description: Updating policy description
-        labels:
-        - updated.label.name
-        detection:
-          selection_1:
-            baseeventid: 4688
-          selection_2:
-            destinationprocessname: lsaas.exe
-          selection_3:
-            commandline|contains: lsass.exe
-          condition: selection_1 AND ( selection_2 or selection_3 )
-        saveasthreat: true
-        incident_workflow: SOCTeamReview
-        autoIncidentEnabled: true
-        violatorAttribute: sourceusername
-        additional_event_analytics:
-          match_all_checks: true
-          check_against_watchlist:
-          - accountname: Terminated_Contractors
-            flag_violation_not_found_in_watchlist: true
-          check_against_lookup:
-          - lookup:
-              accountname: MultipleFailedEntries
-            condition: lookup
-            additional_criteria:
-              selection_1:
-                VendorId|contains: Vendor
-              condition: NOT selection_1
-          email_to_self:
-          - emailrecipient: 0.8
-          match_string:
-          - ms:
-              first_field: AccountName
-              second_field: UserNameSpace
-              threshold: 0.8
-          check_against_tpi:
-          - tpi: null
-            destinationaddress:
-            - SNXTIS_BASIC_IPV4
-            - SNXTIS_BASIC_IPV6
-            additional_criteria:
-              selection_1:
-              - tpi_src_confidence|gt: 5
-              - tpi_country|contains|attr: country
-              selection_2:
-              - tpi_src: abc
-              condition: selection_1 AND NOT selection_2
-          check_against_activelist:
-          - activelist:
-              rule: ipaddress
-              rule_match_present: true
-              activelist_name: Password_spraying_attempts_From_single_IP
-        analytic_type:
-          aggregated_event_analytics:
-          - name: Authentication Failed
-            aee_filter:
-              selection1:
-                baseeventid: 4625
-              condition: selection1
-            number_of_occurrences:
-              duration: 01:30:00
-              atleast: 1
-              count_matching_criteria:
-                baseeventid: 15
-            similar_value:
+      - totalRequested: 2
+        totalSuccessful: 1
+        totalFailed: 1
+        results:
+        - policyName: Recent Transfers
+          success: true
+          errorMessage: null
+          deletionTrackerId: 123
+          disabled: true
+          policyId: 456
+        - policyName: policy for Whitelist
+          success: false
+          errorMessage: Policy not found
+          deletionTrackerId: null
+          disabled: false
+          policyId: null
+    BulkPolicyDeletionRequest:
+      type: object
+      properties:
+        tenantName:
+          type: string
+          description: Name of the tenant for which policies should be deleted
+          examples:
+          - SOAR
+        policies:
+          type: array
+          description: List of policies to be deleted with their deletion preferences
+          minItems: 1
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/PolicyDeletionItem'
+      required:
+      - tenantName
+      - policies
+      examples:
+      - tenantName: SOAR
+        policies:
+        - policyName: Recent Transfers
+          deleteViolations: true
+        - policyName: policy for Whitelist
+          deleteViolations: false
+    AnalyticalType:
+      type: object
+      description: "Defines an AEE (Aggregated Event Analytics) policy. \n\nRules:\n1. First element must be a Parent directive.\n2. Second element (optional) must be a Parent-Child directive.\n3. Maximum 2 elements."
+      properties:
+        aggregated_event_analytics:
+          type: array
+          minItems: 1
+          maxItems: 2
+          items:
+            $ref: '#/components/schemas/AggregatedEventAnalyticsDelta'
+      examples:
+      - aggregated_event_analytics:
+        - name: Authentication Failed
+          aee_filter:
+            selection1:
+              baseeventid: 4625
+            condition: selection1
+          number_of_occurrences:
+            duration: 01:30:00
+            atleast: 1
+            count_matching_criteria:
+              baseeventid: 15
+          similar_value:
+          - accountname
+          consecutive_events: true
+          distinct_value:
+          - ipaddress
+          - eventcountry
+        - name: Authentication Success
+          aee_filter:
+            selection1:
+              baseeventid|equals: 4625
+            condition: selection1
+          number_of_occurrences:
+            duration: 01:30:00
+            atleast: 1
+            count_matching_criteria:
+              baseeventid: 15
+          consecutive_events: false
+          distinct_value:
+          - ipaddress
+          - eventcountry
+          parent_child_relationship:
+            duration: 01:00:00
+            common_values:
             - accountname
-            consecutive_events: true
-            distinct_value:
-            - ipaddress
-            - eventcountry
-          - name: Authentication Success
-            aee_filter:
-              selection1:
-                baseeventid|equals: 4625
-              condition: selection1
-            number_of_occurrences:
-              duration: 01:30:00
-              atleast: 1
-              count_matching_criteria:
-                baseeventid: 15
-            consecutive_events: false
-            distinct_value:
-            - ipaddress
-            - eventcountry
-            parent_child_relationship:
-              duration: 01:00:00
-              common_values:
-              - accountname
-        verbose_info: '''Account ${accountname!"UNKNOWN"} getting updates from possible suspicious IP Address.'''
-        apisource: AI
-  examples:
-    default:
-      value: tenant1
+      x-internal: true
+    AdditionalEventAnalytics:
+      type: object
+      description: Defines additional processing after violations have been detected using a set of filter conditions. Additional Event Analytics check individual events against data such as Active Lists, Lookup Tables, Watchlists, Geolocation, Domain Age, and Third-Party Intelligence.
+      properties:
+        match_all_checks:
+          type: boolean
+          description: Whether all checks must match
+        check_against_watchlist:
+          type: array
+          maxItems: 15
+          items:
+            $ref: '#/components/schemas/WatchListAdditionalEventAnalyticsDelta'
+        check_against_lookup:
+          type: array
+          maxItems: 15
+          items:
+            $ref: '#/components/schemas/LookupAdditionalEventAnalyticsDelta'
+        email_to_self:
+          type: array
+          maxItems: 15
+          items:
+            $ref: '#/components/schemas/EmailSentToSelfAdditionalEventAnalyticsDelta'
+        match_string:
+          type: array
+          maxItems: 15
+          items:
+            $ref: '#/components/schemas/MSConfig'
+        check_against_tpi:
+          type: array
+          maxItems: 15
+          items:
+            $ref: '#/components/schemas/CheckAgainstTpiAdditionalEventAnalyticsDelta'
+        check_against_activelist:
+          type: array
+          maxItems: 15
+          items:
+            $ref: '#/components/schemas/ActiveListAdditionalEventAnalyticsDelta'
+      examples:
+      - match_all_checks: true
+        check_against_watchlist:
+        - accountname: Terminated_Contractors
+          flag_violation_not_found_in_watchlist: true
+        check_against_lookup:
+        - lookup:
+            accountname: MultipleFailedEntries
+          condition: lookup
+          additional_criteria:
+            selection_1:
+              VendorId|contains: Vendor
+            condition: NOT selection_1
+        email_to_self:
+        - emailrecipient: 0.8
+        match_string:
+        - ms:
+            first_field: AccountName
+            second_field: UserNameSpace
+            threshold: 0.8
+        check_against_tpi:
+        - tpi: null
+          destinationaddress:
+          - SNXTIS_BASIC_IPV4
+          - SNXTIS_BASIC_IPV6
+          additional_criteria:
+            selection_1:
+            - tpi_src_confidence|gt: 5
+            - tpi_country|contains|attr: country
+            selection_2:
+            - tpi_src: abc
+            condition: selection_1 AND NOT selection_2
+        check_against_activelist:
+        - activelist:
+            rule: ipaddress
+            rule_match_present: true
+            activelist_name: Password_spraying_attempts_From_single_IP
+      x-internal: true
+    400BadRequest:
+      type: object
+      properties:
+        time:
+          type: string
+          description: '*Optional* Timestamp for response'
+        message:
+          type: string
+          description: Error message
+        httpStatus:
+          type: string
+          description: http Status code
+      examples:
+      - time: '2025-07-17T15:10:33.263774233Z'
+        message: 'com.securonix.respexception.exception.InvalidInputException: Invalid value provided for additional criteria selection value. Must be one of [NonBusinessDomains]'
+        httpStatus: INTERNAL_SERVER_ERROR
+    PolicyStatusDetailsResponse:
+      type: object
+      title: PolicyStatusDetailsResponse
+      properties:
+        policyName:
+          type: string
+        policyId:
+          type: integer
+          format: int64
+        status:
+          type: string
+      examples:
+      - policyName: PolicyA
+        policyId: 1
+        status: Success
+    ActiveListAdditionalEventAnalyticsDelta:
+      type: object
+      description: Active list analytics configuration
+      properties:
+        activelist:
+          $ref: '#/components/schemas/ActivelistConfig'
+      x-internal: true
   parameters:
     AcceptHeader:
       name: Accept
@@ -3961,6 +3958,9 @@ components:
         type: string
         examples:
         - tenant1
+  examples:
+    default:
+      value: tenant1
   securitySchemes:
     bearerAuth:
       type: http

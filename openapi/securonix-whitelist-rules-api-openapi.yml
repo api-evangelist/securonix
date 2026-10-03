@@ -188,71 +188,26 @@ paths:
       operationId: getWhitelistRules{?limit,offset,sort,with}
       x-operation-id-source: derived
 components:
-  parameters:
-    Limit:
-      name: limit
-      in: query
-      description: <br>The number of objects included in the response.
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: integer
-        example: 10
-    WhitelistRuleId:
-      name: whitelist_rule_id
-      in: path
-      description: Whitelist Rule ID
-      required: true
-      schema:
-        type: integer
-    Sort:
-      name: sort
-      in: query
-      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: string
-        example: id,created_at
-    WhitelistRuleWith:
-      name: with
-      in: query
-      description: <br>Indicator Type relationship that can be included in the response.
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: string
-        example: type
-    Offset:
-      name: offset
-      in: query
-      description: <br>The number of result set records that should be ignored.
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: integer
-        example: 50
-  responses:
-    NoContent:
-      description: Object(s) were successfully deleted.
-    NotFound:
-      description: Object Not Found
-    FailedValidation:
-      description: Validation Failed
-    Unauthorized:
-      description: Unauthorized
   schemas:
-    TotalResponse:
-      properties:
-        total:
-          description: Total Number of Objects Processed
-          type: integer
-          example: 1
-      type: object
+    WhitelistRule:
+      allOf:
+      - properties:
+          id:
+            description: Whitelist Rule ID
+            type: integer
+            example: 1
+        type: object
+      - properties:
+          created_at:
+            description: Whitelist Rule Creation Date
+            type: string
+            example: '2020-05-01 02:35:16'
+          updated_at:
+            description: Whitelist Rule Update Date
+            type: string
+            example: '2020-05-03 04:27:51'
+        type: object
+      - $ref: '#/components/schemas/WhitelistRuleFillable'
     WhitelistRuleWithType:
       allOf:
       - properties:
@@ -260,20 +215,33 @@ components:
             $ref: '#/components/schemas/IndicatorType'
         type: object
       - $ref: '#/components/schemas/WhitelistRule'
-    IndicatorTypeFillable:
+    WhitelistRuleWithIndicatorCount:
+      allOf:
+      - properties:
+          updated_count:
+            description: Number of Indicators updated via new Whitelist Rule
+            type: integer
+            example: 3
+        type: object
+      - $ref: '#/components/schemas/WhitelistRule'
+    WhitelistRuleFillable:
       properties:
-        name:
-          description: Indicator Type Name
-          type: string
-          example: FQDN
-        class:
-          description: Indicator Type Class - Options include Network or Host
-          type: string
-          example: network
-        score:
-          description: Indicator Type Score - Ranges from -10 to 10
+        type_id:
+          description: Indicator Type ID
           type: integer
-          example: 3
+          example: 11
+        status_id:
+          description: Indicator Status ID
+          type: integer
+          example: 2
+        rule:
+          description: Whitelist Rule Value
+          type: string
+          example: '*.threatq.com'
+        enabled:
+          description: Determines whether the Whitelist Rule is being actively applied
+          type: string
+          example: Y
       type: object
     IndicatorType:
       allOf:
@@ -298,53 +266,85 @@ components:
             example: '2020-05-03 04:27:51'
         type: object
       - $ref: '#/components/schemas/IndicatorTypeFillable'
-    WhitelistRule:
-      allOf:
-      - properties:
-          id:
-            description: Whitelist Rule ID
-            type: integer
-            example: 1
-        type: object
-      - properties:
-          created_at:
-            description: Whitelist Rule Creation Date
-            type: string
-            example: '2020-05-01 02:35:16'
-          updated_at:
-            description: Whitelist Rule Update Date
-            type: string
-            example: '2020-05-03 04:27:51'
-        type: object
-      - $ref: '#/components/schemas/WhitelistRuleFillable'
-    WhitelistRuleFillable:
+    IndicatorTypeFillable:
       properties:
-        type_id:
-          description: Indicator Type ID
-          type: integer
-          example: 11
-        status_id:
-          description: Indicator Status ID
-          type: integer
-          example: 2
-        rule:
-          description: Whitelist Rule Value
+        name:
+          description: Indicator Type Name
           type: string
-          example: '*.threatq.com'
-        enabled:
-          description: Determines whether the Whitelist Rule is being actively applied
+          example: FQDN
+        class:
+          description: Indicator Type Class - Options include Network or Host
           type: string
-          example: Y
+          example: network
+        score:
+          description: Indicator Type Score - Ranges from -10 to 10
+          type: integer
+          example: 3
       type: object
-    WhitelistRuleWithIndicatorCount:
-      allOf:
-      - properties:
-          updated_count:
-            description: Number of Indicators updated via new Whitelist Rule
-            type: integer
-            example: 3
-        type: object
-      - $ref: '#/components/schemas/WhitelistRule'
+    TotalResponse:
+      properties:
+        total:
+          description: Total Number of Objects Processed
+          type: integer
+          example: 1
+      type: object
+  parameters:
+    Limit:
+      name: limit
+      in: query
+      description: <br>The number of objects included in the response.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 10
+    WhitelistRuleWith:
+      name: with
+      in: query
+      description: <br>Indicator Type relationship that can be included in the response.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+        example: type
+    Sort:
+      name: sort
+      in: query
+      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+        example: id,created_at
+    Offset:
+      name: offset
+      in: query
+      description: <br>The number of result set records that should be ignored.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 50
+    WhitelistRuleId:
+      name: whitelist_rule_id
+      in: path
+      description: Whitelist Rule ID
+      required: true
+      schema:
+        type: integer
+  responses:
+    NoContent:
+      description: Object(s) were successfully deleted.
+    NotFound:
+      description: Object Not Found
+    FailedValidation:
+      description: Validation Failed
+    Unauthorized:
+      description: Unauthorized
   securitySchemes:
     BearerAuth:
       type: http
