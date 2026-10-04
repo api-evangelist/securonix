@@ -225,29 +225,48 @@ paths:
           description: Not Found
 components:
   schemas:
-    FetchTenantsByUsernameResponse:
-      title: FetchTenantsByUsernameResponse
+    DatasourcesResponse:
+      title: DatasourcesResponse
       type: object
       properties:
-        tenants:
-          type: array
-          items:
-            $ref: '#/components/schemas/TenantMasterResponse'
-    FetchAllRINsByTenantName:
-      title: FetchAllRINsByTenantName
-      type: object
-      properties:
-        rins:
-          type: array
-          items:
-            $ref: '#/components/schemas/RINsByTenantName'
-    DatasourcePropertiesResponse:
-      title: DatasourcePropertiesResponse
-      type: object
-      properties:
-        propertyname:
+        collectionMethodType:
           type: string
-        propertyvalue:
+        datasourcePropertiesResponses:
+          type: array
+          items:
+            $ref: '#/components/schemas/DatasourcePropertiesResponse'
+        datasourceid:
+          type: integer
+          format: int64
+        datasourcename:
+          type: string
+        importtype:
+          type: string
+        tenantid:
+          type: integer
+          format: int64
+        tenantname:
+          type: string
+    ImportDatasourcesConfigResponse:
+      title: ImportDatasourcesConfigResponse
+      type: object
+      properties:
+        datasourceconfiguration:
+          type: array
+          items:
+            $ref: '#/components/schemas/DatasourcesResponse'
+    TenantMasterResponse:
+      title: TenantMasterResponse
+      type: object
+      properties:
+        shortcode:
+          type: string
+        tenantID:
+          type: integer
+          format: int64
+        tenantname:
+          type: string
+        timezone:
           type: string
     RINsByTenantName:
       title: RINsByTenantName
@@ -269,27 +288,30 @@ components:
           format: int64
         tenantName:
           type: string
-    TenantMasterResponse:
-      title: TenantMasterResponse
+    FetchAllRINsByTenantName:
+      title: FetchAllRINsByTenantName
       type: object
       properties:
-        shortcode:
-          type: string
-        tenantID:
-          type: integer
-          format: int64
-        tenantname:
-          type: string
-        timezone:
-          type: string
-    ImportDatasourcesConfigResponse:
-      title: ImportDatasourcesConfigResponse
-      type: object
-      properties:
-        datasourceconfiguration:
+        rins:
           type: array
           items:
-            $ref: '#/components/schemas/DatasourcesResponse'
+            $ref: '#/components/schemas/RINsByTenantName'
+    FetchTenantsByUsernameResponse:
+      title: FetchTenantsByUsernameResponse
+      type: object
+      properties:
+        tenants:
+          type: array
+          items:
+            $ref: '#/components/schemas/TenantMasterResponse'
+    DatasourcePropertiesResponse:
+      title: DatasourcePropertiesResponse
+      type: object
+      properties:
+        propertyname:
+          type: string
+        propertyvalue:
+          type: string
     ResourceGroupDetailsByTenantID:
       title: ResourceGroupDetailsByTenantID
       type: object
@@ -319,28 +341,6 @@ components:
         timezone:
           type: string
         vendor:
-          type: string
-    DatasourcesResponse:
-      title: DatasourcesResponse
-      type: object
-      properties:
-        collectionMethodType:
-          type: string
-        datasourcePropertiesResponses:
-          type: array
-          items:
-            $ref: '#/components/schemas/DatasourcePropertiesResponse'
-        datasourceid:
-          type: integer
-          format: int64
-        datasourcename:
-          type: string
-        importtype:
-          type: string
-        tenantid:
-          type: integer
-          format: int64
-        tenantname:
           type: string
     ResourceGroupDetailsByTenantIdResponse:
       title: ResourceGroupDetailsByTenantIdResponse

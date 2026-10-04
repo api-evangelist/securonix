@@ -341,25 +341,20 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/SyslogFilterData'
-    ConfigCollectorSource:
-      title: ConfigCollectorSource
+    SyslogNewSourcePayload:
+      title: SyslogNewSourcePayload
       type: object
       properties:
-        id:
+        ingesterId:
           type: integer
           format: int64
-        name:
+        sourceExpression:
           type: string
-        source:
+        sourceName:
           type: string
-        syslogId:
-          type: integer
-          format: int64
         tenantId:
           type: integer
           format: int64
-        type:
-          type: string
     SyslogDetailsPayload:
       title: SyslogDetailsPayload
       type: object
@@ -377,6 +372,22 @@ components:
           items:
             type: integer
             format: int64
+    SyslogSourcesResponse:
+      title: SyslogSourcesResponse
+      type: object
+      properties:
+        syslogSourcesDetails:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConfigCollectorSource'
+    ValidateSyslogDetailsPayload:
+      title: ValidateSyslogDetailsPayload
+      type: object
+      properties:
+        syslogDetails:
+          type: array
+          items:
+            $ref: '#/components/schemas/SyslogDetailsPayload'
     ConfigSyslogDataSourcePayload:
       title: ConfigSyslogDataSourcePayload
       type: object
@@ -446,40 +457,25 @@ components:
           type: string
         vendor:
           type: string
-    SyslogSourcesResponse:
-      title: SyslogSourcesResponse
+    ConfigCollectorSource:
+      title: ConfigCollectorSource
       type: object
       properties:
-        syslogSourcesDetails:
-          type: array
-          items:
-            $ref: '#/components/schemas/ConfigCollectorSource'
-    SyslogNewSourcePayload:
-      title: SyslogNewSourcePayload
-      type: object
-      properties:
-        ingesterId:
+        id:
           type: integer
           format: int64
-        sourceExpression:
+        name:
           type: string
-        sourceName:
+        source:
           type: string
+        syslogId:
+          type: integer
+          format: int64
         tenantId:
           type: integer
           format: int64
-    ConfigDatasourceResponse:
-      title: ConfigDatasourceResponse
-      type: object
-      properties:
-        created_at:
+        type:
           type: string
-          format: date-time
-        description:
-          type: string
-        resourceGroupId:
-          type: integer
-          format: int64
     ConfigDataSourcePayload:
       title: ConfigDataSourcePayload
       type: object
@@ -543,6 +539,20 @@ components:
           type: string
         vendor:
           type: string
+    SyslogNewFilterPayload:
+      title: SyslogNewFilterPayload
+      type: object
+      properties:
+        filterExpression:
+          type: string
+        filterName:
+          type: string
+        ingesterId:
+          type: integer
+          format: int64
+        sourceId:
+          type: integer
+          format: int64
     ResourceGroups:
       title: ResourceGroups
       type: object
@@ -670,26 +680,16 @@ components:
           type: string
         vendor:
           type: string
-    ValidateSyslogDetailsPayload:
-      title: ValidateSyslogDetailsPayload
+    ConfigDatasourceResponse:
+      title: ConfigDatasourceResponse
       type: object
       properties:
-        syslogDetails:
-          type: array
-          items:
-            $ref: '#/components/schemas/SyslogDetailsPayload'
-    SyslogNewFilterPayload:
-      title: SyslogNewFilterPayload
-      type: object
-      properties:
-        filterExpression:
+        created_at:
           type: string
-        filterName:
+          format: date-time
+        description:
           type: string
-        ingesterId:
-          type: integer
-          format: int64
-        sourceId:
+        resourceGroupId:
           type: integer
           format: int64
     SyslogFilterData:

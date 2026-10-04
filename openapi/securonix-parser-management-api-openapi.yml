@@ -102,14 +102,6 @@ paths:
           description: Not Found
 components:
   schemas:
-    FetchParsersByVendorOrResourcetypeOrCollectionmethod:
-      title: FetchParsersByVendorOrResourcetypeOrCollectionmethod
-      type: object
-      properties:
-        parsers:
-          type: array
-          items:
-            $ref: '#/components/schemas/ParsersResponse'
     ConfigResourceParsers:
       title: ConfigResourceParsers
       type: object
@@ -178,6 +170,14 @@ components:
           type: string
         vendor:
           type: string
+    FetchParsersByVendorOrResourcetypeOrCollectionmethod:
+      title: FetchParsersByVendorOrResourcetypeOrCollectionmethod
+      type: object
+      properties:
+        parsers:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParsersResponse'
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

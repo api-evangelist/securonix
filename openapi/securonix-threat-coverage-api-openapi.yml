@@ -372,72 +372,34 @@ paths:
       - bearerAuth: []
 components:
   schemas:
-    ThreatCoverageMetricsResponse:
+    CoverageSummary:
       type: object
-      description: Threat coverage metrics response containing MITRE ATT&CK coverage analysis
+      description: Coverage summary statistics
       properties:
-        mitreVersion:
-          type: string
-          description: MITRE ATT&CK version used for the analysis
-          example: '18'
-        coverageSummary:
-          $ref: '#/components/schemas/CoverageSummary'
-        policyDistributionByTacticSummary:
-          type: array
-          description: Policy distribution across tactics
-          items:
-            $ref: '#/components/schemas/PolicyDistributionByTacticSummary'
-        coverageAnalysisSummary:
-          type: array
-          description: List of tactics with technique coverage details
-          items:
-            $ref: '#/components/schemas/TacticCoverage'
-      required:
-      - mitreVersion
-      - coverageSummary
-      - policyDistributionByTacticSummary
-      - coverageAnalysisSummary
-    PolicyDistributionByTacticSummary:
-      type: object
-      description: Policy distribution for a specific tactic across environments
-      properties:
-        tacticId:
-          type: string
-          description: MITRE tactic ID (e.g., TA0001)
-          example: TA0001
-        tacticName:
-          type: string
-          description: Tactic name (e.g., Initial Access)
-          example: Initial Access
-        productionPolicyCount:
+        totalTactics:
           type: integer
-          description: Number of production policies for this tactic
-          example: 53
-        sandboxPolicyCount:
+          description: Total number of MITRE tactics
+          example: 14
+        totalTechniques:
           type: integer
-          description: Number of sandbox policies for this tactic
-          example: 25
-      required:
-      - tacticId
-      - tacticName
-      - productionPolicyCount
-      - sandboxPolicyCount
-    Subtechnique:
-      type: object
-      description: MITRE ATT&CK sub-technique information
-      properties:
-        subtechniqueId:
-          type: string
-          description: MITRE sub-technique ID (e.g., T1566.001)
-          example: T1566.001
-        subtechniqueName:
-          type: string
-          description: Sub-technique name (e.g., Spearphishing Attachment)
-          example: Spearphishing Attachment
-        isExcluded:
-          type: boolean
-          description: Whether the sub-technique is effectively excluded from coverage. True only when it is configured as excluded AND has no associated policy (enabled or disabled).
-          example: false
+          description: Total number of MITRE techniques
+          example: 193
+        tacticsCoveredForApplicableEnabledPolicies:
+          type: integer
+          description: Number of tactics covered by enabled policies
+          example: 12
+        techniquesCoveredForApplicableEnabledPolicies:
+          type: integer
+          description: Number of techniques covered by enabled policies
+          example: 145
+        tacticsCoveredForOotbPolicies:
+          type: integer
+          description: Number of tactics covered by OOTB policies
+          example: 10
+        techniquesCoveredForOotbPolicies:
+          type: integer
+          description: Number of techniques covered by OOTB policies
+          example: 98
     SubTechniqueDetails:
       type: object
       description: Sub-technique information with mapped policies
@@ -483,6 +445,70 @@ components:
       - coverageStatus
       - hasActiveDatasources
       - hasIdentityBasedPolicies
+    AssociatedTactic:
+      type: object
+      description: MITRE tactic associated with a technique
+      properties:
+        tacticId:
+          type: string
+          description: MITRE tactic ID (e.g., TA0001)
+          example: TA0001
+        tacticName:
+          type: string
+          description: Tactic name (e.g., Initial Access)
+          example: Initial Access
+      required:
+      - tacticId
+      - tacticName
+    ErrorResponse:
+      type: object
+      description: Data model to indicate the status code and error message.
+      properties:
+        statusCode:
+          type: string
+        message:
+          type: string
+      required:
+      - statusCode
+      - message
+      examples:
+      - statusCode: 400 BAD_REQUEST
+        message: 'Client error: 404 NOT_FOUND'
+      - statusCode: 403 FORBIDDEN
+        message: User is Not entitled for getting the requested data
+      - statusCode: 422 Unprocessable Entity
+        message: Parent id not found in Auth token
+      - statusCode: GATEWAY-10-1
+        message: Access token expired
+      x-examples:
+        Example 1:
+          statusCode: 400 BAD_REQUEST
+          message: 'Client error: 404 NOT_FOUND'
+    PolicyDistributionByTacticSummary:
+      type: object
+      description: Policy distribution for a specific tactic across environments
+      properties:
+        tacticId:
+          type: string
+          description: MITRE tactic ID (e.g., TA0001)
+          example: TA0001
+        tacticName:
+          type: string
+          description: Tactic name (e.g., Initial Access)
+          example: Initial Access
+        productionPolicyCount:
+          type: integer
+          description: Number of production policies for this tactic
+          example: 53
+        sandboxPolicyCount:
+          type: integer
+          description: Number of sandbox policies for this tactic
+          example: 25
+      required:
+      - tacticId
+      - tacticName
+      - productionPolicyCount
+      - sandboxPolicyCount
     TechniqueDetailsResponse:
       type: object
       description: Detailed information for a specific MITRE ATT&CK technique
@@ -563,9 +589,53 @@ components:
       - mappedPolicies
       - activeDatasources
       - isContentAdmin
-    AssociatedTactic:
+    TechniqueCoverage:
       type: object
-      description: MITRE tactic associated with a technique
+      description: MITRE ATT&CK technique coverage details
+      properties:
+        techniqueId:
+          type: string
+          description: MITRE technique ID (e.g., T1566)
+          example: T1566
+        techniqueName:
+          type: string
+          description: Technique name (e.g., Phishing)
+          example: Phishing
+        coverageStatus:
+          type: string
+          enum:
+          - FULLY_COVERED
+          - PARTIALLY_COVERED
+          - NOT_COVERED
+          - NOT_SUPPORTED
+          description: Coverage status
+          example: FULLY_COVERED
+        isExcluded:
+          type: boolean
+          description: Whether the technique is effectively excluded from coverage. True only when the technique is configured as excluded AND has no associated policy (enabled or disabled).
+          example: false
+        mappedPolicyCount:
+          type: integer
+          description: Number of policies mapped to this technique
+          example: 5
+        datasourceCount:
+          type: integer
+          description: Number of active datasources for this technique
+          example: 3
+        subtechniques:
+          type: array
+          description: List of sub-techniques under this technique (optional)
+          items:
+            $ref: '#/components/schemas/Subtechnique'
+      required:
+      - techniqueId
+      - techniqueName
+      - coverageStatus
+      - mappedPolicyCount
+      - datasourceCount
+    TacticCoverage:
+      type: object
+      description: MITRE ATT&CK tactic coverage details
       properties:
         tacticId:
           type: string
@@ -575,9 +645,40 @@ components:
           type: string
           description: Tactic name (e.g., Initial Access)
           example: Initial Access
+        techniques:
+          type: array
+          description: List of techniques (null for distribution)
+          items:
+            $ref: '#/components/schemas/TechniqueCoverage'
+        policyCount:
+          type: integer
+          description: Policy count (null for coverage analysis)
+          example: 15
+    ThreatCoverageMetricsResponse:
+      type: object
+      description: Threat coverage metrics response containing MITRE ATT&CK coverage analysis
+      properties:
+        mitreVersion:
+          type: string
+          description: MITRE ATT&CK version used for the analysis
+          example: '18'
+        coverageSummary:
+          $ref: '#/components/schemas/CoverageSummary'
+        policyDistributionByTacticSummary:
+          type: array
+          description: Policy distribution across tactics
+          items:
+            $ref: '#/components/schemas/PolicyDistributionByTacticSummary'
+        coverageAnalysisSummary:
+          type: array
+          description: List of tactics with technique coverage details
+          items:
+            $ref: '#/components/schemas/TacticCoverage'
       required:
-      - tacticId
-      - tacticName
+      - mitreVersion
+      - coverageSummary
+      - policyDistributionByTacticSummary
+      - coverageAnalysisSummary
     MappedPolicy:
       type: object
       description: Policy mapped to a technique with deployment status
@@ -640,123 +741,22 @@ components:
       - deployed
       - hasActiveDatasources
       - isIdentityBasedPolicy
-    TechniqueCoverage:
+    Subtechnique:
       type: object
-      description: MITRE ATT&CK technique coverage details
+      description: MITRE ATT&CK sub-technique information
       properties:
-        techniqueId:
+        subtechniqueId:
           type: string
-          description: MITRE technique ID (e.g., T1566)
-          example: T1566
-        techniqueName:
+          description: MITRE sub-technique ID (e.g., T1566.001)
+          example: T1566.001
+        subtechniqueName:
           type: string
-          description: Technique name (e.g., Phishing)
-          example: Phishing
-        coverageStatus:
-          type: string
-          enum:
-          - FULLY_COVERED
-          - PARTIALLY_COVERED
-          - NOT_COVERED
-          - NOT_SUPPORTED
-          description: Coverage status
-          example: FULLY_COVERED
+          description: Sub-technique name (e.g., Spearphishing Attachment)
+          example: Spearphishing Attachment
         isExcluded:
           type: boolean
-          description: Whether the technique is effectively excluded from coverage. True only when the technique is configured as excluded AND has no associated policy (enabled or disabled).
+          description: Whether the sub-technique is effectively excluded from coverage. True only when it is configured as excluded AND has no associated policy (enabled or disabled).
           example: false
-        mappedPolicyCount:
-          type: integer
-          description: Number of policies mapped to this technique
-          example: 5
-        datasourceCount:
-          type: integer
-          description: Number of active datasources for this technique
-          example: 3
-        subtechniques:
-          type: array
-          description: List of sub-techniques under this technique (optional)
-          items:
-            $ref: '#/components/schemas/Subtechnique'
-      required:
-      - techniqueId
-      - techniqueName
-      - coverageStatus
-      - mappedPolicyCount
-      - datasourceCount
-    ErrorResponse:
-      type: object
-      description: Data model to indicate the status code and error message.
-      properties:
-        statusCode:
-          type: string
-        message:
-          type: string
-      required:
-      - statusCode
-      - message
-      examples:
-      - statusCode: 400 BAD_REQUEST
-        message: 'Client error: 404 NOT_FOUND'
-      - statusCode: 403 FORBIDDEN
-        message: User is Not entitled for getting the requested data
-      - statusCode: 422 Unprocessable Entity
-        message: Parent id not found in Auth token
-      - statusCode: GATEWAY-10-1
-        message: Access token expired
-      x-examples:
-        Example 1:
-          statusCode: 400 BAD_REQUEST
-          message: 'Client error: 404 NOT_FOUND'
-    TacticCoverage:
-      type: object
-      description: MITRE ATT&CK tactic coverage details
-      properties:
-        tacticId:
-          type: string
-          description: MITRE tactic ID (e.g., TA0001)
-          example: TA0001
-        tacticName:
-          type: string
-          description: Tactic name (e.g., Initial Access)
-          example: Initial Access
-        techniques:
-          type: array
-          description: List of techniques (null for distribution)
-          items:
-            $ref: '#/components/schemas/TechniqueCoverage'
-        policyCount:
-          type: integer
-          description: Policy count (null for coverage analysis)
-          example: 15
-    CoverageSummary:
-      type: object
-      description: Coverage summary statistics
-      properties:
-        totalTactics:
-          type: integer
-          description: Total number of MITRE tactics
-          example: 14
-        totalTechniques:
-          type: integer
-          description: Total number of MITRE techniques
-          example: 193
-        tacticsCoveredForApplicableEnabledPolicies:
-          type: integer
-          description: Number of tactics covered by enabled policies
-          example: 12
-        techniquesCoveredForApplicableEnabledPolicies:
-          type: integer
-          description: Number of techniques covered by enabled policies
-          example: 145
-        tacticsCoveredForOotbPolicies:
-          type: integer
-          description: Number of tactics covered by OOTB policies
-          example: 10
-        techniquesCoveredForOotbPolicies:
-          type: integer
-          description: Number of techniques covered by OOTB policies
-          example: 98
     400BadRequest:
       type: object
       properties:

@@ -147,26 +147,54 @@ paths:
       operationId: getTlp{?limit,offset,sort}
       x-operation-id-source: derived
 components:
+  parameters:
+    Sort:
+      name: sort
+      in: query
+      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+        example: id,created_at
+    Limit:
+      name: limit
+      in: query
+      description: <br>The number of objects included in the response.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 10
+    Offset:
+      name: offset
+      in: query
+      description: <br>The number of result set records that should be ignored.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 50
+    TLPId:
+      name: tlp_id
+      in: path
+      description: TLP ID
+      required: true
+      schema:
+        type: integer
+  responses:
+    FailedValidation:
+      description: Validation Failed
+    NotFound:
+      description: Object Not Found
+    NoContent:
+      description: Object(s) were successfully deleted.
+    Unauthorized:
+      description: Unauthorized
   schemas:
-    TLP:
-      allOf:
-      - properties:
-          id:
-            description: TLP ID
-            type: integer
-            example: 1
-        type: object
-      - properties:
-          created_at:
-            description: TLP Creation Date
-            type: string
-            example: '2020-05-01 02:35:16'
-          updated_at:
-            description: TLP Update Date
-            type: string
-            example: '2020-05-03 04:27:51'
-        type: object
-      - $ref: '#/components/schemas/TLPFillable'
     TLPFillable:
       allOf:
       - properties:
@@ -188,13 +216,25 @@ components:
             example: N
         type: object
       - $ref: '#/components/schemas/TLPName'
-    TLPName:
-      properties:
-        name:
-          description: TLP Name
-          type: string
-          example: WHITE
-      type: object
+    TLP:
+      allOf:
+      - properties:
+          id:
+            description: TLP ID
+            type: integer
+            example: 1
+        type: object
+      - properties:
+          created_at:
+            description: TLP Creation Date
+            type: string
+            example: '2020-05-01 02:35:16'
+          updated_at:
+            description: TLP Update Date
+            type: string
+            example: '2020-05-03 04:27:51'
+        type: object
+      - $ref: '#/components/schemas/TLPFillable'
     TotalResponse:
       properties:
         total:
@@ -202,53 +242,13 @@ components:
           type: integer
           example: 1
       type: object
-  parameters:
-    TLPId:
-      name: tlp_id
-      in: path
-      description: TLP ID
-      required: true
-      schema:
-        type: integer
-    Limit:
-      name: limit
-      in: query
-      description: <br>The number of objects included in the response.
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: integer
-        example: 10
-    Sort:
-      name: sort
-      in: query
-      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: string
-        example: id,created_at
-    Offset:
-      name: offset
-      in: query
-      description: <br>The number of result set records that should be ignored.
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: integer
-        example: 50
-  responses:
-    NoContent:
-      description: Object(s) were successfully deleted.
-    NotFound:
-      description: Object Not Found
-    FailedValidation:
-      description: Validation Failed
-    Unauthorized:
-      description: Unauthorized
+    TLPName:
+      properties:
+        name:
+          description: TLP Name
+          type: string
+          example: WHITE
+      type: object
   securitySchemes:
     BearerAuth:
       type: http

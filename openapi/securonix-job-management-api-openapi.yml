@@ -219,37 +219,6 @@ components:
           type: string
         triggerStartTime:
           type: string
-    InProgressJobsResponse:
-      title: InProgressJobsResponse
-      type: object
-      properties:
-        connectionType:
-          type: string
-        createdBy:
-          type: integer
-          format: int64
-        endTime:
-          type: string
-          format: date-time
-        lastStartTime:
-          type: string
-          format: date-time
-        nextFireTime:
-          type: string
-          format: date-time
-        resourceGroupId:
-          type: integer
-          format: int64
-        startTime:
-          type: string
-          format: date-time
-        status:
-          type: string
-        tenantId:
-          type: integer
-          format: int64
-        triggerName:
-          type: string
     HoursJobResponse:
       title: HoursJobResponse
       type: object
@@ -281,28 +250,6 @@ components:
           format: int64
         triggerName:
           type: string
-    JobReschedulerPayload:
-      title: JobReschedulerPayload
-      type: object
-      properties:
-        crpId:
-          type: integer
-          format: int64
-        importScheduleJob:
-          type: string
-        ingesterIdList:
-          type: array
-          items:
-            type: integer
-            format: int64
-        interval:
-          type: integer
-          format: int32
-        jobRepeatCount:
-          type: string
-        resourceGroupId:
-          type: integer
-          format: int64
     ResponseEntity:
       title: ResponseEntity
       type: object
@@ -391,6 +338,59 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AllImportTriggerDetails'
+    JobReschedulerPayload:
+      title: JobReschedulerPayload
+      type: object
+      properties:
+        crpId:
+          type: integer
+          format: int64
+        importScheduleJob:
+          type: string
+        ingesterIdList:
+          type: array
+          items:
+            type: integer
+            format: int64
+        interval:
+          type: integer
+          format: int32
+        jobRepeatCount:
+          type: string
+        resourceGroupId:
+          type: integer
+          format: int64
+    InProgressJobsResponse:
+      title: InProgressJobsResponse
+      type: object
+      properties:
+        connectionType:
+          type: string
+        createdBy:
+          type: integer
+          format: int64
+        endTime:
+          type: string
+          format: date-time
+        lastStartTime:
+          type: string
+          format: date-time
+        nextFireTime:
+          type: string
+          format: date-time
+        resourceGroupId:
+          type: integer
+          format: int64
+        startTime:
+          type: string
+          format: date-time
+        status:
+          type: string
+        tenantId:
+          type: integer
+          format: int64
+        triggerName:
+          type: string
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

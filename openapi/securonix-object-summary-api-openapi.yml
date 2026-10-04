@@ -58,15 +58,12 @@ paths:
       operationId: getByObjectTypeByObjectTypeIdSummary
       x-operation-id-source: derived
 components:
+  responses:
+    NotFound:
+      description: Object Not Found
+    Unauthorized:
+      description: Unauthorized
   parameters:
-    ObjectTypeId:
-      name: object_type_id
-      in: path
-      description: The ID for the record of the specified Object Type whose context you would like to retrieve
-      required: true
-      schema:
-        type: integer
-        example: 6
     ObjectType:
       name: object_type
       in: path
@@ -81,6 +78,14 @@ components:
       schema:
         type: string
         example: indicators
+    ObjectTypeId:
+      name: object_type_id
+      in: path
+      description: The ID for the record of the specified Object Type whose context you would like to retrieve
+      required: true
+      schema:
+        type: integer
+        example: 6
     ObjectSummaryLimit:
       name: limit
       in: query
@@ -91,11 +96,6 @@ components:
       schema:
         type: integer
         example: 10
-  responses:
-    NotFound:
-      description: Object Not Found
-    Unauthorized:
-      description: Unauthorized
   securitySchemes:
     BearerAuth:
       type: http

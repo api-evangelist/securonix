@@ -119,271 +119,7 @@ paths:
           $ref: '#/components/responses/Unauthorized'
       x-visibility: public
 components:
-  parameters:
-    ResumableCurrentChunkSize:
-      name: resumableCurrentChunkSize
-      in: path
-      description: <br />Current chunk size of the data
-      required: true
-      schema:
-        $ref: '#/components/schemas/ResumableCurrentChunkSize'
-    ResumableTotalSize:
-      name: resumableTotalSize
-      in: path
-      description: <br />Total size of the data
-      required: true
-      schema:
-        $ref: '#/components/schemas/ResumableTotalSize'
-    ResumableType:
-      name: resumableType
-      in: path
-      description: <br />Type of the data
-      required: true
-      schema:
-        $ref: '#/components/schemas/ResumableType'
-    ResumableChunkNumber:
-      name: resumableChunkNumber
-      in: path
-      description: <br />Chunk number of the data
-      required: true
-      schema:
-        $ref: '#/components/schemas/ResumableChunkNumber'
-    ConnectorWith:
-      name: with
-      in: path
-      description: "<br />Comma-delimited list of relationships that can be included in the response<br /><br />\n <b>Note:</b> Supported relationships are `category`, `definition`, `gateOauth2Client`, `health`, `polyDefinition`,\n  `runLog`, `source`, and `tlp`"
-      required: false
-      schema:
-        type: string
-        example: category,definition,tlp
-    ResumableTotalChunks:
-      name: resumableTotalChunks
-      in: path
-      description: <br />Total amount of chunks for the data
-      required: true
-      schema:
-        $ref: '#/components/schemas/ResumableTotalChunks'
-    ResumableFilename:
-      name: resumableFilename
-      in: path
-      description: <br />File name
-      required: true
-      schema:
-        $ref: '#/components/schemas/ResumableFilename'
-    ResumableChunkSize:
-      name: resumableChunkSize
-      in: path
-      description: <br />Chunk size of the data
-      required: true
-      schema:
-        $ref: '#/components/schemas/ResumableChunkSize'
-    ResumableIdentifier:
-      name: resumableIdentifier
-      in: path
-      description: <br />Identifier of the data
-      required: true
-      schema:
-        $ref: '#/components/schemas/ResumableIdentifier'
-    ResumableRelativePath:
-      name: resumableRelativePath
-      in: path
-      description: <br />Relative path of the file
-      required: true
-      schema:
-        $ref: '#/components/schemas/ResumableRelativePath'
   schemas:
-    ConnectorCustomFieldNoOptions:
-      description: Connector custom fields that do not specify any options
-      properties:
-        default:
-          description: Specifies a default value for a field that is used unless overwritten in the UI
-          type: boolean
-          default: None
-          example: true
-        description:
-          description: Longer text describing the purpose of the field exposed to users as a tooltip in the UI<br /><br /><b>Note:</b> Defaults to the value of label
-          type: string
-          example: My Checkbox
-        label:
-          description: Friendly name for the field that is displayed in the UI
-          type: string
-          example: My Checkbox
-        name:
-          description: Name of the field for internal reference within a CDF or Operation
-          type: string
-          example: My Checkbox
-        required:
-          description: Denotes whether or not the field is required
-          type: boolean
-          default: false
-          example: true
-        type:
-          description: Field type of the custom field
-          type: string
-          enum:
-          - password
-          - text
-          - textarea
-          - threat_collection
-          example: text
-      type: object
-    ConnectorCustomFieldOption:
-      description: Custom field option
-      properties:
-        default:
-          description: Custom field option should be selected by default
-          type: boolean
-          example: true
-        text:
-          description: Custom field option display text
-          type: string
-          example: My Custom Field Option
-        value:
-          description: Custom field option value
-          type: string
-          example: My Custom Field Option Value
-      type: object
-    ConnectorCustomFieldNonEditable:
-      description: Connector custom fields that are not editable
-      properties:
-        label:
-          description: Friendly name for the field that is displayed in the UI
-          type: string
-          example: My Heading 1
-        type:
-          description: Field type of the custom field
-          type: string
-          enum:
-          - h1
-          - h2
-          - h3
-          - p
-          example: h1
-      type: object
-    Connector:
-      description: Class Connector
-      allOf:
-      - $ref: '#/components/schemas/ConnectorFillable'
-      - $ref: '#/components/schemas/ConnectorCategoryId'
-      - $ref: '#/components/schemas/ConnectorSystemSetFields'
-      - $ref: '#/components/schemas/ThreatQTimestamps'
-    ResumableChunkSize:
-      description: Chunk size of the data
-      type: integer
-      example: 4096
-    ConnectorCustomFieldNonRequired:
-      description: Connector custom fields that are not require-able
-      properties:
-        default:
-          description: Specifies a default value for a field that is used unless overwritten in the UI
-          type: boolean
-          default: None
-          example: true
-        description:
-          description: Longer text describing the purpose of the field exposed to users as a tooltip in the UI<br /><br /><b>Note:</b> Defaults to the value of label
-          type: string
-          example: My Checkbox
-        label:
-          description: Friendly name for the field that is displayed in the UI
-          type: string
-          example: My Checkbox
-        name:
-          description: Name of the field for internal reference within a CDF or Operation
-          type: string
-          example: My Checkbox
-        type:
-          description: Field type of the custom field
-          type: string
-          enum:
-          - checkbox
-          example: checkbox
-      type: object
-    ResumableType:
-      description: Type of the data
-      type: string
-      example: application/x-yaml
-    AttributeIngestRule:
-      description: Listing of attribute ingest rules<br /><br /><b>Note:</b>The connector name is used for the source name when the Attribute Ingest Rule No Source object is used.
-      type: array
-      items:
-        anyOf:
-        - $ref: '#/components/schemas/AttributeIngestRuleNoSource'
-        - $ref: '#/components/schemas/AttributeIngestRuleSingleSource'
-        - $ref: '#/components/schemas/AttributeIngestRuleMultipleSource'
-    ResumableCurrentChunkSize:
-      description: Current chunk size of the data
-      type: integer
-      example: 1024
-    AttributeIngestRuleSingleSource:
-      description: Attribute ingest rule with a single source specified
-      properties:
-        name:
-          description: Attribute name to apply the ingest rule to
-          type: string
-          example: Country
-        multivalue:
-          description: Ingest rule allows multiple values
-          type: boolean
-          example: false
-        sources:
-          description: Source name to apply the ingest rule to
-          type: string
-          example: GreyNoise
-      type: object
-    ResumableRelativePath:
-      description: Relative path of the file
-      type: string
-      example: connector.yaml
-    ResumableTotalChunks:
-      description: Total amount of chunks for the data
-      type: integer
-      example: 2
-    SignatureStatusName:
-      description: Signature status name
-      type: string
-      enum:
-      - Active
-      - Expired
-      - Inactive
-      - Non-malicious
-      - Review
-      - Whitelisted
-      example: Active
-    ConnectorCategoryId:
-      properties:
-        category_id:
-          description: Connector Category ID
-          type: integer
-          example: 1
-      type: object
-    ResumableFilename:
-      description: File name
-      type: string
-      example: connector.yaml
-    ObjectType:
-      description: Object type<br /><br /><b>Note:</b> Any created custom object name can be used
-      type: string
-      enum:
-      - adversary
-      - attachment
-      - attack_pattern
-      - campaign
-      - course_of_action
-      - event
-      - exploit_target
-      - identity
-      - incident
-      - indicator
-      - intrusion_set
-      - investigation
-      - malware
-      - report
-      - signature
-      - task
-      - tool
-      - ttp
-      - vulnerability
-      example: indicator
     ThreatQTimestamps:
       properties:
         created_at:
@@ -395,85 +131,6 @@ components:
           type: string
           example: '2022-04-12 08:32:16'
       type: object
-    ConnectorAnalysisSummary:
-      description: Listing of connector analysis summaries by connector name
-      properties:
-        connector_name:
-          description: Connector analysis summary
-          properties:
-            additional_run_params:
-              description: Additional run parameters
-              type: array
-              items:
-                type: string
-                example: since
-            config:
-              $ref: '#/components/schemas/ConnectorConfiguration'
-            is_supplemental:
-              description: Connector is a supplemental
-              type: boolean
-              example: false
-            object_types:
-              $ref: '#/components/schemas/ObjectList'
-            supports_manual:
-              description: Connector supports manual runs
-              type: boolean
-              example: false
-          type: object
-      type: object
-    ObjectList:
-      description: Listing of supported object types<br /><br /><b>Note:</b> Any created custom object name can be used
-      type: array
-      items:
-        $ref: '#/components/schemas/ObjectType'
-    ConnectorCategoryFillable:
-      properties:
-        name:
-          description: Connector Category Name
-          type: string
-          enum:
-          - Commercial
-          - Labs
-          - OSINT
-          - STIX/TAXII
-          - Workflow
-          example: Labs
-      type: object
-    AttributeIngestRuleMultipleSource:
-      description: Attribute ingest rule with multiple sources specified
-      properties:
-        name:
-          description: Attribute name to apply the ingest rule to
-          type: string
-          example: Country
-        multivalue:
-          description: Ingest rule allows multiple values
-          type: boolean
-          example: false
-        sources:
-          description: Listing of source names to apply the ingest rule to
-          type: array
-          items:
-            type: string
-      type: object
-    ConnectorCustomFields:
-      description: Listing of connector custom fields
-      type: array
-      items:
-        anyOf:
-        - description: Connector custom fields that have no text
-          properties:
-            type:
-              description: Field type of the custom field
-              type: string
-              enum:
-              - hr
-              example: hr
-          type: object
-        - $ref: '#/components/schemas/ConnectorCustomFieldNonEditable'
-        - $ref: '#/components/schemas/ConnectorCustomFieldNonRequired'
-        - $ref: '#/components/schemas/ConnectorCustomFieldNoOptions'
-        - $ref: '#/components/schemas/ConnectorCustomFieldOptions'
     ConnectorFileUpload:
       required:
       - package
@@ -500,80 +157,32 @@ components:
           description: The Connector definition YAML file
           type: string
       type: object
-    ConnectorConfiguration:
-      description: Connector configuration
-      properties:
-        category:
-          $ref: '#/components/schemas/ConnectorCategoryFillable'
-        custom_fields:
-          $ref: '#/components/schemas/ConnectorCustomFields'
-        description:
-          description: Connector description
-          type: string
-          example: My connector
-        indicator_status:
-          $ref: '#/components/schemas/IndicatorStatusName'
-        ingest_rules:
-          description: Listing of connector ingest rules by type
+    ResumableChunkSize:
+      description: Chunk size of the data
+      type: integer
+      example: 4096
+    ConnectorCustomFields:
+      description: Listing of connector custom fields
+      type: array
+      items:
+        anyOf:
+        - description: Connector custom fields that have no text
           properties:
-            attributes:
-              $ref: '#/components/schemas/AttributeIngestRule'
+            type:
+              description: Field type of the custom field
+              type: string
+              enum:
+              - hr
+              example: hr
           type: object
-        name:
-          description: Connector name
-          type: string
-          example: connector_name
-        namespace:
-          description: Connector namespace
-          type: string
-          example: threatq.connector_name
-        signature_status:
-          $ref: '#/components/schemas/SignatureStatusName'
-      type: object
-    ConnectorCustomFieldOptions:
-      description: Connector custom fields that do specify options
-      properties:
-        description:
-          description: Longer text describing the purpose of the field exposed to users as a tooltip in the UI<br /><br /><b>Note:</b> Defaults to the value of label
-          type: string
-          example: My Checkbox
-        label:
-          description: Friendly name for the field that is displayed in the UI
-          type: string
-          example: My Checkbox
-        name:
-          description: Name of the field for internal reference within a CDF or Operation
-          type: string
-          example: My Checkbox
-        options:
-          description: Listing of custom field options
-          type: array
-          items:
-            $ref: '#/components/schemas/ConnectorCustomFieldOption'
-        required:
-          description: Denotes whether or not the field is required
-          type: boolean
-          default: false
-          example: true
-        type:
-          description: Field type of the custom field
-          type: string
-          enum:
-          - multiselect
-          - radio
-          - select
-          example: select
-      type: object
-    IndicatorStatusName:
-      description: Indicator status name
-      type: string
-      enum:
-      - Active
-      - Expired
-      - Indirect
-      - Review
-      - Whitelisted
-      example: Active
+        - $ref: '#/components/schemas/ConnectorCustomFieldNonEditable'
+        - $ref: '#/components/schemas/ConnectorCustomFieldNonRequired'
+        - $ref: '#/components/schemas/ConnectorCustomFieldNoOptions'
+        - $ref: '#/components/schemas/ConnectorCustomFieldOptions'
+    ResumableChunkNumber:
+      description: Chunk number of the data
+      type: integer
+      example: 1
     AttributeIngestRuleNoSource:
       description: Attribute ingest rule with no source specified
       properties:
@@ -668,6 +277,159 @@ components:
           type: string
           example: '2022-08-17 12:00:00'
       type: object
+    AttributeIngestRuleMultipleSource:
+      description: Attribute ingest rule with multiple sources specified
+      properties:
+        name:
+          description: Attribute name to apply the ingest rule to
+          type: string
+          example: Country
+        multivalue:
+          description: Ingest rule allows multiple values
+          type: boolean
+          example: false
+        sources:
+          description: Listing of source names to apply the ingest rule to
+          type: array
+          items:
+            type: string
+      type: object
+    ConnectorCustomFieldNonRequired:
+      description: Connector custom fields that are not require-able
+      properties:
+        default:
+          description: Specifies a default value for a field that is used unless overwritten in the UI
+          type: boolean
+          default: None
+          example: true
+        description:
+          description: Longer text describing the purpose of the field exposed to users as a tooltip in the UI<br /><br /><b>Note:</b> Defaults to the value of label
+          type: string
+          example: My Checkbox
+        label:
+          description: Friendly name for the field that is displayed in the UI
+          type: string
+          example: My Checkbox
+        name:
+          description: Name of the field for internal reference within a CDF or Operation
+          type: string
+          example: My Checkbox
+        type:
+          description: Field type of the custom field
+          type: string
+          enum:
+          - checkbox
+          example: checkbox
+      type: object
+    ResumableType:
+      description: Type of the data
+      type: string
+      example: application/x-yaml
+    ConnectorCustomFieldNoOptions:
+      description: Connector custom fields that do not specify any options
+      properties:
+        default:
+          description: Specifies a default value for a field that is used unless overwritten in the UI
+          type: boolean
+          default: None
+          example: true
+        description:
+          description: Longer text describing the purpose of the field exposed to users as a tooltip in the UI<br /><br /><b>Note:</b> Defaults to the value of label
+          type: string
+          example: My Checkbox
+        label:
+          description: Friendly name for the field that is displayed in the UI
+          type: string
+          example: My Checkbox
+        name:
+          description: Name of the field for internal reference within a CDF or Operation
+          type: string
+          example: My Checkbox
+        required:
+          description: Denotes whether or not the field is required
+          type: boolean
+          default: false
+          example: true
+        type:
+          description: Field type of the custom field
+          type: string
+          enum:
+          - password
+          - text
+          - textarea
+          - threat_collection
+          example: text
+      type: object
+    ObjectType:
+      description: Object type<br /><br /><b>Note:</b> Any created custom object name can be used
+      type: string
+      enum:
+      - adversary
+      - attachment
+      - attack_pattern
+      - campaign
+      - course_of_action
+      - event
+      - exploit_target
+      - identity
+      - incident
+      - indicator
+      - intrusion_set
+      - investigation
+      - malware
+      - report
+      - signature
+      - task
+      - tool
+      - ttp
+      - vulnerability
+      example: indicator
+    ConnectorCategoryFillable:
+      properties:
+        name:
+          description: Connector Category Name
+          type: string
+          enum:
+          - Commercial
+          - Labs
+          - OSINT
+          - STIX/TAXII
+          - Workflow
+          example: Labs
+      type: object
+    ConnectorCustomFieldNonEditable:
+      description: Connector custom fields that are not editable
+      properties:
+        label:
+          description: Friendly name for the field that is displayed in the UI
+          type: string
+          example: My Heading 1
+        type:
+          description: Field type of the custom field
+          type: string
+          enum:
+          - h1
+          - h2
+          - h3
+          - p
+          example: h1
+      type: object
+    ConnectorCustomFieldOption:
+      description: Custom field option
+      properties:
+        default:
+          description: Custom field option should be selected by default
+          type: boolean
+          example: true
+        text:
+          description: Custom field option display text
+          type: string
+          example: My Custom Field Option
+        value:
+          description: Custom field option value
+          type: string
+          example: My Custom Field Option Value
+      type: object
     ConnectorAnalyze:
       description: Connector analysis object
       properties:
@@ -686,14 +448,125 @@ components:
           type: string
           example: 1.0.0
       type: object
-    ResumableChunkNumber:
-      description: Chunk number of the data
+    ObjectList:
+      description: Listing of supported object types<br /><br /><b>Note:</b> Any created custom object name can be used
+      type: array
+      items:
+        $ref: '#/components/schemas/ObjectType'
+    ConnectorAnalysisSummary:
+      description: Listing of connector analysis summaries by connector name
+      properties:
+        connector_name:
+          description: Connector analysis summary
+          properties:
+            additional_run_params:
+              description: Additional run parameters
+              type: array
+              items:
+                type: string
+                example: since
+            config:
+              $ref: '#/components/schemas/ConnectorConfiguration'
+            is_supplemental:
+              description: Connector is a supplemental
+              type: boolean
+              example: false
+            object_types:
+              $ref: '#/components/schemas/ObjectList'
+            supports_manual:
+              description: Connector supports manual runs
+              type: boolean
+              example: false
+          type: object
+      type: object
+    ResumableTotalChunks:
+      description: Total amount of chunks for the data
       type: integer
-      example: 1
-    ResumableTotalSize:
-      description: Total size of the data
+      example: 2
+    Connector:
+      description: Class Connector
+      allOf:
+      - $ref: '#/components/schemas/ConnectorFillable'
+      - $ref: '#/components/schemas/ConnectorCategoryId'
+      - $ref: '#/components/schemas/ConnectorSystemSetFields'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+    AttributeIngestRule:
+      description: Listing of attribute ingest rules<br /><br /><b>Note:</b>The connector name is used for the source name when the Attribute Ingest Rule No Source object is used.
+      type: array
+      items:
+        anyOf:
+        - $ref: '#/components/schemas/AttributeIngestRuleNoSource'
+        - $ref: '#/components/schemas/AttributeIngestRuleSingleSource'
+        - $ref: '#/components/schemas/AttributeIngestRuleMultipleSource'
+    ResumableRelativePath:
+      description: Relative path of the file
+      type: string
+      example: connector.yaml
+    ConnectorCustomFieldOptions:
+      description: Connector custom fields that do specify options
+      properties:
+        description:
+          description: Longer text describing the purpose of the field exposed to users as a tooltip in the UI<br /><br /><b>Note:</b> Defaults to the value of label
+          type: string
+          example: My Checkbox
+        label:
+          description: Friendly name for the field that is displayed in the UI
+          type: string
+          example: My Checkbox
+        name:
+          description: Name of the field for internal reference within a CDF or Operation
+          type: string
+          example: My Checkbox
+        options:
+          description: Listing of custom field options
+          type: array
+          items:
+            $ref: '#/components/schemas/ConnectorCustomFieldOption'
+        required:
+          description: Denotes whether or not the field is required
+          type: boolean
+          default: false
+          example: true
+        type:
+          description: Field type of the custom field
+          type: string
+          enum:
+          - multiselect
+          - radio
+          - select
+          example: select
+      type: object
+    ConnectorCategoryId:
+      properties:
+        category_id:
+          description: Connector Category ID
+          type: integer
+          example: 1
+      type: object
+    ResumableIdentifier:
+      description: Identifier of the data
+      type: string
+      example: 2048-connectoryaml
+    AttributeIngestRuleSingleSource:
+      description: Attribute ingest rule with a single source specified
+      properties:
+        name:
+          description: Attribute name to apply the ingest rule to
+          type: string
+          example: Country
+        multivalue:
+          description: Ingest rule allows multiple values
+          type: boolean
+          example: false
+        sources:
+          description: Source name to apply the ingest rule to
+          type: string
+          example: GreyNoise
+      type: object
+    ResumableCurrentChunkSize:
+      description: Current chunk size of the data
       type: integer
-      example: 2048
+      example: 1024
     ConnectorSystemSetFields:
       properties:
         definition_type:
@@ -708,15 +581,142 @@ components:
           type: integer
           example: 1
       type: object
-    ResumableIdentifier:
-      description: Identifier of the data
+    ConnectorConfiguration:
+      description: Connector configuration
+      properties:
+        category:
+          $ref: '#/components/schemas/ConnectorCategoryFillable'
+        custom_fields:
+          $ref: '#/components/schemas/ConnectorCustomFields'
+        description:
+          description: Connector description
+          type: string
+          example: My connector
+        indicator_status:
+          $ref: '#/components/schemas/IndicatorStatusName'
+        ingest_rules:
+          description: Listing of connector ingest rules by type
+          properties:
+            attributes:
+              $ref: '#/components/schemas/AttributeIngestRule'
+          type: object
+        name:
+          description: Connector name
+          type: string
+          example: connector_name
+        namespace:
+          description: Connector namespace
+          type: string
+          example: threatq.connector_name
+        signature_status:
+          $ref: '#/components/schemas/SignatureStatusName'
+      type: object
+    SignatureStatusName:
+      description: Signature status name
       type: string
-      example: 2048-connectoryaml
+      enum:
+      - Active
+      - Expired
+      - Inactive
+      - Non-malicious
+      - Review
+      - Whitelisted
+      example: Active
+    ResumableTotalSize:
+      description: Total size of the data
+      type: integer
+      example: 2048
+    ResumableFilename:
+      description: File name
+      type: string
+      example: connector.yaml
+    IndicatorStatusName:
+      description: Indicator status name
+      type: string
+      enum:
+      - Active
+      - Expired
+      - Indirect
+      - Review
+      - Whitelisted
+      example: Active
+  parameters:
+    ResumableType:
+      name: resumableType
+      in: path
+      description: <br />Type of the data
+      required: true
+      schema:
+        $ref: '#/components/schemas/ResumableType'
+    ResumableCurrentChunkSize:
+      name: resumableCurrentChunkSize
+      in: path
+      description: <br />Current chunk size of the data
+      required: true
+      schema:
+        $ref: '#/components/schemas/ResumableCurrentChunkSize'
+    ConnectorWith:
+      name: with
+      in: path
+      description: "<br />Comma-delimited list of relationships that can be included in the response<br /><br />\n <b>Note:</b> Supported relationships are `category`, `definition`, `gateOauth2Client`, `health`, `polyDefinition`,\n  `runLog`, `source`, and `tlp`"
+      required: false
+      schema:
+        type: string
+        example: category,definition,tlp
+    ResumableChunkNumber:
+      name: resumableChunkNumber
+      in: path
+      description: <br />Chunk number of the data
+      required: true
+      schema:
+        $ref: '#/components/schemas/ResumableChunkNumber'
+    ResumableFilename:
+      name: resumableFilename
+      in: path
+      description: <br />File name
+      required: true
+      schema:
+        $ref: '#/components/schemas/ResumableFilename'
+    ResumableIdentifier:
+      name: resumableIdentifier
+      in: path
+      description: <br />Identifier of the data
+      required: true
+      schema:
+        $ref: '#/components/schemas/ResumableIdentifier'
+    ResumableChunkSize:
+      name: resumableChunkSize
+      in: path
+      description: <br />Chunk size of the data
+      required: true
+      schema:
+        $ref: '#/components/schemas/ResumableChunkSize'
+    ResumableTotalSize:
+      name: resumableTotalSize
+      in: path
+      description: <br />Total size of the data
+      required: true
+      schema:
+        $ref: '#/components/schemas/ResumableTotalSize'
+    ResumableRelativePath:
+      name: resumableRelativePath
+      in: path
+      description: <br />Relative path of the file
+      required: true
+      schema:
+        $ref: '#/components/schemas/ResumableRelativePath'
+    ResumableTotalChunks:
+      name: resumableTotalChunks
+      in: path
+      description: <br />Total amount of chunks for the data
+      required: true
+      schema:
+        $ref: '#/components/schemas/ResumableTotalChunks'
   responses:
-    FailedValidation:
-      description: Validation Failed
     Unauthorized:
       description: Unauthorized
+    FailedValidation:
+      description: Validation Failed
   securitySchemes:
     BearerAuth:
       type: http

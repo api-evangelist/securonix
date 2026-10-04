@@ -105,19 +105,12 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    TotalResponse:
+    SourceName:
       properties:
-        total:
-          description: Total Number of Objects Processed
-          type: integer
-          example: 1
-      type: object
-    SourceType:
-      properties:
-        type:
-          description: 'Source Type - Options include: clients, connectors (Feeds), other_sources, plugins, or users'
+        name:
+          description: Source Name
           type: string
-          example: other_sources
+          example: ThreatQ
       type: object
     ThreatQTimestamps:
       properties:
@@ -129,6 +122,13 @@ components:
           description: Update Date
           type: string
           example: '2022-04-12 08:32:16'
+      type: object
+    SourceType:
+      properties:
+        type:
+          description: 'Source Type - Options include: clients, connectors (Feeds), other_sources, plugins, or users'
+          type: string
+          example: other_sources
       type: object
     Source:
       allOf:
@@ -148,13 +148,6 @@ components:
         type: object
       - $ref: '#/components/schemas/SourceFillable'
       - $ref: '#/components/schemas/ThreatQTimestamps'
-    SourceReferenceId:
-      properties:
-        reference_id:
-          description: Source Reference ID - points to related Client, Connector (Feed), Other Source, Plugin, or User
-          type: integer
-          example: 2
-      type: object
     SourceFillable:
       allOf:
       - properties:
@@ -170,14 +163,31 @@ components:
       - $ref: '#/components/schemas/SourceType'
       - $ref: '#/components/schemas/SourceReferenceId'
       - $ref: '#/components/schemas/SourceName'
-    SourceName:
+    TotalResponse:
       properties:
-        name:
-          description: Source Name
-          type: string
-          example: ThreatQ
+        total:
+          description: Total Number of Objects Processed
+          type: integer
+          example: 1
+      type: object
+    SourceReferenceId:
+      properties:
+        reference_id:
+          description: Source Reference ID - points to related Client, Connector (Feed), Other Source, Plugin, or User
+          type: integer
+          example: 2
       type: object
   parameters:
+    Sort:
+      name: sort
+      in: query
+      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+        example: id,created_at
     Limit:
       name: limit
       in: query
@@ -195,16 +205,6 @@ components:
       required: true
       schema:
         type: integer
-    Sort:
-      name: sort
-      in: query
-      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: string
-        example: id,created_at
     Offset:
       name: offset
       in: query

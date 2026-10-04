@@ -251,41 +251,16 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    CourseOfAction:
-      allOf:
-      - properties:
-          id:
-            description: Course of Action ID
-            type: integer
-            example: 6274
-        type: object
-      - $ref: '#/components/schemas/CourseOfActionFillable'
-      - $ref: '#/components/schemas/ThreatQTimestamps'
-      - $ref: '#/components/schemas/TouchedAtTimestamp'
-    CourseOfActionFillable:
+    ThreatQTimestamps:
       properties:
-        value:
-          description: Course of Action Value
+        created_at:
+          description: Creation Date
           type: string
-          example: TXXXX - Account Discovery Mitigation
-        description:
-          description: Description for the Course of Action
+          example: '2021-07-29 13:58:03'
+        updated_at:
+          description: Update Date
           type: string
-          example: Prevent administrator accounts from...
-      type: object
-    TotalResponse:
-      properties:
-        total:
-          description: Total Number of Objects Processed
-          type: integer
-          example: 1
-      type: object
-    ObjectAttributeValue:
-      properties:
-        value:
-          description: Attribute Value
-          type: string
-          example: High
+          example: '2022-04-12 08:32:16'
       type: object
     CommonObjectConsumeRequest:
       properties:
@@ -312,57 +287,27 @@ components:
             type: integer
             example: 2
       type: object
-    ThreatQTimestamps:
-      properties:
-        created_at:
-          description: Creation Date
-          type: string
-          example: '2021-07-29 13:58:03'
-        updated_at:
-          description: Update Date
-          type: string
-          example: '2022-04-12 08:32:16'
-      type: object
-    AttributeBasics:
-      allOf:
-      - properties:
-          sources:
-            type: array
-            items:
-              $ref: '#/components/schemas/SourceBasics'
-        type: object
-      - $ref: '#/components/schemas/ObjectLinkAttributeFillable'
-    AttributeFillable:
-      properties:
-        name:
-          description: Attribute Name
-          type: string
-          example: Confidence
-      type: object
-    SourceName:
-      properties:
-        name:
-          description: Source Name
-          type: string
-          example: ThreatQ
-      type: object
     ObjectLinkAttributeFillable:
       allOf:
       - $ref: '#/components/schemas/AttributeFillable'
       - $ref: '#/components/schemas/ObjectAttributeValue'
-    TouchedAtTimestamp:
+    CourseOfActionFillable:
       properties:
-        touched_at:
-          description: Update Date for Object Context (Attributes, Comments, Sources, Relationships)
+        value:
+          description: Course of Action Value
           type: string
-          example: '2021-11-13 15:28:17'
+          example: TXXXX - Account Discovery Mitigation
+        description:
+          description: Description for the Course of Action
+          type: string
+          example: Prevent administrator accounts from...
       type: object
-    TLPName:
+    TotalResponse:
       properties:
-        name:
-          description: TLP Name
-          type: string
-          example: WHITE
+        total:
+          description: Total Number of Objects Processed
+          type: integer
+          example: 1
       type: object
     SourceBasics:
       oneOf:
@@ -380,24 +325,62 @@ components:
               $ref: '#/components/schemas/TLPName'
           type: object
         - $ref: '#/components/schemas/SourceName'
+    ObjectAttributeValue:
+      properties:
+        value:
+          description: Attribute Value
+          type: string
+          example: High
+      type: object
+    CourseOfAction:
+      allOf:
+      - properties:
+          id:
+            description: Course of Action ID
+            type: integer
+            example: 6274
+        type: object
+      - $ref: '#/components/schemas/CourseOfActionFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+      - $ref: '#/components/schemas/TouchedAtTimestamp'
+    TLPName:
+      properties:
+        name:
+          description: TLP Name
+          type: string
+          example: WHITE
+      type: object
+    SourceName:
+      properties:
+        name:
+          description: Source Name
+          type: string
+          example: ThreatQ
+      type: object
+    TouchedAtTimestamp:
+      properties:
+        touched_at:
+          description: Update Date for Object Context (Attributes, Comments, Sources, Relationships)
+          type: string
+          example: '2021-11-13 15:28:17'
+      type: object
+    AttributeFillable:
+      properties:
+        name:
+          description: Attribute Name
+          type: string
+          example: Confidence
+      type: object
+    AttributeBasics:
+      allOf:
+      - properties:
+          sources:
+            type: array
+            items:
+              $ref: '#/components/schemas/SourceBasics'
+        type: object
+      - $ref: '#/components/schemas/ObjectLinkAttributeFillable'
   parameters:
-    CourseOfActionId:
-      name: course_of_action_id
-      in: path
-      description: Course of Action ID
-      required: true
-      schema:
-        type: integer
-    Limit:
-      name: limit
-      in: query
-      description: <br>The number of objects included in the response.
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: integer
-        example: 10
     CommonObjectWith:
       name: with
       in: query
@@ -416,6 +399,23 @@ components:
         items:
           type: string
           example: adversaries,comments,sources
+    Limit:
+      name: limit
+      in: query
+      description: <br>The number of objects included in the response.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 10
+    CourseOfActionId:
+      name: course_of_action_id
+      in: path
+      description: Course of Action ID
+      required: true
+      schema:
+        type: integer
     Sort:
       name: sort
       in: query
@@ -437,10 +437,10 @@ components:
         type: integer
         example: 50
   responses:
-    Unauthorized:
-      description: Unauthorized
     NoContent:
       description: Object(s) were successfully deleted.
+    Unauthorized:
+      description: Unauthorized
     NotFound:
       description: Object Not Found
   securitySchemes:

@@ -135,14 +135,8 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
-    Forbidden:
-      description: Forbidden - insufficient permissions
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-    InternalServerError:
-      description: Internal server error
+    Unauthorized:
+      description: Unauthorized - missing or invalid token
       content:
         application/json:
           schema:
@@ -153,8 +147,14 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
-    Unauthorized:
-      description: Unauthorized - missing or invalid token
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Forbidden - insufficient permissions
       content:
         application/json:
           schema:
@@ -219,6 +219,19 @@ components:
       required:
       - status
       additionalProperties: false
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Invalid request parameters
+        code:
+          type: string
+          example: BAD_REQUEST
+      required:
+      - error
+      - code
+      additionalProperties: false
     Device:
       type: object
       properties:
@@ -282,19 +295,6 @@ components:
           type: string
           description: Notification Type Incident or Email
           example: Incident
-      additionalProperties: false
-    ErrorResponse:
-      type: object
-      properties:
-        error:
-          type: string
-          example: Invalid request parameters
-        code:
-          type: string
-          example: BAD_REQUEST
-      required:
-      - error
-      - code
       additionalProperties: false
     ListDevicesResponse:
       type: array
