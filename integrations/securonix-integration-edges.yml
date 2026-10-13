@@ -1,0 +1,22 @@
+generated: '2026-10-13'
+method: searched
+checked:
+- https://aws.amazon.com/marketplace/
+marketplace_apps: []
+edges:
+- partner_name: AWS Marketplace
+  partner: amazon-web-services
+  partner_match: aggregator
+  type: marketplace
+  marketplace: aws-marketplace
+  channel: distribution
+  relationship: platform-app
+  direction: provider-built
+  evidence: https://aws.amazon.com/marketplace/seller-profile?id=1c65ac85-5b3a-4cdf-806c-4b27ecb7e990
+  listing_count: 2
+  apps:
+  - Securonix Unified Defense SIEM
+  - ThreatQ Platform SaaS Instance
+  seller_name: Securonix, inc
+  detected_by: sweep-cloud-marketplaces.py
+  detected: '2026-10-13'
