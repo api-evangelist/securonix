@@ -2,6 +2,13 @@
   "repo": "securonix",
   "feeds": [
     {
+      "source": "https://www.securonix.com/blog/",
+      "feed_url": "https://www.securonix.com/blog/feed/",
+      "title": "",
+      "saved": 0,
+      "method": "discovered"
+    },
+    {
       "source": "https://documentation.securonix.com/r/content/developer-guide.htm",
       "feed_url": "https://documentation.securonix.com/r/content/developer-guide.htm",
       "title": "",
@@ -10,5 +17,5 @@
     }
   ],
   "post_count": 0,
-  "fetched": "2026-10-03T12:30:02Z"
+  "fetched": "2026-10-10T13:15:00Z"
 }
