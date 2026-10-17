@@ -251,17 +251,79 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    ThreatQTimestamps:
+    TouchedAtTimestamp:
       properties:
-        created_at:
-          description: Creation Date
+        touched_at:
+          description: Update Date for Object Context (Attributes, Comments, Sources, Relationships)
           type: string
-          example: '2021-07-29 13:58:03'
-        updated_at:
-          description: Update Date
-          type: string
-          example: '2022-04-12 08:32:16'
+          example: '2021-11-13 15:28:17'
       type: object
+    AttributeBasics:
+      allOf:
+      - properties:
+          sources:
+            type: array
+            items:
+              $ref: '#/components/schemas/SourceBasics'
+        type: object
+      - $ref: '#/components/schemas/ObjectLinkAttributeFillable'
+    CampaignFillable:
+      properties:
+        value:
+          description: Campaign Value
+          type: string
+          example: Operation Omega
+        description:
+          description: Description for the Campaign
+          type: string
+          example: Campaign against systems at big box retailers...
+        objective:
+          description: Objective for the Campaign
+          type: string
+          example: Campaign against U.S. industry...
+        started_at:
+          description: Date the Campaign was first seen
+          type: string
+          example: '2019-02-28 15:59:24'
+        ended_at:
+          description: Date the Campaign was last seen
+          type: string
+          example: '2020-05-13 05:46:13'
+      type: object
+    AttributeFillable:
+      properties:
+        name:
+          description: Attribute Name
+          type: string
+          example: Confidence
+      type: object
+    SourceName:
+      properties:
+        name:
+          description: Source Name
+          type: string
+          example: ThreatQ
+      type: object
+    ObjectLinkAttributeFillable:
+      allOf:
+      - $ref: '#/components/schemas/AttributeFillable'
+      - $ref: '#/components/schemas/ObjectAttributeValue'
+    SourceBasics:
+      oneOf:
+      - allOf:
+        - properties:
+            tlp_id:
+              description: Source TLP ID
+              type: integer
+              example: 3
+          type: object
+        - $ref: '#/components/schemas/SourceName'
+      - allOf:
+        - properties:
+            tlp:
+              $ref: '#/components/schemas/TLPName'
+          type: object
+        - $ref: '#/components/schemas/SourceName'
     CommonObjectConsumeRequest:
       properties:
         attributes:
@@ -287,10 +349,17 @@ components:
             type: integer
             example: 2
       type: object
-    ObjectLinkAttributeFillable:
-      allOf:
-      - $ref: '#/components/schemas/AttributeFillable'
-      - $ref: '#/components/schemas/ObjectAttributeValue'
+    ThreatQTimestamps:
+      properties:
+        created_at:
+          description: Creation Date
+          type: string
+          example: '2021-07-29 13:58:03'
+        updated_at:
+          description: Update Date
+          type: string
+          example: '2022-04-12 08:32:16'
+      type: object
     TotalResponse:
       properties:
         total:
@@ -298,51 +367,19 @@ components:
           type: integer
           example: 1
       type: object
-    SourceBasics:
-      oneOf:
-      - allOf:
-        - properties:
-            tlp_id:
-              description: Source TLP ID
-              type: integer
-              example: 3
-          type: object
-        - $ref: '#/components/schemas/SourceName'
-      - allOf:
-        - properties:
-            tlp:
-              $ref: '#/components/schemas/TLPName'
-          type: object
-        - $ref: '#/components/schemas/SourceName'
-    CampaignFillable:
-      properties:
-        value:
-          description: Campaign Value
-          type: string
-          example: Operation Omega
-        description:
-          description: Description for the Campaign
-          type: string
-          example: Campaign against systems at big box retailers...
-        objective:
-          description: Objective for the Campaign
-          type: string
-          example: Campaign against U.S. industry...
-        started_at:
-          description: Date the Campaign was first seen
-          type: string
-          example: '2019-02-28 15:59:24'
-        ended_at:
-          description: Date the Campaign was last seen
-          type: string
-          example: '2020-05-13 05:46:13'
-      type: object
     ObjectAttributeValue:
       properties:
         value:
           description: Attribute Value
           type: string
           example: High
+      type: object
+    TLPName:
+      properties:
+        name:
+          description: TLP Name
+          type: string
+          example: WHITE
       type: object
     Campaign:
       allOf:
@@ -355,44 +392,41 @@ components:
       - $ref: '#/components/schemas/CampaignFillable'
       - $ref: '#/components/schemas/ThreatQTimestamps'
       - $ref: '#/components/schemas/TouchedAtTimestamp'
-    TLPName:
-      properties:
-        name:
-          description: TLP Name
-          type: string
-          example: WHITE
-      type: object
-    SourceName:
-      properties:
-        name:
-          description: Source Name
-          type: string
-          example: ThreatQ
-      type: object
-    TouchedAtTimestamp:
-      properties:
-        touched_at:
-          description: Update Date for Object Context (Attributes, Comments, Sources, Relationships)
-          type: string
-          example: '2021-11-13 15:28:17'
-      type: object
-    AttributeFillable:
-      properties:
-        name:
-          description: Attribute Name
-          type: string
-          example: Confidence
-      type: object
-    AttributeBasics:
-      allOf:
-      - properties:
-          sources:
-            type: array
-            items:
-              $ref: '#/components/schemas/SourceBasics'
-        type: object
-      - $ref: '#/components/schemas/ObjectLinkAttributeFillable'
+  responses:
+    NotFound:
+      description: Object Not Found
+    NoContent:
+      description: Object(s) were successfully deleted.
+    Unauthorized:
+      description: Unauthorized
   parameters:
+    Sort:
+      name: sort
+      in: query
+      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+        example: id,created_at
+    CampaignId:
+      name: campaign_id
+      in: path
+      description: Campaign ID
+      required: true
+      schema:
+        type: integer
+    Offset:
+      name: offset
+      in: query
+      description: <br>The number of result set records that should be ignored.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 50
     CommonObjectWith:
       name: with
       in: query
@@ -421,40 +455,6 @@ components:
       schema:
         type: integer
         example: 10
-    Sort:
-      name: sort
-      in: query
-      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: string
-        example: id,created_at
-    Offset:
-      name: offset
-      in: query
-      description: <br>The number of result set records that should be ignored.
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: integer
-        example: 50
-    CampaignId:
-      name: campaign_id
-      in: path
-      description: Campaign ID
-      required: true
-      schema:
-        type: integer
-  responses:
-    NoContent:
-      description: Object(s) were successfully deleted.
-    Unauthorized:
-      description: Unauthorized
-    NotFound:
-      description: Object Not Found
   securitySchemes:
     BearerAuth:
       type: http

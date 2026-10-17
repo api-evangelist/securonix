@@ -129,61 +129,40 @@ paths:
       x-visibility: public
 components:
   schemas:
-    APIFilterConditionalGrouping:
+    UICriteria:
+      description: Listing of criteria to be applied to the advanced search query display on the Threat Library
       properties:
-        +or:
-          description: 'And/or criteria to be applied to the advanced search query<br /><br /><b>Note:</b><ul><li>Accepted Key Values: <code>+and</code>, <code>-and</code>, <code>+or</code>, <code>-or</code></li><li>To apply a not condition to a grouping use the <code>-</code> sign in place of the <code>+</code></li><li>There is no limit to how many nested and/or conditions that can be applied</li></ul>'
+        matchType:
+          description: Listing of conditions to be applied
           type: array
           items:
-            anyOf:
-            - $ref: '#/components/schemas/DateCreatedAPIFilter'
-            - $ref: '#/components/schemas/LastModifiedAPIFilter'
-      type: object
-    ThreatQTimestamps:
-      properties:
-        created_at:
-          description: Creation Date
-          type: string
-          example: '2021-07-29 13:58:03'
-        updated_at:
-          description: Update Date
-          type: string
-          example: '2022-04-12 08:32:16'
-      type: object
-    LastModifiedAPIFilter:
-      properties:
-        touched_at:
-          $ref: '#/components/schemas/DateAPIFilter'
-      type: object
-    Search:
-      allOf:
-      - $ref: '#/components/schemas/SearchIdentifier'
-      - $ref: '#/components/schemas/SearchFillable'
-      - $ref: '#/components/schemas/ThreatQTimestamps'
-    DateCreatedUIFilter:
-      properties:
-        created_at:
-          description: Listing of date created ui filter object
+            properties:
+              ? ''
+              : type: string
+                example: +and
+            type: object
+        items:
+          description: Search criteria to be applied
           type: array
           items:
-            $ref: '#/components/schemas/DateUIFilter'
-      type: object
-    UIColumns:
-      description: Listing of columns per object type to be displayed on the Threat Library
-      anyOf:
-      - $ref: '#/components/schemas/UIIndicatorColumn'
-    APIDateIsAfter:
-      description: Is after date filter
-      properties:
-        +gt:
-          description: Lower bounding date filter
-          type: string
-          example: '2022-08-01 00:00:00'
-      type: object
-    DateCreatedAPIFilter:
-      properties:
-        created_at:
-          $ref: '#/components/schemas/DateAPIFilter'
+            properties:
+              ? ''
+              : description: Search criteria definition
+                properties:
+                  key:
+                    description: Search filter key
+                    type: string
+                    example: mentions
+                  value:
+                    description: Search filter value
+                    type: string
+                    example: www.threatquotient.com
+                  set_id:
+                    description: Search filter set id
+                    type: integer
+                    example: 0
+                type: object
+            type: object
       type: object
     APIDateIsBetween:
       description: Is between date filter
@@ -197,63 +176,33 @@ components:
           type: string
           example: '2022-08-31 23:59:99'
       type: object
-    UIFilterSet:
-      description: Filter set information
+    APIDateIsWithinTheLast:
+      description: Is within the last date filter
       properties:
-        id:
-          description: Filter Set ID
-          type: integer
-          example: 0
-        operator:
-          description: Filter Set Operator
+        +gt:
+          description: Lower bounding date filter<br /><br /><b>Note:</b>This should be set to <code>NOW-[INTERVAL]DAY</code>, where <code>INTERVAL</code> is the number of days
           type: string
-          enum:
-          - and
-          - or
-          example: or
-        isNegated:
-          description: Filter Set Is Negated
-          type: boolean
-          example: false
-        expanded:
-          description: Filter Set Expanded
-          type: boolean
-          example: true
-      type: object
-    UIIndicatorColumn:
-      properties:
-        indicators:
-          description: 'Listing of indicator column names to be included/excluded from being displayed on the Threat Library<br /><br ><b>Note:</b><ul><li>OBJECT/CUSTOM_OBJECT: Any existing object or custom object name</li><li>NAME: Any existing attribute name</li></ul>'
-          type: array
-          items:
-            type: string
-            enum:
-            - author
-            - date_created
-            - description
-            - expiration_date
-            - last_modified
-            - published_date
-            - related_adversary_names
-            - score
-            - sources
-            - status
-            - tags
-            - type
-            - related_[OBJECT/CUSTOM_OBJECT]_count
-            - attribute.[NAME]
-            example: author
-      type: object
-    SearchIdentifier:
-      properties:
-        id:
-          description: Id of the data collection
-          type: integer
-          example: 1
-        hash:
-          description: Unique hash of the data collection
+          example: '2022-08-01 00:00:00'
+        +lt:
+          description: Upper bounding date filter<br /><br /><b>Note:</b>This should be set to <code>NOW</code>
           type: string
-          example: 9548a377155bd3fa13b2a16649c6eb88
+          example: '2022-08-31 23:59:99'
+      type: object
+    APIDateIsAfter:
+      description: Is after date filter
+      properties:
+        +gt:
+          description: Lower bounding date filter
+          type: string
+          example: '2022-08-01 00:00:00'
+      type: object
+    APIDateIsBefore:
+      description: Is before date filter
+      properties:
+        +lt:
+          description: Upper bounding date filter
+          type: string
+          example: '2022-08-31 23:59:99'
       type: object
     UIObject:
       description: Object information
@@ -312,116 +261,32 @@ components:
                 example: indicators
             type: object
       type: object
-    APIQuery:
-      description: API query information
-      properties:
-        criteria:
-          $ref: '#/components/schemas/APICriteria'
-        filters:
-          $ref: '#/components/schemas/APIFilter'
-      type: object
-    APIDateIsWithinTheLast:
-      description: Is within the last date filter
-      properties:
-        +gt:
-          description: Lower bounding date filter<br /><br /><b>Note:</b>This should be set to <code>NOW-[INTERVAL]DAY</code>, where <code>INTERVAL</code> is the number of days
-          type: string
-          example: '2022-08-01 00:00:00'
-        +lt:
-          description: Upper bounding date filter<br /><br /><b>Note:</b>This should be set to <code>NOW</code>
-          type: string
-          example: '2022-08-31 23:59:99'
-      type: object
-    LastModifiedUIFilter:
+    LastModifiedAPIFilter:
       properties:
         touched_at:
-          description: Listing of last modified ui filter object
-          type: array
-          items:
-            $ref: '#/components/schemas/DateUIFilter'
+          $ref: '#/components/schemas/DateAPIFilter'
       type: object
-    APICriteriaConditionalGrouping:
-      properties:
-        +or:
-          description: 'And/or criteria to be applied to the advanced search query<br /><br /><b>Note:</b><ul><li>Accepted Key Values: <code>+and</code>, <code>-and</code>, <code>+or</code>, <code>-or</code></li><li>To apply a not condition to a grouping use the <code>-</code> sign in place of the <code>+</code></li><li>There is no limit to how many nested and/or conditions that can be applied</li></ul>'
-          type: array
-          items:
-            anyOf:
-            - $ref: '#/components/schemas/KeywordAPIFilter'
-      type: object
-    SearchFillable:
-      properties:
-        name:
-          description: Name of the data collection
-          type: string
-          example: My Data Collection
-        json:
-          $ref: '#/components/schemas/SearchJson'
-      type: object
-    APIDateIsBefore:
-      description: Is before date filter
-      properties:
-        +lt:
-          description: Upper bounding date filter
-          type: string
-          example: '2022-08-31 23:59:99'
-      type: object
-    UIQuery:
-      description: UI query information
-      properties:
-        columns:
-          $ref: '#/components/schemas/UIColumns'
-        criteria:
-          $ref: '#/components/schemas/UICriteria'
-        filters:
-          $ref: '#/components/schemas/UIFilter'
-        objects:
-          $ref: '#/components/schemas/UIObject'
-        filter_sets:
-          description: Listing of filter set information
-          type: array
-          items:
-            $ref: '#/components/schemas/UIFilterSet'
-      type: object
-    UIFilter:
-      description: Listing of filters to be applied to the advanced search query display on the Threat Library
+    UIColumns:
+      description: Listing of columns per object type to be displayed on the Threat Library
       anyOf:
-      - $ref: '#/components/schemas/DateCreatedUIFilter'
-      - $ref: '#/components/schemas/LastModifiedUIFilter'
-    UICriteria:
-      description: Listing of criteria to be applied to the advanced search query display on the Threat Library
+      - $ref: '#/components/schemas/UIIndicatorColumn'
+    KeywordAPIFilter:
       properties:
-        matchType:
-          description: Listing of conditions to be applied
-          type: array
-          items:
-            properties:
-              ? ''
-              : type: string
-                example: +and
-            type: object
-        items:
-          description: Search criteria to be applied
-          type: array
-          items:
-            properties:
-              ? ''
-              : description: Search criteria definition
-                properties:
-                  key:
-                    description: Search filter key
-                    type: string
-                    example: mentions
-                  value:
-                    description: Search filter value
-                    type: string
-                    example: www.threatquotient.com
-                  set_id:
-                    description: Search filter set id
-                    type: integer
-                    example: 0
-                type: object
-            type: object
+        mentions:
+          description: Keyword api filter value
+          type: string
+          example: www.threatquotient.com
+      type: object
+    SearchIdentifier:
+      properties:
+        id:
+          description: Id of the data collection
+          type: integer
+          example: 1
+        hash:
+          description: Unique hash of the data collection
+          type: string
+          example: 9548a377155bd3fa13b2a16649c6eb88
       type: object
     DateUIFilter:
       properties:
@@ -446,21 +311,6 @@ components:
           type: integer
           example: 0
       type: object
-    SearchJson:
-      description: JSON representation of the advanced search query
-      properties:
-        ui_query:
-          $ref: '#/components/schemas/UIQuery'
-        api_query:
-          $ref: '#/components/schemas/APIQuery'
-      type: object
-    KeywordAPIFilter:
-      properties:
-        mentions:
-          description: Keyword api filter value
-          type: string
-          example: www.threatquotient.com
-      type: object
     APIFilter:
       description: Listing of filters to be applied to the advanced search query
       properties:
@@ -473,6 +323,155 @@ components:
             - $ref: '#/components/schemas/DateCreatedAPIFilter'
             - $ref: '#/components/schemas/LastModifiedAPIFilter'
       type: object
+    ThreatQTimestamps:
+      properties:
+        created_at:
+          description: Creation Date
+          type: string
+          example: '2021-07-29 13:58:03'
+        updated_at:
+          description: Update Date
+          type: string
+          example: '2022-04-12 08:32:16'
+      type: object
+    APICriteriaConditionalGrouping:
+      properties:
+        +or:
+          description: 'And/or criteria to be applied to the advanced search query<br /><br /><b>Note:</b><ul><li>Accepted Key Values: <code>+and</code>, <code>-and</code>, <code>+or</code>, <code>-or</code></li><li>To apply a not condition to a grouping use the <code>-</code> sign in place of the <code>+</code></li><li>There is no limit to how many nested and/or conditions that can be applied</li></ul>'
+          type: array
+          items:
+            anyOf:
+            - $ref: '#/components/schemas/KeywordAPIFilter'
+      type: object
+    SearchFillable:
+      properties:
+        name:
+          description: Name of the data collection
+          type: string
+          example: My Data Collection
+        json:
+          $ref: '#/components/schemas/SearchJson'
+      type: object
+    SearchJson:
+      description: JSON representation of the advanced search query
+      properties:
+        ui_query:
+          $ref: '#/components/schemas/UIQuery'
+        api_query:
+          $ref: '#/components/schemas/APIQuery'
+      type: object
+    UIQuery:
+      description: UI query information
+      properties:
+        columns:
+          $ref: '#/components/schemas/UIColumns'
+        criteria:
+          $ref: '#/components/schemas/UICriteria'
+        filters:
+          $ref: '#/components/schemas/UIFilter'
+        objects:
+          $ref: '#/components/schemas/UIObject'
+        filter_sets:
+          description: Listing of filter set information
+          type: array
+          items:
+            $ref: '#/components/schemas/UIFilterSet'
+      type: object
+    LastModifiedUIFilter:
+      properties:
+        touched_at:
+          description: Listing of last modified ui filter object
+          type: array
+          items:
+            $ref: '#/components/schemas/DateUIFilter'
+      type: object
+    APIQuery:
+      description: API query information
+      properties:
+        criteria:
+          $ref: '#/components/schemas/APICriteria'
+        filters:
+          $ref: '#/components/schemas/APIFilter'
+      type: object
+    Search:
+      allOf:
+      - $ref: '#/components/schemas/SearchIdentifier'
+      - $ref: '#/components/schemas/SearchFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+    UIFilterSet:
+      description: Filter set information
+      properties:
+        id:
+          description: Filter Set ID
+          type: integer
+          example: 0
+        operator:
+          description: Filter Set Operator
+          type: string
+          enum:
+          - and
+          - or
+          example: or
+        isNegated:
+          description: Filter Set Is Negated
+          type: boolean
+          example: false
+        expanded:
+          description: Filter Set Expanded
+          type: boolean
+          example: true
+      type: object
+    DateCreatedAPIFilter:
+      properties:
+        created_at:
+          $ref: '#/components/schemas/DateAPIFilter'
+      type: object
+    DateAPIFilter:
+      description: Date API filter object
+      anyOf:
+      - $ref: '#/components/schemas/APIDateIsAfter'
+      - $ref: '#/components/schemas/APIDateIsBefore'
+      - $ref: '#/components/schemas/APIDateIsBetween'
+      - $ref: '#/components/schemas/APIDateIsWithinTheLast'
+    UIIndicatorColumn:
+      properties:
+        indicators:
+          description: 'Listing of indicator column names to be included/excluded from being displayed on the Threat Library<br /><br ><b>Note:</b><ul><li>OBJECT/CUSTOM_OBJECT: Any existing object or custom object name</li><li>NAME: Any existing attribute name</li></ul>'
+          type: array
+          items:
+            type: string
+            enum:
+            - author
+            - date_created
+            - description
+            - expiration_date
+            - last_modified
+            - published_date
+            - related_adversary_names
+            - score
+            - sources
+            - status
+            - tags
+            - type
+            - related_[OBJECT/CUSTOM_OBJECT]_count
+            - attribute.[NAME]
+            example: author
+      type: object
+    APIFilterConditionalGrouping:
+      properties:
+        +or:
+          description: 'And/or criteria to be applied to the advanced search query<br /><br /><b>Note:</b><ul><li>Accepted Key Values: <code>+and</code>, <code>-and</code>, <code>+or</code>, <code>-or</code></li><li>To apply a not condition to a grouping use the <code>-</code> sign in place of the <code>+</code></li><li>There is no limit to how many nested and/or conditions that can be applied</li></ul>'
+          type: array
+          items:
+            anyOf:
+            - $ref: '#/components/schemas/DateCreatedAPIFilter'
+            - $ref: '#/components/schemas/LastModifiedAPIFilter'
+      type: object
+    UIFilter:
+      description: Listing of filters to be applied to the advanced search query display on the Threat Library
+      anyOf:
+      - $ref: '#/components/schemas/DateCreatedUIFilter'
+      - $ref: '#/components/schemas/LastModifiedUIFilter'
     APICriteria:
       description: Listing of criteria to be applied to the advanced search query
       properties:
@@ -484,128 +483,19 @@ components:
             - $ref: '#/components/schemas/APICriteriaConditionalGrouping'
             - $ref: '#/components/schemas/KeywordAPIFilter'
       type: object
-    DateAPIFilter:
-      description: Date API filter object
-      anyOf:
-      - $ref: '#/components/schemas/APIDateIsAfter'
-      - $ref: '#/components/schemas/APIDateIsBefore'
-      - $ref: '#/components/schemas/APIDateIsBetween'
-      - $ref: '#/components/schemas/APIDateIsWithinTheLast'
-  parameters:
-    RelationshipSearch:
-      name: '[RELATIONSHIP].[FIELD]'
-      in: query
-      description: '<br>Object''s related objects field to search on<br /><br /><b>Note:</b><ul><li><code>RELATIONSHIP</code>: Any valid relationship for the object</li><li><code>FIELD</code>: Any valid field in the related object</li></ul>'
-      required: false
-      schema:
-        anyOf:
-        - property: UNKNOWN_1
-          description: Text value to search on
-          type: string
-          example: Relationship Field Value
-        - property: UNKNOWN_2
-          description: Integer value to search on
-          type: integer
-          example: 1
-    Limit:
-      name: limit
-      in: query
-      description: <br>The number of objects included in the response.
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: integer
-        example: 10
-    SearchHashPath:
-      name: hash
-      in: path
-      description: <br />Unique identifier of the data collection
-      required: true
-      schema:
-        type: string
-        example: 9548a377155bd3fa13b2a16649c6eb88
-    SearchID:
-      name: id
-      in: query
-      description: <br/>Data collection id to search on
-      required: false
-      schema:
-        type: integer
-        example: 1
-    SearchWith:
-      name: with
-      in: query
-      description: '<br>Relationships that can be included in the response.<br><br>Options include: dashboards, tqxFeeds, and workflowDefinitions'
-      required: false
-      schema:
-        type: string
-        example: dashboards,tqxFeeds,workflowDefinitions
-    SearchName:
-      name: name
-      in: query
-      description: <br/>Data collection name to search on
-      required: false
-      schema:
-        type: string
-        example: My Data Collection
-    UpdatedAtSearch:
-      name: updated_at
-      in: query
-      description: <br>Objects updated at date to search on
-      required: false
-      schema:
-        type: string
-        example: '2022-08-01 00:00:00'
-    CreatedAtSearch:
-      name: created_at
-      in: query
-      description: <br>Objects created at date to search on
-      required: false
-      schema:
-        type: string
-        example: '2022-08-01 00:00:00'
-    Fields:
-      name: fields
-      in: query
-      description: '<br>Fields to be included in the response<br /><br /><b>Note:</b><ul><li><code>RELATIONSHIP</code>: Any valid relationship for the object</li><li><code>FIELD</code>: Any valid field in the respective object</li></ul>'
-      required: false
-      schema:
-        description: Text value to search on
-        type: string
-        enum:
-        - '[FIELD]'
-        - '[RELATIONSHIP].[FIELD]'
-        example: id,created_at,[RELATIONSHIP].id,[RELATIONSHIP].created_at
-    SearchHashQuery:
-      name: hash
-      in: query
-      description: <br/>Data collection hash to search on
-      required: false
-      schema:
-        type: string
-        example: 9548a377155bd3fa13b2a16649c6eb88
-    Sort:
-      name: sort
-      in: query
-      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: string
-        example: id,created_at
-    Offset:
-      name: offset
-      in: query
-      description: <br>The number of result set records that should be ignored.
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: integer
-        example: 50
+    DateCreatedUIFilter:
+      properties:
+        created_at:
+          description: Listing of date created ui filter object
+          type: array
+          items:
+            $ref: '#/components/schemas/DateUIFilter'
+      type: object
   responses:
+    NotFound:
+      description: Object Not Found
+    NoContent:
+      description: Object(s) were successfully deleted.
     SearchList:
       description: Request Successful
       content:
@@ -621,14 +511,6 @@ components:
                 type: integer
                 example: 1
             type: object
-    NoContent:
-      description: Object(s) were successfully deleted.
-    Unauthorized:
-      description: Unauthorized
-    FailedValidation:
-      description: Validation Failed
-    NotFound:
-      description: Object Not Found
     Search:
       description: Request Successful
       content:
@@ -638,6 +520,124 @@ components:
               data:
                 $ref: '#/components/schemas/Search'
             type: object
+    Unauthorized:
+      description: Unauthorized
+    FailedValidation:
+      description: Validation Failed
+  parameters:
+    CreatedAtSearch:
+      name: created_at
+      in: query
+      description: <br>Objects created at date to search on
+      required: false
+      schema:
+        type: string
+        example: '2022-08-01 00:00:00'
+    SearchWith:
+      name: with
+      in: query
+      description: '<br>Relationships that can be included in the response.<br><br>Options include: dashboards, tqxFeeds, and workflowDefinitions'
+      required: false
+      schema:
+        type: string
+        example: dashboards,tqxFeeds,workflowDefinitions
+    SearchHashQuery:
+      name: hash
+      in: query
+      description: <br/>Data collection hash to search on
+      required: false
+      schema:
+        type: string
+        example: 9548a377155bd3fa13b2a16649c6eb88
+    SearchName:
+      name: name
+      in: query
+      description: <br/>Data collection name to search on
+      required: false
+      schema:
+        type: string
+        example: My Data Collection
+    Fields:
+      name: fields
+      in: query
+      description: '<br>Fields to be included in the response<br /><br /><b>Note:</b><ul><li><code>RELATIONSHIP</code>: Any valid relationship for the object</li><li><code>FIELD</code>: Any valid field in the respective object</li></ul>'
+      required: false
+      schema:
+        description: Text value to search on
+        type: string
+        enum:
+        - '[FIELD]'
+        - '[RELATIONSHIP].[FIELD]'
+        example: id,created_at,[RELATIONSHIP].id,[RELATIONSHIP].created_at
+    SearchID:
+      name: id
+      in: query
+      description: <br/>Data collection id to search on
+      required: false
+      schema:
+        type: integer
+        example: 1
+    Sort:
+      name: sort
+      in: query
+      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+        example: id,created_at
+    SearchHashPath:
+      name: hash
+      in: path
+      description: <br />Unique identifier of the data collection
+      required: true
+      schema:
+        type: string
+        example: 9548a377155bd3fa13b2a16649c6eb88
+    Offset:
+      name: offset
+      in: query
+      description: <br>The number of result set records that should be ignored.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 50
+    RelationshipSearch:
+      name: '[RELATIONSHIP].[FIELD]'
+      in: query
+      description: '<br>Object''s related objects field to search on<br /><br /><b>Note:</b><ul><li><code>RELATIONSHIP</code>: Any valid relationship for the object</li><li><code>FIELD</code>: Any valid field in the related object</li></ul>'
+      required: false
+      schema:
+        anyOf:
+        - property: UNKNOWN_1
+          description: Text value to search on
+          type: string
+          example: Relationship Field Value
+        - property: UNKNOWN_2
+          description: Integer value to search on
+          type: integer
+          example: 1
+    UpdatedAtSearch:
+      name: updated_at
+      in: query
+      description: <br>Objects updated at date to search on
+      required: false
+      schema:
+        type: string
+        example: '2022-08-01 00:00:00'
+    Limit:
+      name: limit
+      in: query
+      description: <br>The number of objects included in the response.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 10
   securitySchemes:
     BearerAuth:
       type: http

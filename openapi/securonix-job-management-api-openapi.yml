@@ -250,6 +250,37 @@ components:
           format: int64
         triggerName:
           type: string
+    InProgressJobsResponse:
+      title: InProgressJobsResponse
+      type: object
+      properties:
+        connectionType:
+          type: string
+        createdBy:
+          type: integer
+          format: int64
+        endTime:
+          type: string
+          format: date-time
+        lastStartTime:
+          type: string
+          format: date-time
+        nextFireTime:
+          type: string
+          format: date-time
+        resourceGroupId:
+          type: integer
+          format: int64
+        startTime:
+          type: string
+          format: date-time
+        status:
+          type: string
+        tenantId:
+          type: integer
+          format: int64
+        triggerName:
+          type: string
     ResponseEntity:
       title: ResponseEntity
       type: object
@@ -330,14 +361,6 @@ components:
         statusCodeValue:
           type: integer
           format: int32
-    AllImportTriggersResponse:
-      title: AllImportTriggersResponse
-      type: object
-      properties:
-        importTriggers:
-          type: array
-          items:
-            $ref: '#/components/schemas/AllImportTriggerDetails'
     JobReschedulerPayload:
       title: JobReschedulerPayload
       type: object
@@ -360,37 +383,14 @@ components:
         resourceGroupId:
           type: integer
           format: int64
-    InProgressJobsResponse:
-      title: InProgressJobsResponse
+    AllImportTriggersResponse:
+      title: AllImportTriggersResponse
       type: object
       properties:
-        connectionType:
-          type: string
-        createdBy:
-          type: integer
-          format: int64
-        endTime:
-          type: string
-          format: date-time
-        lastStartTime:
-          type: string
-          format: date-time
-        nextFireTime:
-          type: string
-          format: date-time
-        resourceGroupId:
-          type: integer
-          format: int64
-        startTime:
-          type: string
-          format: date-time
-        status:
-          type: string
-        tenantId:
-          type: integer
-          format: int64
-        triggerName:
-          type: string
+        importTriggers:
+          type: array
+          items:
+            $ref: '#/components/schemas/AllImportTriggerDetails'
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

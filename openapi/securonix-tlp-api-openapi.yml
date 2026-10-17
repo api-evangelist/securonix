@@ -147,75 +147,7 @@ paths:
       operationId: getTlp{?limit,offset,sort}
       x-operation-id-source: derived
 components:
-  parameters:
-    Sort:
-      name: sort
-      in: query
-      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: string
-        example: id,created_at
-    Limit:
-      name: limit
-      in: query
-      description: <br>The number of objects included in the response.
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: integer
-        example: 10
-    Offset:
-      name: offset
-      in: query
-      description: <br>The number of result set records that should be ignored.
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: integer
-        example: 50
-    TLPId:
-      name: tlp_id
-      in: path
-      description: TLP ID
-      required: true
-      schema:
-        type: integer
-  responses:
-    FailedValidation:
-      description: Validation Failed
-    NotFound:
-      description: Object Not Found
-    NoContent:
-      description: Object(s) were successfully deleted.
-    Unauthorized:
-      description: Unauthorized
   schemas:
-    TLPFillable:
-      allOf:
-      - properties:
-          name:
-            description: TLP Name
-            type: string
-            example: WHITE
-          description:
-            description: TLP Description
-            type: string
-            example: Disclosure is not limited.
-          value:
-            description: TLP Value used for hierarchy comparisons
-            type: integer
-            example: 3
-          user_editable:
-            description: Determines whether the TLP record can be updated by a User
-            type: string
-            example: N
-        type: object
-      - $ref: '#/components/schemas/TLPName'
     TLP:
       allOf:
       - properties:
@@ -242,6 +174,27 @@ components:
           type: integer
           example: 1
       type: object
+    TLPFillable:
+      allOf:
+      - properties:
+          name:
+            description: TLP Name
+            type: string
+            example: WHITE
+          description:
+            description: TLP Description
+            type: string
+            example: Disclosure is not limited.
+          value:
+            description: TLP Value used for hierarchy comparisons
+            type: integer
+            example: 3
+          user_editable:
+            description: Determines whether the TLP record can be updated by a User
+            type: string
+            example: N
+        type: object
+      - $ref: '#/components/schemas/TLPName'
     TLPName:
       properties:
         name:
@@ -249,6 +202,53 @@ components:
           type: string
           example: WHITE
       type: object
+  responses:
+    Unauthorized:
+      description: Unauthorized
+    NotFound:
+      description: Object Not Found
+    FailedValidation:
+      description: Validation Failed
+    NoContent:
+      description: Object(s) were successfully deleted.
+  parameters:
+    Offset:
+      name: offset
+      in: query
+      description: <br>The number of result set records that should be ignored.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 50
+    Limit:
+      name: limit
+      in: query
+      description: <br>The number of objects included in the response.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 10
+    Sort:
+      name: sort
+      in: query
+      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+        example: id,created_at
+    TLPId:
+      name: tlp_id
+      in: path
+      description: TLP ID
+      required: true
+      schema:
+        type: integer
   securitySchemes:
     BearerAuth:
       type: http

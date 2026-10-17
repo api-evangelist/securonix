@@ -105,38 +105,66 @@ paths:
       operationId: deleteByObjectTypeByObjectTypeIdAttributesByObjectTypeAttributeIdSourcesByObjectTypeAttributeSourceId
       x-operation-id-source: derived
 components:
+  parameters:
+    ObjectTypeAttributeSourceId:
+      name: object_type_attribute_source_id
+      in: path
+      description: The ID of the Attribute Source record for the specified Object Type
+      required: true
+      schema:
+        type: integer
+        example: 5
+    ObjectTypeAttributeId:
+      name: object_type_attribute_id
+      in: path
+      description: The ID of the Attribute record for the specified Object Type
+      required: true
+      schema:
+        type: integer
+        example: 3
+    ObjectType:
+      name: object_type
+      in: path
+      description: 'The collection identifier for the Object Type whose context you would like to retrieve. Options include:
+
+        adversaries, attachments, attack_pattern, campaign, course_of_action, event, exploit_target, identity, incident,
+
+        indicators, intrustion_set, malware, report, signature, tool, ttp, and vulnerability. If you have any additional custom
+
+        objects installed on your system, use the value for the `collection` field associated with the object definition.'
+      required: true
+      schema:
+        type: string
+        example: indicators
+    ObjectTypeId:
+      name: object_type_id
+      in: path
+      description: The ID for the record of the specified Object Type whose context you would like to retrieve
+      required: true
+      schema:
+        type: integer
+        example: 6
+  responses:
+    Unauthorized:
+      description: Unauthorized
+    NotFound:
+      description: Object Not Found
+    NoContent:
+      description: Object(s) were successfully deleted.
   schemas:
+    TLPName:
+      properties:
+        name:
+          description: TLP Name
+          type: string
+          example: WHITE
+      type: object
     ObjectTypeAttributeId:
       properties:
         <object_type>_attribute_id:
           description: "Object Type Attribute ID - `<object_type>` should be replaced with the Object Type `code` field. This field will match the\n Object Type collection specified in the URL path.<br><br>Example: indicator_attribute_id"
           type: integer
           example: 7
-      type: object
-    ThreatQTimestamps:
-      properties:
-        created_at:
-          description: Creation Date
-          type: string
-          example: '2021-07-29 13:58:03'
-        updated_at:
-          description: Update Date
-          type: string
-          example: '2022-04-12 08:32:16'
-      type: object
-    ObjectSourceId:
-      properties:
-        source_id:
-          description: Source ID
-          type: integer
-          example: 42
-      type: object
-    PublishedAtTimestamp:
-      properties:
-        published_at:
-          description: Publish Date for Object (Date it was first reported by the Source)
-          type: string
-          example: '2017-01-13 15:28:17'
       type: object
     ObjectAttributeSource:
       allOf:
@@ -162,6 +190,24 @@ components:
           type: integer
           example: 2
       type: object
+    ThreatQTimestamps:
+      properties:
+        created_at:
+          description: Creation Date
+          type: string
+          example: '2021-07-29 13:58:03'
+        updated_at:
+          description: Update Date
+          type: string
+          example: '2022-04-12 08:32:16'
+      type: object
+    PublishedAtTimestamp:
+      properties:
+        published_at:
+          description: Publish Date for Object (Date it was first reported by the Source)
+          type: string
+          example: '2017-01-13 15:28:17'
+      type: object
     TLPRequestOptions:
       oneOf:
       - properties:
@@ -174,59 +220,13 @@ components:
           tlp:
             $ref: '#/components/schemas/TLPName'
         type: object
-    TLPName:
+    ObjectSourceId:
       properties:
-        name:
-          description: TLP Name
-          type: string
-          example: WHITE
+        source_id:
+          description: Source ID
+          type: integer
+          example: 42
       type: object
-  responses:
-    NotFound:
-      description: Object Not Found
-    NoContent:
-      description: Object(s) were successfully deleted.
-    Unauthorized:
-      description: Unauthorized
-  parameters:
-    ObjectType:
-      name: object_type
-      in: path
-      description: 'The collection identifier for the Object Type whose context you would like to retrieve. Options include:
-
-        adversaries, attachments, attack_pattern, campaign, course_of_action, event, exploit_target, identity, incident,
-
-        indicators, intrustion_set, malware, report, signature, tool, ttp, and vulnerability. If you have any additional custom
-
-        objects installed on your system, use the value for the `collection` field associated with the object definition.'
-      required: true
-      schema:
-        type: string
-        example: indicators
-    ObjectTypeAttributeSourceId:
-      name: object_type_attribute_source_id
-      in: path
-      description: The ID of the Attribute Source record for the specified Object Type
-      required: true
-      schema:
-        type: integer
-        example: 5
-    ObjectTypeId:
-      name: object_type_id
-      in: path
-      description: The ID for the record of the specified Object Type whose context you would like to retrieve
-      required: true
-      schema:
-        type: integer
-        example: 6
-    ObjectTypeAttributeId:
-      name: object_type_attribute_id
-      in: path
-      description: The ID of the Attribute record for the specified Object Type
-      required: true
-      schema:
-        type: integer
-        example: 3
   securitySchemes:
     BearerAuth:
       type: http

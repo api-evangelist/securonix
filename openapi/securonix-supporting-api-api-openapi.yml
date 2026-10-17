@@ -225,36 +225,6 @@ paths:
           description: Not Found
 components:
   schemas:
-    DatasourcesResponse:
-      title: DatasourcesResponse
-      type: object
-      properties:
-        collectionMethodType:
-          type: string
-        datasourcePropertiesResponses:
-          type: array
-          items:
-            $ref: '#/components/schemas/DatasourcePropertiesResponse'
-        datasourceid:
-          type: integer
-          format: int64
-        datasourcename:
-          type: string
-        importtype:
-          type: string
-        tenantid:
-          type: integer
-          format: int64
-        tenantname:
-          type: string
-    ImportDatasourcesConfigResponse:
-      title: ImportDatasourcesConfigResponse
-      type: object
-      properties:
-        datasourceconfiguration:
-          type: array
-          items:
-            $ref: '#/components/schemas/DatasourcesResponse'
     TenantMasterResponse:
       title: TenantMasterResponse
       type: object
@@ -267,50 +237,6 @@ components:
         tenantname:
           type: string
         timezone:
-          type: string
-    RINsByTenantName:
-      title: RINsByTenantName
-      type: object
-      properties:
-        gatewayAlive:
-          type: string
-        ingesterAlive:
-          type: string
-        ingesterId:
-          type: integer
-          format: int64
-        name:
-          type: string
-        rinversion:
-          type: string
-        tenantId:
-          type: integer
-          format: int64
-        tenantName:
-          type: string
-    FetchAllRINsByTenantName:
-      title: FetchAllRINsByTenantName
-      type: object
-      properties:
-        rins:
-          type: array
-          items:
-            $ref: '#/components/schemas/RINsByTenantName'
-    FetchTenantsByUsernameResponse:
-      title: FetchTenantsByUsernameResponse
-      type: object
-      properties:
-        tenants:
-          type: array
-          items:
-            $ref: '#/components/schemas/TenantMasterResponse'
-    DatasourcePropertiesResponse:
-      title: DatasourcePropertiesResponse
-      type: object
-      properties:
-        propertyname:
-          type: string
-        propertyvalue:
           type: string
     ResourceGroupDetailsByTenantID:
       title: ResourceGroupDetailsByTenantID
@@ -342,6 +268,28 @@ components:
           type: string
         vendor:
           type: string
+    DatasourcesResponse:
+      title: DatasourcesResponse
+      type: object
+      properties:
+        collectionMethodType:
+          type: string
+        datasourcePropertiesResponses:
+          type: array
+          items:
+            $ref: '#/components/schemas/DatasourcePropertiesResponse'
+        datasourceid:
+          type: integer
+          format: int64
+        datasourcename:
+          type: string
+        importtype:
+          type: string
+        tenantid:
+          type: integer
+          format: int64
+        tenantname:
+          type: string
     ResourceGroupDetailsByTenantIdResponse:
       title: ResourceGroupDetailsByTenantIdResponse
       type: object
@@ -350,6 +298,58 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ResourceGroupDetailsByTenantID'
+    ImportDatasourcesConfigResponse:
+      title: ImportDatasourcesConfigResponse
+      type: object
+      properties:
+        datasourceconfiguration:
+          type: array
+          items:
+            $ref: '#/components/schemas/DatasourcesResponse'
+    FetchTenantsByUsernameResponse:
+      title: FetchTenantsByUsernameResponse
+      type: object
+      properties:
+        tenants:
+          type: array
+          items:
+            $ref: '#/components/schemas/TenantMasterResponse'
+    FetchAllRINsByTenantName:
+      title: FetchAllRINsByTenantName
+      type: object
+      properties:
+        rins:
+          type: array
+          items:
+            $ref: '#/components/schemas/RINsByTenantName'
+    RINsByTenantName:
+      title: RINsByTenantName
+      type: object
+      properties:
+        gatewayAlive:
+          type: string
+        ingesterAlive:
+          type: string
+        ingesterId:
+          type: integer
+          format: int64
+        name:
+          type: string
+        rinversion:
+          type: string
+        tenantId:
+          type: integer
+          format: int64
+        tenantName:
+          type: string
+    DatasourcePropertiesResponse:
+      title: DatasourcePropertiesResponse
+      type: object
+      properties:
+        propertyname:
+          type: string
+        propertyvalue:
+          type: string
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

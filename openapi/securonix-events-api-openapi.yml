@@ -251,17 +251,56 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    ThreatQTimestamps:
+    TouchedAtTimestamp:
       properties:
-        created_at:
-          description: Creation Date
+        touched_at:
+          description: Update Date for Object Context (Attributes, Comments, Sources, Relationships)
           type: string
-          example: '2021-07-29 13:58:03'
-        updated_at:
-          description: Update Date
-          type: string
-          example: '2022-04-12 08:32:16'
+          example: '2021-11-13 15:28:17'
       type: object
+    AttributeBasics:
+      allOf:
+      - properties:
+          sources:
+            type: array
+            items:
+              $ref: '#/components/schemas/SourceBasics'
+        type: object
+      - $ref: '#/components/schemas/ObjectLinkAttributeFillable'
+    AttributeFillable:
+      properties:
+        name:
+          description: Attribute Name
+          type: string
+          example: Confidence
+      type: object
+    SourceName:
+      properties:
+        name:
+          description: Source Name
+          type: string
+          example: ThreatQ
+      type: object
+    ObjectLinkAttributeFillable:
+      allOf:
+      - $ref: '#/components/schemas/AttributeFillable'
+      - $ref: '#/components/schemas/ObjectAttributeValue'
+    SourceBasics:
+      oneOf:
+      - allOf:
+        - properties:
+            tlp_id:
+              description: Source TLP ID
+              type: integer
+              example: 3
+          type: object
+        - $ref: '#/components/schemas/SourceName'
+      - allOf:
+        - properties:
+            tlp:
+              $ref: '#/components/schemas/TLPName'
+          type: object
+        - $ref: '#/components/schemas/SourceName'
     CommonObjectConsumeRequest:
       properties:
         attributes:
@@ -287,10 +326,17 @@ components:
             type: integer
             example: 2
       type: object
-    ObjectLinkAttributeFillable:
-      allOf:
-      - $ref: '#/components/schemas/AttributeFillable'
-      - $ref: '#/components/schemas/ObjectAttributeValue'
+    ThreatQTimestamps:
+      properties:
+        created_at:
+          description: Creation Date
+          type: string
+          example: '2021-07-29 13:58:03'
+        updated_at:
+          description: Update Date
+          type: string
+          example: '2022-04-12 08:32:16'
+      type: object
     TotalResponse:
       properties:
         total:
@@ -298,22 +344,6 @@ components:
           type: integer
           example: 1
       type: object
-    SourceBasics:
-      oneOf:
-      - allOf:
-        - properties:
-            tlp_id:
-              description: Source TLP ID
-              type: integer
-              example: 3
-          type: object
-        - $ref: '#/components/schemas/SourceName'
-      - allOf:
-        - properties:
-            tlp:
-              $ref: '#/components/schemas/TLPName'
-          type: object
-        - $ref: '#/components/schemas/SourceName'
     Event:
       allOf:
       - properties:
@@ -331,27 +361,6 @@ components:
           description: Attribute Value
           type: string
           example: High
-      type: object
-    TLPName:
-      properties:
-        name:
-          description: TLP Name
-          type: string
-          example: WHITE
-      type: object
-    SourceName:
-      properties:
-        name:
-          description: Source Name
-          type: string
-          example: ThreatQ
-      type: object
-    TouchedAtTimestamp:
-      properties:
-        touched_at:
-          description: Update Date for Object Context (Attributes, Comments, Sources, Relationships)
-          type: string
-          example: '2021-11-13 15:28:17'
       type: object
     EventFillable:
       properties:
@@ -376,52 +385,21 @@ components:
           type: string
           example: This Event was observed when...
       type: object
-    AttributeFillable:
+    TLPName:
       properties:
         name:
-          description: Attribute Name
+          description: TLP Name
           type: string
-          example: Confidence
+          example: WHITE
       type: object
-    AttributeBasics:
-      allOf:
-      - properties:
-          sources:
-            type: array
-            items:
-              $ref: '#/components/schemas/SourceBasics'
-        type: object
-      - $ref: '#/components/schemas/ObjectLinkAttributeFillable'
+  responses:
+    NotFound:
+      description: Object Not Found
+    NoContent:
+      description: Object(s) were successfully deleted.
+    Unauthorized:
+      description: Unauthorized
   parameters:
-    Limit:
-      name: limit
-      in: query
-      description: <br>The number of objects included in the response.
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: integer
-        example: 10
-    EventId:
-      name: event_id
-      in: path
-      description: Event ID
-      required: true
-      schema:
-        type: integer
-    EventWith:
-      name: with
-      in: query
-      description: "<br>Object Relationships that can be included in the response.<br><br>Options include: adversaries,\n       attachments, attack_pattern, attributes, campaign, comments, course_of_action, events, exploit_target, identity,\n       incident, indicators, intrusion_set, malware, recipient, report, signatures, sources, spearphish, tags, tool,\n       ttp, and watchlist."
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-          example: adversaries,comments,description
     Sort:
       name: sort
       in: query
@@ -442,13 +420,35 @@ components:
       schema:
         type: integer
         example: 50
-  responses:
-    NoContent:
-      description: Object(s) were successfully deleted.
-    Unauthorized:
-      description: Unauthorized
-    NotFound:
-      description: Object Not Found
+    EventId:
+      name: event_id
+      in: path
+      description: Event ID
+      required: true
+      schema:
+        type: integer
+    EventWith:
+      name: with
+      in: query
+      description: "<br>Object Relationships that can be included in the response.<br><br>Options include: adversaries,\n       attachments, attack_pattern, attributes, campaign, comments, course_of_action, events, exploit_target, identity,\n       incident, indicators, intrusion_set, malware, recipient, report, signatures, sources, spearphish, tags, tool,\n       ttp, and watchlist."
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+          example: adversaries,comments,description
+    Limit:
+      name: limit
+      in: query
+      description: <br>The number of objects included in the response.
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: integer
+        example: 10
   securitySchemes:
     BearerAuth:
       type: http

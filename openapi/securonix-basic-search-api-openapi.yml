@@ -75,34 +75,83 @@ paths:
           $ref: '#/components/responses/Unauthorized'
       x-visibility: public
 components:
-  parameters:
-    BasicSearchWith:
-      name: with
-      in: query
-      description: <br />Comma-delimited list of primary and/or custom objects to be applied to the query.
-      required: false
-      schema:
-        type: string
-        default: all
-        example: indicators,malware
-    BasicSearchQuery:
-      name: query
-      in: query
-      description: <br />Search value to be applied to the query.
-      required: true
-      schema:
-        type: string
-        example: www.threatquotient.com
-    BasicSearchLimit:
-      name: limit
-      in: query
-      description: <br />Number of objects included in the response.
-      required: false
-      schema:
-        type: integer
-        default: 30
-        example: 10
   schemas:
+    SearchTag:
+      properties:
+        tag_id:
+          description: Tag id
+          type: integer
+          example: 1
+        object_id:
+          description: Object id
+          type: integer
+          example: 1
+        type:
+          description: Object type<br /><br /><b>Note:</b> Any created custom object name can be used
+          type: string
+          enum:
+          - adversary
+          - attachment
+          - attack_pattern
+          - campaign
+          - course_of_action
+          - event
+          - exploit_target
+          - identity
+          - incident
+          - indicator
+          - intrusion_set
+          - investigation
+          - malware
+          - report
+          - signature
+          - task
+          - tool
+          - ttp
+          - vulnerability
+          example: indicator
+        name:
+          description: Tag name
+          type: string
+          example: www.threatquotient.com
+      type: object
+    SearchObject:
+      properties:
+        id:
+          description: Object id
+          type: integer
+          example: 1
+        type:
+          $ref: '#/components/schemas/ObjectType'
+        value:
+          description: Object value
+          type: string
+          example: www.threatquotient.com
+      type: object
+    ObjectType:
+      description: Object type<br /><br /><b>Note:</b> Any created custom object name can be used
+      type: string
+      enum:
+      - adversary
+      - attachment
+      - attack_pattern
+      - campaign
+      - course_of_action
+      - event
+      - exploit_target
+      - identity
+      - incident
+      - indicator
+      - intrusion_set
+      - investigation
+      - malware
+      - report
+      - signature
+      - task
+      - tool
+      - ttp
+      - vulnerability
+      example: indicator
     SearchAttribute:
       properties:
         object_attribute_id:
@@ -146,107 +195,34 @@ components:
           type: string
           example: www.threatquotient.com
       type: object
-    SearchTag:
-      properties:
-        tag_id:
-          description: Tag id
-          type: integer
-          example: 1
-        object_id:
-          description: Object id
-          type: integer
-          example: 1
-        type:
-          description: Object type<br /><br /><b>Note:</b> Any created custom object name can be used
-          type: string
-          enum:
-          - adversary
-          - attachment
-          - attack_pattern
-          - campaign
-          - course_of_action
-          - event
-          - exploit_target
-          - identity
-          - incident
-          - indicator
-          - intrusion_set
-          - investigation
-          - malware
-          - report
-          - signature
-          - task
-          - tool
-          - ttp
-          - vulnerability
-          example: indicator
-        name:
-          description: Tag name
-          type: string
-          example: www.threatquotient.com
-      type: object
-    ObjectType:
-      description: Object type<br /><br /><b>Note:</b> Any created custom object name can be used
-      type: string
-      enum:
-      - adversary
-      - attachment
-      - attack_pattern
-      - campaign
-      - course_of_action
-      - event
-      - exploit_target
-      - identity
-      - incident
-      - indicator
-      - intrusion_set
-      - investigation
-      - malware
-      - report
-      - signature
-      - task
-      - tool
-      - ttp
-      - vulnerability
-      example: indicator
-    SearchObject:
-      properties:
-        id:
-          description: Object id
-          type: integer
-          example: 1
-        type:
-          $ref: '#/components/schemas/ObjectType'
-        value:
-          description: Object value
-          type: string
-          example: www.threatquotient.com
-      type: object
+  parameters:
+    BasicSearchQuery:
+      name: query
+      in: query
+      description: <br />Search value to be applied to the query.
+      required: true
+      schema:
+        type: string
+        example: www.threatquotient.com
+    BasicSearchWith:
+      name: with
+      in: query
+      description: <br />Comma-delimited list of primary and/or custom objects to be applied to the query.
+      required: false
+      schema:
+        type: string
+        default: all
+        example: indicators,malware
+    BasicSearchLimit:
+      name: limit
+      in: query
+      description: <br />Number of objects included in the response.
+      required: false
+      schema:
+        type: integer
+        default: 30
+        example: 10
   responses:
-    SearchTag:
-      description: Request Successful
-      content:
-        application/json:
-          schema:
-            properties:
-              data:
-                description: Listing of search tags
-                type: array
-                items:
-                  $ref: '#/components/schemas/SearchTag'
-            type: object
-    SearchObject:
-      description: Request Successful
-      content:
-        application/json:
-          schema:
-            properties:
-              data:
-                description: Listing of search objects
-                type: array
-                items:
-                  $ref: '#/components/schemas/SearchObject'
-            type: object
     Unauthorized:
       description: Unauthorized
     SearchAttribute:
@@ -260,6 +236,30 @@ components:
                 type: array
                 items:
                   $ref: '#/components/schemas/SearchAttribute'
+            type: object
+    SearchObject:
+      description: Request Successful
+      content:
+        application/json:
+          schema:
+            properties:
+              data:
+                description: Listing of search objects
+                type: array
+                items:
+                  $ref: '#/components/schemas/SearchObject'
+            type: object
+    SearchTag:
+      description: Request Successful
+      content:
+        application/json:
+          schema:
+            properties:
+              data:
+                description: Listing of search tags
+                type: array
+                items:
+                  $ref: '#/components/schemas/SearchTag'
             type: object
   securitySchemes:
     BearerAuth:

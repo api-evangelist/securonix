@@ -251,101 +251,22 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    ThreatQTimestamps:
+    TouchedAtTimestamp:
       properties:
-        created_at:
-          description: Creation Date
+        touched_at:
+          description: Update Date for Object Context (Attributes, Comments, Sources, Relationships)
           type: string
-          example: '2021-07-29 13:58:03'
-        updated_at:
-          description: Update Date
-          type: string
-          example: '2022-04-12 08:32:16'
+          example: '2021-11-13 15:28:17'
       type: object
-    CommonObjectConsumeRequest:
-      properties:
-        attributes:
-          type: array
-          items:
-            $ref: '#/components/schemas/AttributeBasics'
-        sources:
-          type: array
-          items:
-            $ref: '#/components/schemas/SourceBasics'
-        tlp:
-          $ref: '#/components/schemas/TLPName'
-        <object_code>:
-          description: 'Relate objects of other types by providing a list of IDs. Replace the `<object_code>` property key with
-
-            one of the options to relate objects of that type. <br><br> NOTE: Objects must be created separately before IDs can be
-
-            used in request. <br><br>Options include: adversaries, attachments, attack_pattern, campaign, course_of_action, events,
-
-            exploit_target, identity, incident, indicators, intrusion_set, malware, recipient, report, signatures, tool, ttp.'
-          type: array
-          items:
-            type: integer
-            example: 2
-      type: object
-    ObjectLinkAttributeFillable:
-      allOf:
-      - $ref: '#/components/schemas/AttributeFillable'
-      - $ref: '#/components/schemas/ObjectAttributeValue'
-    TotalResponse:
-      properties:
-        total:
-          description: Total Number of Objects Processed
-          type: integer
-          example: 1
-      type: object
-    SourceBasics:
-      oneOf:
-      - allOf:
-        - properties:
-            tlp_id:
-              description: Source TLP ID
-              type: integer
-              example: 3
-          type: object
-        - $ref: '#/components/schemas/SourceName'
-      - allOf:
-        - properties:
-            tlp:
-              $ref: '#/components/schemas/TLPName'
-          type: object
-        - $ref: '#/components/schemas/SourceName'
-    ObjectAttributeValue:
-      properties:
-        value:
-          description: Attribute Value
-          type: string
-          example: High
-      type: object
-    TLPName:
-      properties:
-        name:
-          description: TLP Name
-          type: string
-          example: WHITE
-      type: object
-    SourceName:
-      properties:
-        name:
-          description: Source Name
-          type: string
-          example: ThreatQ
-      type: object
-    Signature:
+    AttributeBasics:
       allOf:
       - properties:
-          id:
-            description: Signature ID
-            type: integer
-            example: 221
+          sources:
+            type: array
+            items:
+              $ref: '#/components/schemas/SourceBasics'
         type: object
-      - $ref: '#/components/schemas/SignatureFillable'
-      - $ref: '#/components/schemas/ThreatQTimestamps'
-      - $ref: '#/components/schemas/TouchedAtTimestamp'
+      - $ref: '#/components/schemas/ObjectLinkAttributeFillable'
     SignatureFillable:
       properties:
         name:
@@ -373,13 +294,6 @@ components:
           type: string
           example: Signature Description...
       type: object
-    TouchedAtTimestamp:
-      properties:
-        touched_at:
-          description: Update Date for Object Context (Attributes, Comments, Sources, Relationships)
-          type: string
-          example: '2021-11-13 15:28:17'
-      type: object
     AttributeFillable:
       properties:
         name:
@@ -387,26 +301,136 @@ components:
           type: string
           example: Confidence
       type: object
-    AttributeBasics:
+    SourceName:
+      properties:
+        name:
+          description: Source Name
+          type: string
+          example: ThreatQ
+      type: object
+    ObjectLinkAttributeFillable:
+      allOf:
+      - $ref: '#/components/schemas/AttributeFillable'
+      - $ref: '#/components/schemas/ObjectAttributeValue'
+    SourceBasics:
+      oneOf:
+      - allOf:
+        - properties:
+            tlp_id:
+              description: Source TLP ID
+              type: integer
+              example: 3
+          type: object
+        - $ref: '#/components/schemas/SourceName'
+      - allOf:
+        - properties:
+            tlp:
+              $ref: '#/components/schemas/TLPName'
+          type: object
+        - $ref: '#/components/schemas/SourceName'
+    CommonObjectConsumeRequest:
+      properties:
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttributeBasics'
+        sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/SourceBasics'
+        tlp:
+          $ref: '#/components/schemas/TLPName'
+        <object_code>:
+          description: 'Relate objects of other types by providing a list of IDs. Replace the `<object_code>` property key with
+
+            one of the options to relate objects of that type. <br><br> NOTE: Objects must be created separately before IDs can be
+
+            used in request. <br><br>Options include: adversaries, attachments, attack_pattern, campaign, course_of_action, events,
+
+            exploit_target, identity, incident, indicators, intrusion_set, malware, recipient, report, signatures, tool, ttp.'
+          type: array
+          items:
+            type: integer
+            example: 2
+      type: object
+    ThreatQTimestamps:
+      properties:
+        created_at:
+          description: Creation Date
+          type: string
+          example: '2021-07-29 13:58:03'
+        updated_at:
+          description: Update Date
+          type: string
+          example: '2022-04-12 08:32:16'
+      type: object
+    TotalResponse:
+      properties:
+        total:
+          description: Total Number of Objects Processed
+          type: integer
+          example: 1
+      type: object
+    Signature:
       allOf:
       - properties:
-          sources:
-            type: array
-            items:
-              $ref: '#/components/schemas/SourceBasics'
+          id:
+            description: Signature ID
+            type: integer
+            example: 221
         type: object
-      - $ref: '#/components/schemas/ObjectLinkAttributeFillable'
+      - $ref: '#/components/schemas/SignatureFillable'
+      - $ref: '#/components/schemas/ThreatQTimestamps'
+      - $ref: '#/components/schemas/TouchedAtTimestamp'
+    ObjectAttributeValue:
+      properties:
+        value:
+          description: Attribute Value
+          type: string
+          example: High
+      type: object
+    TLPName:
+      properties:
+        name:
+          description: TLP Name
+          type: string
+          example: WHITE
+      type: object
+  responses:
+    NotFound:
+      description: Object Not Found
+    NoContent:
+      description: Object(s) were successfully deleted.
+    Unauthorized:
+      description: Unauthorized
   parameters:
-    Limit:
-      name: limit
+    SignatureId:
+      name: signature_id
+      in: path
+      description: Signature ID
+      required: true
+      schema:
+        type: integer
+    Sort:
+      name: sort
       in: query
-      description: <br>The number of objects included in the response.
+      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
+      required: false
+      style: form
+      explode: false
+      schema:
+        type: string
+        example: id,created_at
+    Offset:
+      name: offset
+      in: query
+      description: <br>The number of result set records that should be ignored.
       required: false
       style: form
       explode: false
       schema:
         type: integer
-        example: 10
+        example: 50
     SignatureWith:
       name: with
       in: query
@@ -425,40 +449,16 @@ components:
         items:
           type: string
           example: adversaries,comments,description
-    Sort:
-      name: sort
+    Limit:
+      name: limit
       in: query
-      description: "<br>Designate the field(s) you want to use to sort the retrieved list. You can prepend each field \n        with a minus sign (-) to reverse the sorting order. This string can be a list of comma-separated values."
-      required: false
-      style: form
-      explode: false
-      schema:
-        type: string
-        example: id,created_at
-    SignatureId:
-      name: signature_id
-      in: path
-      description: Signature ID
-      required: true
-      schema:
-        type: integer
-    Offset:
-      name: offset
-      in: query
-      description: <br>The number of result set records that should be ignored.
+      description: <br>The number of objects included in the response.
       required: false
       style: form
       explode: false
       schema:
         type: integer
-        example: 50
-  responses:
-    NoContent:
-      description: Object(s) were successfully deleted.
-    Unauthorized:
-      description: Unauthorized
-    NotFound:
-      description: Object Not Found
+        example: 10
   securitySchemes:
     BearerAuth:
       type: http
